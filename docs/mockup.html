@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Baletomania — Portal o balecie i operze</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════
+   BALETOMANIA · Demo v1.0
+   Samodzielny plik HTML — wgraj przez FTP
+   i otwórz w przeglądarce
+══════════════════════════════════════════ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Motywy (CSS Variables) ─────────────── */
+:root {
+  --bg-page:     #FAFAF8;
+  --bg-card:     #FFFFFF;
+  --bg-section:  #F5F3EE;
+  --bg-hover:    #EDEBE4;
+  --border:      rgba(0,0,0,0.08);
+  --border-mid:  rgba(0,0,0,0.13);
+  --gold:        #A8832A;
+  --gold-light:  #C9A84C;
+  --gold-dim:    #8A6A28;
+  --text-1:      #1a1814;
+  --text-2:      #6b6457;
+  --text-3:      #a09880;
+  --tag-blue:    #1a6bb5;
+  --tag-green:   #2d7a4a;
+  --badge-red-bg:    #fdf0f0; --badge-red-txt:    #c0392b;
+  --badge-amber-bg:  #fdf6e8; --badge-amber-txt:  #9a6d0a;
+  --badge-green-bg:  #f0f7f2; --badge-green-txt:  #2d7a4a;
+  --shadow-card: 0 1px 8px rgba(0,0,0,0.06);
+}
+[data-theme="dark"] {
+  --bg-page:     #0e0c09;
+  --bg-card:     #161208;
+  --bg-section:  #120f0b;
+  --bg-hover:    #1c1610;
+  --border:      rgba(201,168,76,0.12);
+  --border-mid:  rgba(201,168,76,0.22);
+  --gold:        #C9A84C;
+  --gold-light:  #E8C96A;
+  --gold-dim:    #8A6A28;
+  --text-1:      #e8e0cc;
+  --text-2:      #8a8070;
+  --text-3:      #5a5248;
+  --tag-blue:    #4a90d9;
+  --tag-green:   #4caf7a;
+  --badge-red-bg:    #1a0408; --badge-red-txt:    #e05555;
+  --badge-amber-bg:  #1a1004; --badge-amber-txt:  #C9A84C;
+  --badge-green-bg:  #041408; --badge-green-txt:  #4caf7a;
+  --shadow-card: none;
+}
+
+/* ── Podstawy ───────────────────────────── */
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 15px;
+  background: var(--bg-page);
+  color: var(--text-1);
+  line-height: 1.5;
+  transition: background .3s, color .3s;
+}
+.serif { font-family: 'Cormorant Garamond', Georgia, serif; }
+.wrap  { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; }
+
+/* ── Przełącznik motywu ──────────────────── */
+.theme-toggle {
+  background: var(--bg-section);
+  border: 0.5px solid var(--border-mid);
+  border-radius: 20px;
+  padding: 3px;
+  display: flex;
+  gap: 2px;
+}
+.theme-btn {
+  font-size: 10px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  padding: 5px 13px;
+  border-radius: 16px;
+  border: none;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  transition: all .2s;
+  background: transparent;
+  color: var(--text-2);
+}
+.theme-btn.active { background: var(--gold); color: #fff; }
+
+/* ── Topbar ─────────────────────────────── */
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 0 12px;
+  border-bottom: 0.5px solid var(--border);
+}
+.logo {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 28px;
+  letter-spacing: .08em;
+  color: var(--gold);
+  font-weight: 400;
+}
+.logo em { font-style: italic; font-weight: 300; }
+.topbar-right { display: flex; align-items: center; gap: 20px; }
+.topbar-meta  { text-align: right; line-height: 1.6; }
+.topbar-date  { font-size: 11px; color: var(--gold-dim); font-weight: 500; }
+.topbar-sub   { font-size: 11px; color: var(--text-2); }
+
+/* ── Nawigacja ──────────────────────────── */
+.nav {
+  display: flex;
+  border-bottom: 0.5px solid var(--border);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.nav::-webkit-scrollbar { display: none; }
+.nav-item {
+  font-size: 11px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  padding: 11px 15px;
+  color: var(--text-2);
+  cursor: pointer;
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  transition: all .2s;
+  font-weight: 500;
+}
+.nav-item:hover  { color: var(--gold); }
+.nav-item.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+/* ── Ticker ─────────────────────────────── */
+.ticker {
+  background: var(--bg-section);
+  border-top: 0.5px solid var(--border);
+  border-bottom: 0.5px solid var(--border);
+  padding: 9px 0;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+.ticker-label {
+  font-size: 10px;
+  letter-spacing: .11em;
+  text-transform: uppercase;
+  color: var(--gold);
+  font-weight: 500;
+  padding: 0 18px;
+  border-right: 0.5px solid var(--border-mid);
+  margin-right: 16px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.ticker-track  { overflow: hidden; flex: 1; }
+.ticker-scroll {
+  display: flex;
+  gap: 40px;
+  white-space: nowrap;
+  animation: tick 35s linear infinite;
+}
+@keyframes tick { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+.ticker-item {
+  font-size: 11px;
+  color: var(--text-2);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.tdot {
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: var(--gold);
+  flex-shrink: 0;
+  display: inline-block;
+}
+
+/* ── Hero ───────────────────────────────── */
+.hero {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-bottom: 0.5px solid var(--border);
+}
+.hero-main {
+  padding: 28px 28px 28px 0;
+  border-right: 0.5px solid var(--border);
+}
+.hero-tag {
+  font-size: 10px;
+  letter-spacing: .11em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+}
+.hero-tag::before {
+  content: '';
+  display: block;
+  width: 18px;
+  height: 0.5px;
+  background: var(--gold);
+}
+.hero-h1 {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 36px;
+  line-height: 1.1;
+  font-weight: 400;
+  color: var(--text-1);
+  margin-bottom: 12px;
+}
+.hero-h1 em { font-style: italic; color: var(--gold); }
+.hero-byline  { font-size: 12px; color: var(--text-2); margin-bottom: 14px; line-height: 1.6; }
+.hero-excerpt { font-size: 13px; color: var(--text-2); line-height: 1.8; margin-bottom: 22px; }
+.hero-thumb {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 8px;
+  margin-bottom: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0.5px solid var(--border);
+  position: relative;
+  overflow: hidden;
+}
+[data-theme="light"] .hero-thumb { background: linear-gradient(135deg,#f0ece0 0%,#e8dfc8 50%,#f0ece0 100%); }
+[data-theme="dark"]  .hero-thumb { background: linear-gradient(135deg,#0a0803 0%,#1c1408 50%,#0d0c06 100%); }
+.hero-thumb-text {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 62px;
+  font-style: italic;
+  color: var(--gold);
+  opacity: .12;
+  user-select: none;
+}
+.hero-photo-credit {
+  position: absolute;
+  bottom: 10px; left: 14px;
+  font-size: 10px;
+  color: var(--text-3);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.hero-side {
+  padding: 28px 0 28px 28px;
+  display: flex;
+  flex-direction: column;
+}
+.side-item {
+  padding: 18px 0;
+  border-bottom: 0.5px solid var(--border);
+  cursor: pointer;
+}
+.side-item:last-child { border-bottom: none; }
+.side-tag {
+  font-size: 10px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+.side-title {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 18px;
+  line-height: 1.25;
+  font-weight: 400;
+  color: var(--text-1);
+  margin-bottom: 5px;
+  transition: color .15s;
+}
+.side-item:hover .side-title { color: var(--gold); }
+.side-desc { font-size: 11px; color: var(--text-2); line-height: 1.5; }
+
+/* ── Promo banner ───────────────────────── */
+.promo {
+  background: var(--bg-section);
+  border: 0.5px solid var(--border);
+  border-radius: 8px;
+  padding: 18px 22px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  margin: 28px 0;
+  transition: all .2s;
+  position: relative;
+  overflow: hidden;
+}
+.promo::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--gold);
+}
+.promo:hover { background: var(--bg-hover); border-color: var(--border-mid); }
+.promo-tag   { font-size: 10px; color: var(--gold); letter-spacing: .1em; text-transform: uppercase; font-weight: 500; margin-bottom: 5px; }
+.promo-title { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 21px; font-weight: 400; color: var(--text-1); }
+.promo-sub   { font-size: 12px; color: var(--text-2); margin-top: 4px; }
+.promo-code  { color: var(--gold); font-weight: 500; }
+
+/* ── Sekcje ─────────────────────────────── */
+.section { padding: 28px 0; border-bottom: 0.5px solid var(--border); }
+.sec-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 18px;
+}
+.sec-title { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 23px; font-weight: 400; color: var(--text-1); }
+.sec-link  { font-size: 11px; color: var(--gold-dim); letter-spacing: .05em; cursor: pointer; transition: color .15s; }
+.sec-link:hover { color: var(--gold); }
+
+/* ── Repertuar ──────────────────────────── */
+.rep-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.rep-card {
+  background: var(--bg-card);
+  border: 0.5px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 18px;
+  cursor: pointer;
+  transition: border-color .2s, box-shadow .2s;
+}
+.rep-card:hover {
+  border-color: var(--gold-dim);
+  box-shadow: var(--shadow-card);
+}
+.rep-date  { font-size: 10px; color: var(--gold-dim); letter-spacing: .08em; text-transform: uppercase; font-weight: 500; margin-bottom: 6px; }
+.rep-title { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 17px; font-weight: 400; color: var(--text-1); margin-bottom: 4px; }
+.rep-sub   { font-size: 11px; color: var(--text-2); }
+.badge {
+  display: inline-block;
+  font-size: 9px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  padding: 2px 9px;
+  border-radius: 10px;
+  margin-top: 9px;
+  font-weight: 500;
+}
+.b-red   { background: var(--badge-red-bg);   color: var(--badge-red-txt); }
+.b-amber { background: var(--badge-amber-bg); color: var(--badge-amber-txt); }
+.b-green { background: var(--badge-green-bg); color: var(--badge-green-txt); }
+
+/* ── Artykuły ───────────────────────────── */
+.art-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 18px; }
+.art-card { cursor: pointer; }
+.art-img {
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  border-radius: 8px;
+  margin-bottom: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0.5px solid var(--border);
+  transition: border-color .2s, box-shadow .2s;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 30px;
+  font-style: italic;
+}
+.art-card:hover .art-img {
+  border-color: var(--gold-dim);
+  box-shadow: var(--shadow-card);
+}
+[data-theme="light"] .ai1 { background:#eef3fa; color:#5a88c0; }
+[data-theme="light"] .ai2 { background:#fdf0f0; color:#b85050; }
+[data-theme="light"] .ai3 { background:#fdf6e8; color:#9a7820; }
+[data-theme="dark"]  .ai1 { background:#060d1a; color:rgba(201,168,76,.3); }
+[data-theme="dark"]  .ai2 { background:#120406; color:rgba(201,168,76,.3); }
+[data-theme="dark"]  .ai3 { background:#130e03; color:rgba(201,168,76,.3); }
+.art-tag   { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--text-2); margin-bottom: 5px; font-weight: 500; }
+.art-title { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 17px; line-height: 1.25; font-weight: 400; color: var(--text-1); margin-bottom: 5px; transition: color .15s; }
+.art-card:hover .art-title { color: var(--gold); }
+.art-time  { font-size: 11px; color: var(--text-2); }
+
+/* ── Sylwetki ───────────────────────────── */
+.prof-row { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+.prof-row::-webkit-scrollbar { display: none; }
+.prof-card { flex-shrink: 0; width: 106px; cursor: pointer; text-align: center; }
+.prof-avatar {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  margin: 0 auto 9px;
+  background: var(--bg-section);
+  border: 0.5px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 24px;
+  font-style: italic;
+  color: var(--gold-dim);
+  transition: all .2s;
+}
+.prof-card:hover .prof-avatar {
+  background: var(--bg-hover);
+  border-color: var(--gold-dim);
+  color: var(--gold);
+}
+.prof-name { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 13px; font-weight: 400; color: var(--text-1); line-height: 1.3; }
+.prof-role { font-size: 10px; color: var(--text-2); margin-top: 2px; }
+
+/* ── Wywiady ────────────────────────────── */
+.interview-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.int-card {
+  background: var(--bg-card);
+  border: 0.5px solid var(--border);
+  border-radius: 8px;
+  padding: 18px;
+  cursor: pointer;
+  transition: all .2s;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+.int-card:hover { border-color: var(--gold-dim); box-shadow: var(--shadow-card); }
+.int-avatar {
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  background: var(--bg-section);
+  border: 0.5px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 20px;
+  font-style: italic;
+  color: var(--gold-dim);
+  flex-shrink: 0;
+}
+.int-tag   { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--text-2); margin-bottom: 4px; font-weight: 500; }
+.int-title { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 16px; line-height: 1.3; font-weight: 400; color: var(--text-1); margin-bottom: 4px; transition: color .15s; }
+.int-card:hover .int-title { color: var(--gold); }
+.int-meta  { font-size: 11px; color: var(--text-2); }
+
+/* ── Teatry ─────────────────────────────── */
+.theaters-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.theater-card {
+  background: var(--bg-card);
+  border: 0.5px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 18px;
+  cursor: pointer;
+  transition: all .2s;
+}
+.theater-card:hover { border-color: var(--gold-dim); box-shadow: var(--shadow-card); }
+.theater-city  { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--gold-dim); margin-bottom: 5px; font-weight: 500; }
+.theater-name  { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 16px; font-weight: 400; color: var(--text-1); margin-bottom: 4px; }
+.theater-meta  { font-size: 11px; color: var(--text-2); line-height: 1.5; }
+.theater-badge { display: inline-block; font-size: 9px; letter-spacing: .08em; text-transform: uppercase; padding: 2px 8px; border-radius: 10px; margin-top: 8px; font-weight: 500; }
+
+/* ── Przycisk ───────────────────────────── */
+.readbtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--gold-dim);
+  border: 0.5px solid var(--gold-dim);
+  border-radius: 2px;
+  padding: 8px 16px;
+  background: transparent;
+  cursor: pointer;
+  transition: all .15s;
+  font-family: 'DM Sans', sans-serif;
+}
+.readbtn:hover { color: var(--gold); border-color: var(--gold); }
+
+/* ── Footer ─────────────────────────────── */
+.footer {
+  padding: 20px 0 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 0.5px solid var(--border);
+}
+.footer-copy  { font-size: 11px; color: var(--text-2); }
+.footer-links { display: flex; gap: 20px; }
+.footer-links a { font-size: 11px; color: var(--text-2); cursor: pointer; transition: color .15s; }
+.footer-links a:hover { color: var(--gold); }
+
+/* ── Newsletter strip ───────────────────── */
+.newsletter {
+  background: var(--bg-section);
+  border: 0.5px solid var(--border);
+  border-radius: 8px;
+  padding: 20px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  margin: 28px 0;
+}
+.nl-text  { flex: 1; }
+.nl-tag   { font-size: 10px; color: var(--gold); letter-spacing: .1em; text-transform: uppercase; font-weight: 500; margin-bottom: 4px; }
+.nl-title { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 19px; font-weight: 400; color: var(--text-1); }
+.nl-form  { display: flex; gap: 8px; }
+.nl-input {
+  font-size: 12px;
+  padding: 9px 14px;
+  border: 0.5px solid var(--border-mid);
+  border-radius: 2px;
+  background: var(--bg-card);
+  color: var(--text-1);
+  outline: none;
+  width: 220px;
+  font-family: 'DM Sans', sans-serif;
+  transition: border-color .2s;
+}
+.nl-input:focus { border-color: var(--gold); }
+.nl-input::placeholder { color: var(--text-3); }
+
+/* ── Responsywność ──────────────────────── */
+@media (max-width: 768px) {
+  .hero           { grid-template-columns: 1fr; }
+  .hero-main      { padding: 20px 0; border-right: none; }
+  .hero-side      { padding: 0; border-top: 0.5px solid var(--border); }
+  .hero-h1        { font-size: 28px; }
+  .rep-grid       { grid-template-columns: 1fr; }
+  .art-grid       { grid-template-columns: 1fr 1fr; }
+  .interview-grid { grid-template-columns: 1fr; }
+  .theaters-grid  { grid-template-columns: 1fr 1fr; }
+  .topbar-meta    { display: none; }
+  .newsletter     { flex-direction: column; align-items: flex-start; }
+  .nl-form        { width: 100%; }
+  .nl-input       { flex: 1; width: auto; }
+  .footer         { flex-direction: column; gap: 12px; text-align: center; }
+}
+@media (max-width: 480px) {
+  .art-grid      { grid-template-columns: 1fr; }
+  .theaters-grid { grid-template-columns: 1fr; }
+  .wrap          { padding: 0 16px; }
+  .hero-h1       { font-size: 24px; }
+}
+</style>
+</head>
+<body data-theme="light" id="page">
+
+<!-- ════════ TOPBAR ════════ -->
+<div class="wrap">
+  <div class="topbar">
+    <div class="logo">BALET<em>omania</em></div>
+    <div class="topbar-right">
+      <div class="topbar-meta">
+        <div class="topbar-date">Sobota, 14 marca 2026</div>
+        <div class="topbar-sub">Sezon 2025/2026 · Wiosenna trasa gwiazd</div>
+      </div>
+      <div class="theme-toggle">
+        <button class="theme-btn active" id="btn-light" onclick="setTheme('light')">☀ Jasny</button>
+        <button class="theme-btn" id="btn-dark" onclick="setTheme('dark')">☾ Ciemny</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ NAWIGACJA ════════ -->
+<div class="wrap">
+  <div class="nav">
+    <div class="nav-item active" onclick="showSection('home', this)">Aktualności</div>
+    <div class="nav-item" onclick="showSection('repertuar', this)">Repertuar</div>
+    <div class="nav-item" onclick="showSection('sylwetki', this)">Sylwetki</div>
+    <div class="nav-item" onclick="showSection('wywiady', this)">Wywiady</div>
+    <div class="nav-item" onclick="showSection('teatry', this)">Teatry</div>
+    <div class="nav-item" onclick="showSection('promocje', this)">Promocje 🔥</div>
+  </div>
+</div>
+
+<!-- ════════ TICKER ════════ -->
+<div class="ticker">
+  <div class="ticker-label">Na żywo</div>
+  <div class="ticker-track">
+    <div class="ticker-scroll">
+      <span class="ticker-item"><span class="tdot"></span>Dziś wieczór: Łabędzie Jezioro — Teatr Wielki Warszawa · 98% zajętości</span>
+      <span class="ticker-item"><span class="tdot"></span>Premiera „Spartakus" — Opera Krakowska · 20 marca 2026</span>
+      <span class="ticker-item"><span class="tdot"></span>Polina Semionova gościnie w Gdańsku · tylko 2 wieczory</span>
+      <span class="ticker-item"><span class="tdot"></span>Transmisja na żywo: Bolszoj — La Bayadère · 18 marca · 19:00</span>
+      <span class="ticker-item"><span class="tdot"></span>Zniżka 40% dla studentów — Opera Wrocławska · kod: STUDENT26</span>
+      <span class="ticker-item"><span class="tdot"></span>Dziś wieczór: Łabędzie Jezioro — Teatr Wielki Warszawa · 98% zajętości</span>
+      <span class="ticker-item"><span class="tdot"></span>Premiera „Spartakus" — Opera Krakowska · 20 marca 2026</span>
+      <span class="ticker-item"><span class="tdot"></span>Polina Semionova gościnie w Gdańsku · tylko 2 wieczory</span>
+      <span class="ticker-item"><span class="tdot"></span>Transmisja na żywo: Bolszoj — La Bayadère · 18 marca · 19:00</span>
+      <span class="ticker-item"><span class="tdot"></span>Zniżka 40% dla studentów — Opera Wrocławska · kod: STUDENT26</span>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ SEKCJA: AKTUALNOŚCI (home) ════════ -->
+<div id="sec-home" class="wrap">
+
+  <div class="hero">
+    <div class="hero-main">
+      <div class="hero-tag">Wywiad tygodnia</div>
+      <h1 class="hero-h1">„Balet to nie ruch —<br>to <em>myśl</em> wyrażona ciałem"</h1>
+      <div class="hero-byline">Alina Kowalska — pierwsza solistka · Teatr Wielki Warszawa</div>
+      <p class="hero-excerpt">Rozmawiamy z jedną z najważniejszych polskich balerin o kulisach nowego sezonu, kontuzjach, które zmieniają perspektywę, i o tym, dlaczego rola Odette jest wciąż najtrudniejsza. Po 18 latach na scenie Teatru Wielkiego ma coraz więcej do powiedzenia — i coraz mniej czasu na milczenie.</p>
+      <div class="hero-thumb">
+        <span class="hero-thumb-text">Baletomania</span>
+        <span class="hero-photo-credit">fot. Marek Wierzbicki / Teatr Wielki</span>
+      </div>
+      <button class="readbtn">Czytaj wywiad →</button>
+    </div>
+    <div class="hero-side">
+      <div class="side-item">
+        <div class="side-tag" style="color:var(--gold)">Premiera · 20.03</div>
+        <div class="side-title">Spartakus wraca do Krakowa po 12 latach</div>
+        <div class="side-desc">Opera Krakowska · reżyseria nowego pokolenia · premiera sezonu</div>
+      </div>
+      <div class="side-item">
+        <div class="side-tag" style="color:var(--tag-blue)">Gwiazda gościnnie</div>
+        <div class="side-title">Polina Semionova — 3 spektakle w Polsce</div>
+        <div class="side-desc">Gdańsk, Wrocław, Warszawa · marzec–kwiecień 2026</div>
+      </div>
+      <div class="side-item">
+        <div class="side-tag" style="color:var(--text-2)">Transmisja online</div>
+        <div class="side-title">La Bayadère z Bolszoj — oglądaj za darmo</div>
+        <div class="side-desc">Środa 18 marca · 19:00 · HD streaming</div>
+      </div>
+      <div class="side-item">
+        <div class="side-tag" style="color:var(--tag-green)">Nowy dyrektor artystyczny</div>
+        <div class="side-title">Opera Wrocławska ogłasza wielkie zmiany na sezon 2026/27</div>
+        <div class="side-desc">Nowe kierownictwo, nowe otwarcie dla baletu klasycznego</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="promo">
+    <div>
+      <div class="promo-tag">🔥 Promocja · tylko do niedzieli</div>
+      <div class="promo-title">Zniżka 40% dla studentów — Opera Wrocławska</div>
+      <div class="promo-sub">Giselle · 21–23 marca · kod: <span class="promo-code">STUDENT26</span></div>
+    </div>
+    <button class="readbtn">Sprawdź ofertę →</button>
+  </div>
+
+  <div class="section">
+    <div class="sec-head">
+      <div class="sec-title">Repertuar — najbliższe tygodnie</div>
+      <div class="sec-link" onclick="showSection('repertuar', document.querySelectorAll('.nav-item')[1])">Pełny repertuar →</div>
+    </div>
+    <div class="rep-grid">
+      <div class="rep-card">
+        <div class="rep-date">14–16 Mar · Warszawa</div>
+        <div class="rep-title">Łabędzie Jezioro</div>
+        <div class="rep-sub">Teatr Wielki · P. Czajkowski</div>
+        <span class="badge b-red">Prawie wyprzedane</span>
+      </div>
+      <div class="rep-card">
+        <div class="rep-date">20–22 Mar · Kraków</div>
+        <div class="rep-title">Spartakus ✦ PREMIERA</div>
+        <div class="rep-sub">Opera Krakowska · A. Chaczaturian</div>
+        <span class="badge b-amber">Premiera sezonu</span>
+      </div>
+      <div class="rep-card">
+        <div class="rep-date">21–23 Mar · Wrocław</div>
+        <div class="rep-title">Giselle</div>
+        <div class="rep-sub">Opera Wrocławska · A. Adam</div>
+        <span class="badge b-green">Bilety dostępne</span>
+      </div>
+      <div class="rep-card">
+        <div class="rep-date">22 Mar · Gdańsk</div>
+        <div class="rep-title">Wieczór Bejarta</div>
+        <div class="rep-sub">Opera Bałtycka · Bolero + Symfonia D</div>
+        <span class="badge b-green">Bilety dostępne</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-head">
+      <div class="sec-title">Artykuły i recenzje</div>
+      <div class="sec-link">Wszystkie artykuły →</div>
+    </div>
+    <div class="art-grid">
+      <div class="art-card">
+        <div class="art-img ai1">en pointe</div>
+        <div class="art-tag">Technika</div>
+        <div class="art-title">Pointy — 200 lat bólu i piękna</div>
+        <div class="art-time">8 min czytania</div>
+      </div>
+      <div class="art-card">
+        <div class="art-img ai2">★★★★</div>
+        <div class="art-tag">Recenzja</div>
+        <div class="art-title">Don Kichot w Poznaniu — brawura i luz</div>
+        <div class="art-time">5 min czytania</div>
+      </div>
+      <div class="art-card">
+        <div class="art-img ai3">1909</div>
+        <div class="art-tag">Historia</div>
+        <div class="art-title">Diaghilew i rewolucja Ballets Russes</div>
+        <div class="art-time">12 min czytania</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-head">
+      <div class="sec-title">Sylwetki</div>
+      <div class="sec-link" onclick="showSection('sylwetki', document.querySelectorAll('.nav-item')[2])">Wszystkie profile →</div>
+    </div>
+    <div class="prof-row">
+      <div class="prof-card"><div class="prof-avatar">R</div><div class="prof-name">Rudolf Nureyev</div><div class="prof-role">Legenda</div></div>
+      <div class="prof-card"><div class="prof-avatar">M</div><div class="prof-name">Misty Copeland</div><div class="prof-role">Solistka ABT</div></div>
+      <div class="prof-card"><div class="prof-avatar">C</div><div class="prof-name">Carlos Acosta</div><div class="prof-role">Choreograf</div></div>
+      <div class="prof-card"><div class="prof-avatar">A</div><div class="prof-name">Alina Cojocaru</div><div class="prof-role">Primabalerina</div></div>
+      <div class="prof-card"><div class="prof-avatar">S</div><div class="prof-name">Sylvie Guillem</div><div class="prof-role">Ikona baletu</div></div>
+      <div class="prof-card"><div class="prof-avatar">N</div><div class="prof-name">Marianela Nuñez</div><div class="prof-role">Solistka ROH</div></div>
+      <div class="prof-card"><div class="prof-avatar" style="font-size:13px">+88</div><div class="prof-name">Wszyscy</div><div class="prof-role">Baza artystów</div></div>
+    </div>
+  </div>
+
+  <div class="newsletter">
+    <div class="nl-text">
+      <div class="nl-tag">Newsletter</div>
+      <div class="nl-title">Bądź na bieżąco — repertuar i premiery co tydzień</div>
+    </div>
+    <div class="nl-form">
+      <input class="nl-input" type="email" placeholder="Twój adres e-mail">
+      <button class="readbtn">Zapisz się →</button>
+    </div>
+  </div>
+
+</div><!-- /sec-home -->
+
+<!-- ════════ SEKCJA: REPERTUAR ════════ -->
+<div id="sec-repertuar" class="wrap" style="display:none">
+  <div class="section" style="border-top:none">
+    <div class="sec-head">
+      <div class="sec-title">Repertuar · Marzec – Kwiecień 2026</div>
+    </div>
+    <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
+      <button class="readbtn" style="border-color:var(--gold);color:var(--gold);">Wszystkie miasta</button>
+      <button class="readbtn">Warszawa</button>
+      <button class="readbtn">Kraków</button>
+      <button class="readbtn">Wrocław</button>
+      <button class="readbtn">Gdańsk</button>
+      <button class="readbtn">Poznań</button>
+    </div>
+    <div class="rep-grid">
+      <div class="rep-card"><div class="rep-date">14–16 Mar · Warszawa</div><div class="rep-title">Łabędzie Jezioro</div><div class="rep-sub">Teatr Wielki · P. Czajkowski · chor. M. Petipa</div><span class="badge b-red">Prawie wyprzedane</span></div>
+      <div class="rep-card"><div class="rep-date">20–22 Mar · Kraków</div><div class="rep-title">Spartakus ✦ PREMIERA</div><div class="rep-sub">Opera Krakowska · A. Chaczaturian</div><span class="badge b-amber">Premiera sezonu</span></div>
+      <div class="rep-card"><div class="rep-date">21–23 Mar · Wrocław</div><div class="rep-title">Giselle</div><div class="rep-sub">Opera Wrocławska · A. Adam · chor. J. Coralli</div><span class="badge b-green">Bilety dostępne</span></div>
+      <div class="rep-card"><div class="rep-date">22 Mar · Gdańsk</div><div class="rep-title">Wieczór Bejarta</div><div class="rep-sub">Opera Bałtycka · Bolero + Symfonia D</div><span class="badge b-green">Bilety dostępne</span></div>
+      <div class="rep-card"><div class="rep-date">27–29 Mar · Warszawa</div><div class="rep-title">Don Kichot</div><div class="rep-sub">Teatr Wielki · L. Minkus · chor. M. Petipa</div><span class="badge b-green">Bilety dostępne</span></div>
+      <div class="rep-card"><div class="rep-date">28–30 Mar · Poznań</div><div class="rep-title">Romeo i Julia</div><div class="rep-sub">Teatr Wielki Poznań · S. Prokofiew</div><span class="badge b-green">Bilety dostępne</span></div>
+      <div class="rep-card"><div class="rep-date">4–6 Kwi · Warszawa</div><div class="rep-title">Śpiąca Królewna</div><div class="rep-sub">Teatr Wielki · P. Czajkowski · chor. M. Petipa</div><span class="badge b-amber">Premierowa obsada</span></div>
+      <div class="rep-card"><div class="rep-date">11–13 Kwi · Wrocław</div><div class="rep-title">Jezioro Łabędzie (wersja współczesna)</div><div class="rep-sub">Opera Wrocławska · chor. K. Zalewski</div><span class="badge b-green">Bilety dostępne</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ SEKCJA: SYLWETKI ════════ -->
+<div id="sec-sylwetki" class="wrap" style="display:none">
+  <div class="section" style="border-top:none">
+    <div class="sec-head"><div class="sec-title">Sylwetki artystów</div></div>
+    <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
+      <button class="readbtn" style="border-color:var(--gold);color:var(--gold);">Wszyscy</button>
+      <button class="readbtn">Tancerze</button>
+      <button class="readbtn">Choreografowie</button>
+      <button class="readbtn">Polscy</button>
+      <button class="readbtn">Zagraniczni</button>
+    </div>
+    <div class="art-grid">
+      <div class="art-card">
+        <div class="art-img ai1" style="font-size:42px">R</div>
+        <div class="art-tag">Tancerz · Legenda</div>
+        <div class="art-title">Rudolf Nureyev</div>
+        <div class="art-time">1938–1993 · Ballet de l'Opéra de Paris</div>
+      </div>
+      <div class="art-card">
+        <div class="art-img ai2" style="font-size:42px">M</div>
+        <div class="art-tag">Tancerka · Solistka</div>
+        <div class="art-title">Misty Copeland</div>
+        <div class="art-time">ur. 1982 · American Ballet Theatre</div>
+      </div>
+      <div class="art-card">
+        <div class="art-img ai3" style="font-size:42px">C</div>
+        <div class="art-tag">Tancerz · Choreograf</div>
+        <div class="art-title">Carlos Acosta</div>
+        <div class="art-time">ur. 1973 · Birmingham Royal Ballet</div>
+      </div>
+      <div class="art-card">
+        <div class="art-img ai1" style="font-size:42px">A</div>
+        <div class="art-tag">Tancerka · Primabalerina</div>
+        <div class="art-title">Alina Cojocaru</div>
+        <div class="art-time">ur. 1981 · English National Ballet</div>
+      </div>
+      <div class="art-card">
+        <div class="art-img ai2" style="font-size:42px">S</div>
+        <div class="art-tag">Tancerka · Ikona</div>
+        <div class="art-title">Sylvie Guillem</div>
+        <div class="art-time">ur. 1965 · Royal Ballet London</div>
+      </div>
+      <div class="art-card">
+        <div class="art-img ai3" style="font-size:42px">N</div>
+        <div class="art-tag">Tancerka · Solistka</div>
+        <div class="art-title">Marianela Nuñez</div>
+        <div class="art-time">ur. 1982 · Royal Opera House</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ SEKCJA: WYWIADY ════════ -->
+<div id="sec-wywiady" class="wrap" style="display:none">
+  <div class="section" style="border-top:none">
+    <div class="sec-head"><div class="sec-title">Wywiady</div></div>
+    <div class="interview-grid">
+      <div class="int-card">
+        <div class="int-avatar">AK</div>
+        <div>
+          <div class="int-tag">Wywiad tygodnia</div>
+          <div class="int-title">„Balet to nie ruch — to myśl wyrażona ciałem"</div>
+          <div class="int-meta">Alina Kowalska · Teatr Wielki Warszawa · 14 mar 2026</div>
+        </div>
+      </div>
+      <div class="int-card">
+        <div class="int-avatar">PS</div>
+        <div>
+          <div class="int-tag">Gwiazda gościnnie</div>
+          <div class="int-title">Polina Semionova: „Polska publiczność jest wyjątkowa"</div>
+          <div class="int-meta">Polina Semionova · 10 mar 2026</div>
+        </div>
+      </div>
+      <div class="int-card">
+        <div class="int-avatar">JN</div>
+        <div>
+          <div class="int-tag">Choreografia</div>
+          <div class="int-title">Jan Nowak: „Spartakus to spektakl o wolności, nie o wojnie"</div>
+          <div class="int-meta">Jan Nowak · Opera Krakowska · 5 mar 2026</div>
+        </div>
+      </div>
+      <div class="int-card">
+        <div class="int-avatar">MK</div>
+        <div>
+          <div class="int-tag">Dyrektor artystyczny</div>
+          <div class="int-title">Marek Kowalski o przyszłości Opery Wrocławskiej</div>
+          <div class="int-meta">Marek Kowalski · Opera Wrocławska · 1 mar 2026</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ SEKCJA: TEATRY ════════ -->
+<div id="sec-teatry" class="wrap" style="display:none">
+  <div class="section" style="border-top:none">
+    <div class="sec-head"><div class="sec-title">Teatry operowe i baletowe</div></div>
+    <div class="theaters-grid">
+      <div class="theater-card">
+        <div class="theater-city">Warszawa</div>
+        <div class="theater-name">Teatr Wielki — Opera Narodowa</div>
+        <div class="theater-meta">Pl. Teatralny 1 · zał. 1765<br>Dyrektor: Waldemar Dąbrowski<br>Sala główna: 1800 miejsc</div>
+        <span class="badge b-green" style="margin-top:8px">Aktywny sezon</span>
+      </div>
+      <div class="theater-card">
+        <div class="theater-city">Kraków</div>
+        <div class="theater-name">Opera Krakowska</div>
+        <div class="theater-meta">ul. Lubicz 48 · zał. 1954<br>Dyrektor: Bogdan Tosza<br>Sala główna: 750 miejsc</div>
+        <span class="badge b-amber" style="margin-top:8px">Premiera sezonu</span>
+      </div>
+      <div class="theater-card">
+        <div class="theater-city">Wrocław</div>
+        <div class="theater-name">Opera Wrocławska</div>
+        <div class="theater-meta">ul. Świdnicka 35 · zał. 1945<br>Nowy dyrektor: 2026<br>Sala główna: 680 miejsc</div>
+        <span class="badge b-green" style="margin-top:8px">Aktywny sezon</span>
+      </div>
+      <div class="theater-card">
+        <div class="theater-city">Gdańsk</div>
+        <div class="theater-name">Opera Bałtycka</div>
+        <div class="theater-meta">al. Zwycięstwa 15 · zał. 1950<br>Dyrektor: Romuald Wicza-Pokojski<br>Sala główna: 714 miejsc</div>
+        <span class="badge b-green" style="margin-top:8px">Aktywny sezon</span>
+      </div>
+      <div class="theater-card">
+        <div class="theater-city">Poznań</div>
+        <div class="theater-name">Teatr Wielki w Poznaniu</div>
+        <div class="theater-meta">ul. Fredry 9 · zał. 1919<br>Dyrektor: Renata Borowska-Juszczyńska<br>Sala główna: 936 miejsc</div>
+        <span class="badge b-green" style="margin-top:8px">Aktywny sezon</span>
+      </div>
+      <div class="theater-card">
+        <div class="theater-city">Łódź</div>
+        <div class="theater-name">Teatr Wielki w Łodzi</div>
+        <div class="theater-meta">pl. Dąbrowskiego 1 · zał. 1954<br>Dyrektor: Romuald Kaczmarek<br>Sala główna: 1050 miejsc</div>
+        <span class="badge b-green" style="margin-top:8px">Aktywny sezon</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ SEKCJA: PROMOCJE ════════ -->
+<div id="sec-promocje" class="wrap" style="display:none">
+  <div class="section" style="border-top:none">
+    <div class="sec-head"><div class="sec-title">Promocje i oferty specjalne</div></div>
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <div class="promo">
+        <div>
+          <div class="promo-tag">🔥 Tylko do niedzieli · 40% zniżki</div>
+          <div class="promo-title">Zniżka studencka — Opera Wrocławska · Giselle</div>
+          <div class="promo-sub">21–23 marca 2026 · kod: <span class="promo-code">STUDENT26</span> · min. wiek 18 lat</div>
+        </div>
+        <button class="readbtn">Kup bilet →</button>
+      </div>
+      <div class="promo">
+        <div>
+          <div class="promo-tag">🎭 Pakiet rodzinny · 2+2</div>
+          <div class="promo-title">Śpiąca Królewna dla rodzin — Teatr Wielki Warszawa</div>
+          <div class="promo-sub">4–6 kwietnia · od 180 zł za 4 bilety · kod: <span class="promo-code">RODZINA26</span></div>
+        </div>
+        <button class="readbtn">Szczegóły →</button>
+      </div>
+      <div class="promo">
+        <div>
+          <div class="promo-tag">📺 Transmisja bezpłatna</div>
+          <div class="promo-title">La Bayadère z Bolszoj — za darmo online</div>
+          <div class="promo-sub">18 marca · godz. 19:00 · HD · wymagana rejestracja</div>
+        </div>
+        <button class="readbtn">Zarejestruj się →</button>
+      </div>
+      <div class="promo">
+        <div>
+          <div class="promo-tag">🌙 Last minute · dziś wieczór</div>
+          <div class="promo-title">Łabędzie Jezioro — ostatnie miejsca w balkonach</div>
+          <div class="promo-sub">Teatr Wielki Warszawa · dziś 19:30 · od 45 zł</div>
+        </div>
+        <button class="readbtn">Kup teraz →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ FOOTER ════════ -->
+<div class="wrap">
+  <div class="footer">
+    <div class="footer-copy">© 2026 Baletomania · Wszelkie prawa zastrzeżone · Demo v1.0</div>
+    <div class="footer-links">
+      <a href="#">O nas</a>
+      <a href="#">Kontakt</a>
+      <a href="#">Newsletter</a>
+      <a href="#">Reklama</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ── Przełącznik motywu ───────────────────
+  function setTheme(t) {
+    document.getElementById('page').setAttribute('data-theme', t);
+    document.getElementById('btn-light').classList.toggle('active', t === 'light');
+    document.getElementById('btn-dark').classList.toggle('active',  t === 'dark');
+    localStorage.setItem('theme', t);
+  }
+  // Przywróć zapisany motyw
+  const saved = localStorage.getItem('theme');
+  if (saved) setTheme(saved);
+
+  // ── Nawigacja między sekcjami ────────────
+  const sections = ['home','repertuar','sylwetki','wywiady','teatry','promocje'];
+  function showSection(id, navEl) {
+    sections.forEach(s => {
+      const el = document.getElementById('sec-' + s);
+      if (el) el.style.display = (s === id) ? '' : 'none';
+    });
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+    if (navEl) navEl.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+
+</body>
+</html>
