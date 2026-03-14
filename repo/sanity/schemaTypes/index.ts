@@ -1,0 +1,8 @@
+import { artykul } from './artykul'
+import { sylwetka } from './sylwetka'
+import { wywiad } from './wywiad'
+import { teatr } from './teatr'
+import { ticker } from './ticker'
+import { promocja } from './promocja'
+
+export const schemaTypes = [artykul, sylwetka, wywiad, teatr, ticker, promocja]
