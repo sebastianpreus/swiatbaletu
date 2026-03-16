@@ -1,6 +1,6 @@
 // Artykuły na stronę główną
 export const FEATURED_ARTICLES_QUERY = `
-  *[_type == "artykul" && featured == true] | order(dataPublikacji desc) [0..2] {
+  *[_type == "artykul"] | order(featured desc, dataPublikacji desc) [0..5] {
     _id, tytul, slug, kategoria, zajawka, czasCzytania,
     zdjecie { asset, alt },
     dataPublikacji, autor
