@@ -71,7 +71,7 @@ export default async function HeroSection() {
         )}
 
         {/* Side articles */}
-        <div className="py-7 pl-0 md:pl-7 flex flex-col border-t-[0.5px] md:border-t-0 border-border">
+        <div className="py-7 pl-0 md:pl-7 flex flex-col justify-between border-t-[0.5px] md:border-t-0 border-border">
           {sideArticles.length > 0 ? (
             sideArticles.map((article, idx) => (
               <Link
@@ -97,6 +97,11 @@ export default async function HeroSection() {
                   <div className="font-serif text-[16px] leading-[1.25] font-normal text-text-1 group-hover:text-gold transition-colors">
                     {article.tytul}
                   </div>
+                  {article.zajawka && (
+                    <div className="text-[11px] text-text-2 leading-[1.5] mt-[3px] line-clamp-2">
+                      {article.zajawka}
+                    </div>
+                  )}
                 </div>
               </Link>
             ))
