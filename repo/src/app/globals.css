@@ -1,26 +1,102 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap');
 @import "tailwindcss";
 
+/* ── Light theme (default) ─────────────── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg-page: #FAFAF8;
+  --bg-card: #FFFFFF;
+  --bg-section: #F5F3EE;
+  --bg-hover: #EDEBE4;
+  --border: rgba(0,0,0,0.08);
+  --border-mid: rgba(0,0,0,0.13);
+  --gold: #A8832A;
+  --gold-light: #C9A84C;
+  --gold-dim: #8A6A28;
+  --text-1: #1a1814;
+  --text-2: #6b6457;
+  --text-3: #a09880;
+  --tag-blue: #1a6bb5;
+  --tag-green: #2d7a4a;
+  --badge-red-bg: #fdf0f0;
+  --badge-red-txt: #c0392b;
+  --badge-amber-bg: #fdf6e8;
+  --badge-amber-txt: #9a6d0a;
+  --badge-green-bg: #f0f7f2;
+  --badge-green-txt: #2d7a4a;
+  --shadow-card: 0 1px 8px rgba(0,0,0,0.06);
+}
+
+/* ── Dark theme ─────────────────────────── */
+[data-theme="dark"] {
+  --bg-page: #0e0c09;
+  --bg-card: #161208;
+  --bg-section: #120f0b;
+  --bg-hover: #1c1610;
+  --border: rgba(201,168,76,0.12);
+  --border-mid: rgba(201,168,76,0.22);
+  --gold: #C9A84C;
+  --gold-light: #E8C96A;
+  --gold-dim: #8A6A28;
+  --text-1: #e8e0cc;
+  --text-2: #8a8070;
+  --text-3: #5a5248;
+  --tag-blue: #4a90d9;
+  --tag-green: #4caf7a;
+  --badge-red-bg: #1a0408;
+  --badge-red-txt: #e05555;
+  --badge-amber-bg: #1a1004;
+  --badge-amber-txt: #C9A84C;
+  --badge-green-bg: #041408;
+  --badge-green-txt: #4caf7a;
+  --shadow-card: none;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-bg-page: var(--bg-page);
+  --color-bg-card: var(--bg-card);
+  --color-bg-section: var(--bg-section);
+  --color-bg-hover: var(--bg-hover);
+  --color-border: var(--border);
+  --color-border-mid: var(--border-mid);
+  --color-gold: var(--gold);
+  --color-gold-light: var(--gold-light);
+  --color-gold-dim: var(--gold-dim);
+  --color-text-1: var(--text-1);
+  --color-text-2: var(--text-2);
+  --color-text-3: var(--text-3);
+  --color-tag-blue: var(--tag-blue);
+  --color-tag-green: var(--tag-green);
+  --color-badge-red-bg: var(--badge-red-bg);
+  --color-badge-red-txt: var(--badge-red-txt);
+  --color-badge-amber-bg: var(--badge-amber-bg);
+  --color-badge-amber-txt: var(--badge-amber-txt);
+  --color-badge-green-bg: var(--badge-green-bg);
+  --color-badge-green-txt: var(--badge-green-txt);
+  --font-serif: 'Cormorant Garamond', Georgia, serif;
+  --font-sans: 'DM Sans', system-ui, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ── Base ───────────────────────────────── */
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  font-size: 15px;
+  background: var(--bg-page);
+  color: var(--text-1);
+  line-height: 1.5;
+  transition: background 0.3s, color 0.3s;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ── Ticker animation ───────────────────── */
+@keyframes tick {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
 }
