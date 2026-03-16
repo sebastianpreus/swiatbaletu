@@ -51,22 +51,33 @@ export default async function RepertoirePreview() {
           {przedstawienia.map((p) => (
             <div
               key={p.id}
-              className="bg-bg-card border-[0.5px] border-border rounded-lg px-[18px] py-4 cursor-pointer transition-all hover:border-gold-dim hover:shadow-[var(--shadow-card)]"
+              className="bg-bg-card border-[0.5px] border-border rounded-lg px-[18px] py-4 cursor-pointer transition-all hover:border-gold-dim hover:shadow-[var(--shadow-card)] flex gap-4"
             >
-              <div className="text-[10px] text-gold-dim tracking-[0.08em] uppercase font-medium mb-[6px]">
-                {formatDate(p.data_czas)} · {p.teatr?.miasto}
+              {p.spektakl?.zdjecie_url && (
+                <div className="w-[64px] h-[64px] rounded-[6px] overflow-hidden shrink-0 border-[0.5px] border-border">
+                  <img
+                    src={p.spektakl.zdjecie_url}
+                    alt={p.spektakl.tytul}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              )}
+              <div className="flex-1 min-w-0">
+                <div className="text-[10px] text-gold-dim tracking-[0.08em] uppercase font-medium mb-[6px]">
+                  {formatDate(p.data_czas)} · {p.teatr?.miasto}
+                </div>
+                <div className="font-serif text-[17px] font-normal text-text-1 mb-1">
+                  {p.spektakl?.tytul}
+                  {p.dostepnosc === 'premiera' && ' ✦ PREMIERA'}
+                </div>
+                <div className="text-[11px] text-text-2">
+                  {p.teatr?.nazwa}
+                  {p.spektakl?.kompozytor && ` · ${p.spektakl.kompozytor}`}
+                </div>
+                <Badge variant={dostepnoscVariant(p.dostepnosc)}>
+                  {dostepnoscLabel(p.dostepnosc)}
+                </Badge>
               </div>
-              <div className="font-serif text-[17px] font-normal text-text-1 mb-1">
-                {p.spektakl?.tytul}
-                {p.dostepnosc === 'premiera' && ' ✦ PREMIERA'}
-              </div>
-              <div className="text-[11px] text-text-2">
-                {p.teatr?.nazwa}
-                {p.spektakl?.kompozytor && ` · ${p.spektakl.kompozytor}`}
-              </div>
-              <Badge variant={dostepnoscVariant(p.dostepnosc)}>
-                {dostepnoscLabel(p.dostepnosc)}
-              </Badge>
             </div>
           ))}
         </div>

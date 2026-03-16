@@ -88,6 +88,15 @@ export default async function RepertuarPage({
               key={p.id}
               className="bg-bg-card border-[0.5px] border-border rounded-lg px-5 py-4 flex flex-col sm:flex-row sm:items-center gap-3 transition-all hover:border-gold-dim hover:shadow-[var(--shadow-card)]"
             >
+              {p.spektakl?.zdjecie_url && (
+                <div className="w-[72px] h-[72px] rounded-[6px] overflow-hidden shrink-0 border-[0.5px] border-border hidden sm:block">
+                  <img
+                    src={p.spektakl.zdjecie_url}
+                    alt={p.spektakl.tytul}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              )}
               <div className="flex-1">
                 <div className="text-[10px] text-gold-dim tracking-[0.08em] uppercase font-medium mb-1">
                   {formatDate(p.data_czas)} · {formatTime(p.data_czas)}
