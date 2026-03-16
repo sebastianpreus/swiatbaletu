@@ -98,3 +98,35 @@ export const INTERVIEW_BY_SLUG_QUERY = `
     rozmowca->{ imieNazwisko, rola, teatrGlowny, slug }
   }
 `
+
+// Wszystkie promocje aktywne
+export const ALL_PROMOS_QUERY = `
+  *[_type == "promocja" && aktywna == true && (
+    !defined(dataDo) || dataDo > now()
+  )] | order(_createdAt desc) {
+    _id, tytul, etykieta, opis, kod, linkDoOferty, dataOd, dataDo,
+    teatr->{ nazwa, miasto }
+  }
+`
+
+// Wszystkie teatry z Sanity
+export const ALL_TEATRY_SANITY_QUERY = `
+  *[_type == "teatr"] | order(nazwa asc) {
+    _id, nazwa, slug, miasto, adres, rokZalozenia,
+    dyrektorArtystyczny, liczbaMiejsc, stronaWww, linkBilety,
+    logo { asset->{ url } },
+    zdjecie { asset->{ url }, alt },
+    opis
+  }
+`
+
+// Pojedynczy teatr po slug z Sanity
+export const TEATR_BY_SLUG_QUERY = `
+  *[_type == "teatr" && slug.current == $slug] [0] {
+    _id, nazwa, slug, miasto, adres, rokZalozenia,
+    dyrektorArtystyczny, liczbaMiejsc, stronaWww, linkBilety,
+    logo { asset->{ url } },
+    zdjecie { asset->{ url }, alt },
+    opis
+  }
+`

@@ -2,14 +2,6 @@ import { client } from '../../sanity/lib/client'
 import { ACTIVE_PROMOS_QUERY } from '../../sanity/lib/queries'
 import type { Promocja } from '../../types'
 
-const demoPromo = {
-  tytul: 'Zniżka 40% dla studentów — Opera Wrocławska',
-  etykieta: 'Promocja · tylko do niedzieli',
-  opis: 'Giselle · 21–23 marca',
-  kod: 'STUDENT26',
-  linkDoOferty: '#',
-}
-
 export default async function PromoBanner() {
   let promos: Promocja[] = []
 
@@ -20,30 +12,31 @@ export default async function PromoBanner() {
   }
 
   const promo = promos?.[0] || null
-  const title = promo?.tytul || demoPromo.tytul
-  const label = promo?.etykieta || demoPromo.etykieta
-  const desc = promo?.opis || demoPromo.opis
-  const code = promo?.kod || demoPromo.kod
-  const link = promo?.linkDoOferty || demoPromo.linkDoOferty
+
+  if (!promo) {
+    return null
+  }
 
   return (
     <div className="max-w-[1100px] mx-auto px-6">
       <a
-        href={link}
+        href={promo.linkDoOferty}
         className="bg-bg-section border-[0.5px] border-border rounded-lg px-[22px] py-[18px] flex flex-col sm:flex-row justify-between items-start sm:items-center cursor-pointer my-7 transition-all relative overflow-hidden hover:bg-bg-hover hover:border-border-mid group"
       >
         <span className="absolute left-0 top-0 bottom-0 w-[3px] bg-gold" />
         <div>
-          <div className="text-[10px] text-gold tracking-[0.1em] uppercase font-medium mb-[5px]">
-            {label}
-          </div>
+          {promo.etykieta && (
+            <div className="text-[10px] text-gold tracking-[0.1em] uppercase font-medium mb-[5px]">
+              {promo.etykieta}
+            </div>
+          )}
           <div className="font-serif text-[21px] font-normal text-text-1">
-            {title}
+            {promo.tytul}
           </div>
           <div className="text-[12px] text-text-2 mt-1">
-            {desc}
-            {code && (
-              <> &middot; kod: <span className="text-gold font-medium">{code}</span></>
+            {promo.opis}
+            {promo.kod && (
+              <> &middot; kod: <span className="text-gold font-medium">{promo.kod}</span></>
             )}
           </div>
         </div>

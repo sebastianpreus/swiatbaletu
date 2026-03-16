@@ -5,15 +5,6 @@ import { urlFor } from '../../sanity/lib/image'
 import type { Sylwetka } from '../../types'
 import SectionHeader from '../ui/SectionHeader'
 
-const demoProfiles = [
-  { id: '1', name: 'Rudolf Nureyev', role: 'Legenda', initial: 'R' },
-  { id: '2', name: 'Misty Copeland', role: 'Solistka ABT', initial: 'M' },
-  { id: '3', name: 'Carlos Acosta', role: 'Choreograf', initial: 'C' },
-  { id: '4', name: 'Alina Cojocaru', role: 'Primabalerina', initial: 'A' },
-  { id: '5', name: 'Sylvie Guillem', role: 'Ikona baletu', initial: 'S' },
-  { id: '6', name: 'Marianela Nuñez', role: 'Solistka ROH', initial: 'N' },
-]
-
 export default async function ProfilesRow() {
   let profiles: Sylwetka[] = []
 
@@ -23,7 +14,9 @@ export default async function ProfilesRow() {
     // Sanity not configured yet
   }
 
-  const hasProfiles = profiles && profiles.length > 0
+  if (!profiles || profiles.length === 0) {
+    return null
+  }
 
   return (
     <div className="max-w-[1100px] mx-auto px-6">
@@ -34,45 +27,31 @@ export default async function ProfilesRow() {
           linkHref="/sylwetki"
         />
         <div className="flex gap-4 overflow-x-auto pb-1 scrollbar-none">
-          {hasProfiles
-            ? profiles.map((profile) => (
-                <Link
-                  key={profile._id}
-                  href={`/sylwetki/${profile.slug.current}`}
-                  className="shrink-0 w-[106px] cursor-pointer text-center group"
-                >
-                  <div className="w-[72px] h-[72px] rounded-full mx-auto mb-[9px] bg-bg-section border-[0.5px] border-border flex items-center justify-center overflow-hidden transition-all group-hover:bg-bg-hover group-hover:border-gold-dim">
-                    {profile.zdjecie ? (
-                      <img
-                        src={urlFor(profile.zdjecie).width(144).height(144).url()}
-                        alt={profile.imieNazwisko}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <span className="font-serif text-[24px] italic text-gold-dim group-hover:text-gold transition-colors">
-                        {profile.imieNazwisko[0]}
-                      </span>
-                    )}
-                  </div>
-                  <div className="font-serif text-[13px] font-normal text-text-1 leading-[1.3]">
-                    {profile.imieNazwisko}
-                  </div>
-                  <div className="text-[10px] text-text-2 mt-[2px]">{profile.rola}</div>
-                </Link>
-              ))
-            : demoProfiles.map((profile) => (
-                <div key={profile.id} className="shrink-0 w-[106px] cursor-pointer text-center group">
-                  <div className="w-[72px] h-[72px] rounded-full mx-auto mb-[9px] bg-bg-section border-[0.5px] border-border flex items-center justify-center transition-all group-hover:bg-bg-hover group-hover:border-gold-dim">
-                    <span className="font-serif text-[24px] italic text-gold-dim group-hover:text-gold transition-colors">
-                      {profile.initial}
-                    </span>
-                  </div>
-                  <div className="font-serif text-[13px] font-normal text-text-1 leading-[1.3]">
-                    {profile.name}
-                  </div>
-                  <div className="text-[10px] text-text-2 mt-[2px]">{profile.role}</div>
-                </div>
-              ))}
+          {profiles.map((profile) => (
+            <Link
+              key={profile._id}
+              href={`/sylwetki/${profile.slug.current}`}
+              className="shrink-0 w-[106px] cursor-pointer text-center group"
+            >
+              <div className="w-[72px] h-[72px] rounded-full mx-auto mb-[9px] bg-bg-section border-[0.5px] border-border flex items-center justify-center overflow-hidden transition-all group-hover:bg-bg-hover group-hover:border-gold-dim">
+                {profile.zdjecie ? (
+                  <img
+                    src={urlFor(profile.zdjecie).width(144).height(144).url()}
+                    alt={profile.imieNazwisko}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="font-serif text-[24px] italic text-gold-dim group-hover:text-gold transition-colors">
+                    {profile.imieNazwisko[0]}
+                  </span>
+                )}
+              </div>
+              <div className="font-serif text-[13px] font-normal text-text-1 leading-[1.3]">
+                {profile.imieNazwisko}
+              </div>
+              <div className="text-[10px] text-text-2 mt-[2px]">{profile.rola}</div>
+            </Link>
+          ))}
           <Link
             href="/sylwetki"
             className="shrink-0 w-[106px] cursor-pointer text-center group"

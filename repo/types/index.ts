@@ -1,3 +1,5 @@
+import type { PortableTextBlock } from '@portabletext/types'
+
 // Sanity types
 export interface SanityImage {
   asset: {
@@ -13,7 +15,7 @@ export interface Artykul {
   kategoria: string
   zajawka: string
   zdjecie: SanityImage
-  trescGlowna: unknown[]
+  trescGlowna: PortableTextBlock[]
   autor: string
   dataPublikacji: string
   featured: boolean
@@ -31,7 +33,7 @@ export interface Sylwetka {
   narodowosc: string
   dataUrodzenia: string
   dataSmierci?: string
-  bio: unknown[]
+  bio: PortableTextBlock[]
   najwazniejszeRole: string[]
   aktywny: boolean
   polskiArtysta: boolean
@@ -44,7 +46,7 @@ export interface Wywiad {
   slug: { current: string }
   zajawka: string
   zdjecie: SanityImage
-  tresc: unknown[]
+  tresc: PortableTextBlock[]
   dataPublikacji: string
   wywiadTygodnia: boolean
   funkcjaRozmowcy: string

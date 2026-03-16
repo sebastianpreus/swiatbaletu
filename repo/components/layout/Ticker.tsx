@@ -8,20 +8,13 @@ export default async function Ticker() {
   try {
     items = await client.fetch(TICKER_QUERY)
   } catch {
-    // Fallback when Sanity is not configured yet
+    // Sanity not configured yet
   }
 
-  // Fallback demo data if no items from Sanity
   if (!items || items.length === 0) {
-    items = [
-      { _id: '1', tresc: 'Witamy w portalu Świat Baletu — sezon 2025/2026', typ: 'info' },
-      { _id: '2', tresc: 'Premiera „Spartakus" — Opera Krakowska · 20 marca 2026', typ: 'premiera' },
-      { _id: '3', tresc: 'Polina Semionova gościnnie w Gdańsku · tylko 2 wieczory', typ: 'info' },
-      { _id: '4', tresc: 'Transmisja na żywo: Bolszoj — La Bayadère · 18 marca · 19:00', typ: 'transmisja' },
-    ]
+    return null
   }
 
-  // Duplicate items for seamless scrolling
   const doubled = [...items, ...items]
 
   return (
@@ -34,8 +27,8 @@ export default async function Ticker() {
           className="flex gap-10 whitespace-nowrap"
           style={{ animation: 'tick 35s linear infinite' }}
         >
-          {doubled.map((item, i) => (
-            <span key={`${item._id}-${i}`} className="text-[11px] text-text-2 flex items-center gap-2">
+          {doubled.map((item, idx) => (
+            <span key={`${item._id}-${idx}`} className="text-[11px] text-text-2 flex items-center gap-2">
               <span className="w-1 h-1 rounded-full bg-gold shrink-0 inline-block" />
               {item.link ? (
                 <a href={item.link} className="hover:text-gold transition-colors">
