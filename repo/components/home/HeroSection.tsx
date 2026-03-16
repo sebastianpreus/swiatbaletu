@@ -77,18 +77,26 @@ export default async function HeroSection() {
               <Link
                 key={article._id}
                 href={`/artykuly/${article.slug.current}`}
-                className={`py-[18px] cursor-pointer group ${
+                className={`py-[14px] cursor-pointer group flex gap-4 ${
                   idx < sideArticles.length - 1 ? 'border-b-[0.5px] border-border' : ''
                 }`}
               >
-                <div className="text-[10px] tracking-[0.1em] uppercase text-gold mb-[6px] font-medium">
-                  {article.kategoria}
-                </div>
-                <div className="font-serif text-[18px] leading-[1.25] font-normal text-text-1 mb-[5px] group-hover:text-gold transition-colors">
-                  {article.tytul}
-                </div>
-                <div className="text-[11px] text-text-2 leading-[1.5]">
-                  {article.zajawka?.slice(0, 80)}
+                {article.zdjecie && (
+                  <div className="w-[72px] h-[52px] rounded-[4px] overflow-hidden shrink-0 border-[0.5px] border-border">
+                    <img
+                      src={urlFor(article.zdjecie).width(144).height(104).url()}
+                      alt={article.zdjecie.alt || article.tytul}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
+                <div className="flex-1 min-w-0">
+                  <div className="text-[10px] tracking-[0.1em] uppercase text-gold mb-[4px] font-medium">
+                    {article.kategoria}
+                  </div>
+                  <div className="font-serif text-[16px] leading-[1.25] font-normal text-text-1 group-hover:text-gold transition-colors">
+                    {article.tytul}
+                  </div>
                 </div>
               </Link>
             ))
