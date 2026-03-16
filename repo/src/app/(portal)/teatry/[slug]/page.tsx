@@ -18,8 +18,8 @@ interface TeatrSanity {
   liczbaMiejsc?: number
   stronaWww?: string
   linkBilety?: string
-  logo?: { asset: { url: string } }
-  zdjecie?: { asset: { url: string }; alt?: string }
+  logo?: { asset: { _ref: string } }
+  zdjecie?: { asset: { _ref: string }; alt?: string }
   opis?: PortableTextBlock[]
 }
 

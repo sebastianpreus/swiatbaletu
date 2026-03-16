@@ -2,7 +2,7 @@
 export const FEATURED_ARTICLES_QUERY = `
   *[_type == "artykul" && featured == true] | order(dataPublikacji desc) [0..2] {
     _id, tytul, slug, kategoria, zajawka, czasCzytania,
-    zdjecie { asset->{ url }, alt },
+    zdjecie { asset, alt },
     dataPublikacji, autor
   }
 `
@@ -11,7 +11,7 @@ export const FEATURED_ARTICLES_QUERY = `
 export const WYWIAD_TYGODNIA_QUERY = `
   *[_type == "wywiad" && wywiadTygodnia == true] | order(dataPublikacji desc) [0] {
     _id, tytul, slug, zajawka, dataPublikacji,
-    zdjecie { asset->{ url }, alt },
+    zdjecie { asset, alt },
     rozmowca->{ imieNazwisko, rola, teatrGlowny }
   }
 `
@@ -29,7 +29,7 @@ export const TICKER_QUERY = `
 export const FEATURED_PROFILES_QUERY = `
   *[_type == "sylwetka" && wyroznienie == true] | order(imieNazwisko asc) [0..7] {
     _id, imieNazwisko, slug, rola, teatrGlowny, aktywny,
-    zdjecie { asset->{ url }, alt }
+    zdjecie { asset, alt }
   }
 `
 
@@ -47,7 +47,7 @@ export const ACTIVE_PROMOS_QUERY = `
 export const ALL_ARTICLES_QUERY = `
   *[_type == "artykul"] | order(dataPublikacji desc) {
     _id, tytul, slug, kategoria, zajawka, czasCzytania,
-    zdjecie { asset->{ url }, alt },
+    zdjecie { asset, alt },
     dataPublikacji, autor
   }
 `
@@ -56,7 +56,7 @@ export const ALL_ARTICLES_QUERY = `
 export const ARTICLE_BY_SLUG_QUERY = `
   *[_type == "artykul" && slug.current == $slug] [0] {
     _id, tytul, slug, kategoria, zajawka, czasCzytania,
-    zdjecie { asset->{ url }, alt },
+    zdjecie { asset, alt },
     trescGlowna,
     dataPublikacji, autor, tagi
   }
@@ -66,7 +66,7 @@ export const ARTICLE_BY_SLUG_QUERY = `
 export const ALL_PROFILES_QUERY = `
   *[_type == "sylwetka"] | order(imieNazwisko asc) {
     _id, imieNazwisko, slug, rola, teatrGlowny, aktywny, polskiArtysta,
-    zdjecie { asset->{ url }, alt }
+    zdjecie { asset, alt }
   }
 `
 
@@ -75,7 +75,7 @@ export const PROFILE_BY_SLUG_QUERY = `
   *[_type == "sylwetka" && slug.current == $slug] [0] {
     _id, imieNazwisko, slug, rola, teatrGlowny, narodowosc,
     dataUrodzenia, dataSmierci, aktywny, polskiArtysta,
-    zdjecie { asset->{ url }, alt },
+    zdjecie { asset, alt },
     bio, najwazniejszeRole
   }
 `
@@ -84,7 +84,7 @@ export const PROFILE_BY_SLUG_QUERY = `
 export const ALL_INTERVIEWS_QUERY = `
   *[_type == "wywiad"] | order(dataPublikacji desc) {
     _id, tytul, slug, zajawka, dataPublikacji, wywiadTygodnia,
-    zdjecie { asset->{ url }, alt },
+    zdjecie { asset, alt },
     rozmowca->{ imieNazwisko, rola, teatrGlowny }
   }
 `
@@ -93,7 +93,7 @@ export const ALL_INTERVIEWS_QUERY = `
 export const INTERVIEW_BY_SLUG_QUERY = `
   *[_type == "wywiad" && slug.current == $slug] [0] {
     _id, tytul, slug, zajawka, dataPublikacji, funkcjaRozmowcy,
-    zdjecie { asset->{ url }, alt },
+    zdjecie { asset, alt },
     tresc,
     rozmowca->{ imieNazwisko, rola, teatrGlowny, slug }
   }
@@ -114,8 +114,8 @@ export const ALL_TEATRY_SANITY_QUERY = `
   *[_type == "teatr"] | order(nazwa asc) {
     _id, nazwa, slug, miasto, adres, rokZalozenia,
     dyrektorArtystyczny, liczbaMiejsc, stronaWww, linkBilety,
-    logo { asset->{ url } },
-    zdjecie { asset->{ url }, alt },
+    logo { asset },
+    zdjecie { asset, alt },
     opis
   }
 `
@@ -125,8 +125,8 @@ export const TEATR_BY_SLUG_QUERY = `
   *[_type == "teatr" && slug.current == $slug] [0] {
     _id, nazwa, slug, miasto, adres, rokZalozenia,
     dyrektorArtystyczny, liczbaMiejsc, stronaWww, linkBilety,
-    logo { asset->{ url } },
-    zdjecie { asset->{ url }, alt },
+    logo { asset },
+    zdjecie { asset, alt },
     opis
   }
 `

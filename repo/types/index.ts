@@ -3,7 +3,7 @@ import type { PortableTextBlock } from '@portabletext/types'
 // Sanity types
 export interface SanityImage {
   asset: {
-    url: string
+    _ref: string
   }
   alt?: string
 }
