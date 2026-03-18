@@ -169,10 +169,39 @@ function parseGdanskHTML(html) {
 }
 
 async function scrapeGdansk() {
-  // The website filters months client-side via JS — curl/fetch always gets the same HTML.
-  // We must use Puppeteer to click through months.
-  let browser
-  try {
+  // URL parameter ?yearMonth=YYYY-MM returns server-rendered HTML for that month
+  const allEvents = []
+  const seen = new Set()
+  const now = new Date()
+
+  for (let offset = 0; offset < 5; offset++) {
+    const d = new Date(now.getFullYear(), now.getMonth() + offset, 1)
+    const ym = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+
+    try {
+      const html = await fetchHTML(`https://operabaltycka.pl/repertuar?yearMonth=${ym}`)
+      const events = parseGdanskHTML(html)
+
+      let newCount = 0
+      for (const ev of events) {
+        const key = `${ev.data_czas}-${ev.tytul}`
+        if (!seen.has(key)) {
+          seen.add(key)
+          allEvents.push(ev)
+          newCount++
+        }
+      }
+      console.log(`  [Gdańsk] ${ym}: ${events.length} pozycji, +${newCount} nowych`)
+    } catch (err) {
+      console.error(`  [Gdańsk] Błąd ${ym}: ${err.message}`)
+    }
+  }
+
+  return allEvents
+}
+
+/* OLD PUPPETEER CODE REMOVED - using ?yearMonth= instead */
+/* eslint-disable */ if (false) { (async()=>{ let browser; try {
     const puppeteer = await import('puppeteer')
     browser = await puppeteer.default.launch({
       headless: 'new',
@@ -355,7 +384,7 @@ async function scrapeGdansk() {
   } finally {
     if (browser) await browser.close()
   }
-}
+})()}
 
 // ── 3. OPERA WROCŁAWSKA ──────────────────────────────────────────────────────
 // /1/repertuar.php — .rep-single blocks with .title, .feat-cat, .rep-date, .rep-time, .date-string
