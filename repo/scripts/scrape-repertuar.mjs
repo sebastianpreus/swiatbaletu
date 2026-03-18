@@ -121,14 +121,11 @@ async function scrapeWarszawa() {
 }
 
 // ── 2. OPERA BAŁTYCKA GDAŃSK ────────────────────────────────────────────────
-// Clean CSS selectors: .repertoire-list-item__*
-async function scrapeGdansk() {
-  const html = await fetchHTML('https://operabaltycka.pl/repertuar')
+// /repertuar + /repertuar/filterAjax?year-month=YYYY-MM for subsequent months
+// Clean CSS selectors: .repertoire-list-item__* with incremented IDs
+function parseGdanskHTML(html) {
   const $ = cheerio.load(html)
   const events = []
-
-  // Each event block contains: __day, __month-year, __hour time, __title, __label, __author
-  // Items are grouped in repeating blocks with incremented IDs
 
   const totalItems = $('[id^="desc-repertoire-title-"]').length
 
@@ -140,7 +137,6 @@ async function scrapeGdansk() {
 
     if (!title || !day) continue
 
-    // Parse "marca 2026" -> month + year
     let month = null, year = 2026
     for (const [name, num] of Object.entries(MONTHS)) {
       if (monthYear.toLowerCase().includes(name)) { month = num; break }
@@ -153,12 +149,9 @@ async function scrapeGdansk() {
       ...((time.match(/(\d+):(\d+)/) || [, 19, 0]).slice(1).map(Number))
     ).toISOString()
 
-    // Find category/label near this index
     const $item = $(`#desc-repertoire-title-${i}`).closest('.repertoire-list-item__content')
     const label = $item.find('.repertoire-list-item__label').text().trim()
     const author = $item.find('.repertoire-list-item__author').text().trim()
-
-    // Try to find ticket link
     const $parent = $(`#desc-repertoire-title-${i}`).closest('[class*="repertoire-list"]')
     const ticketLink = $parent.find('a[href*="bilety24"]').first().attr('href') || ''
 
@@ -173,6 +166,31 @@ async function scrapeGdansk() {
   }
 
   return events
+}
+
+async function scrapeGdansk() {
+  const allEvents = []
+
+  // First page — current month
+  const html = await fetchHTML('https://operabaltycka.pl/repertuar')
+  allEvents.push(...parseGdanskHTML(html))
+
+  // Subsequent months via AJAX endpoint
+  const now = new Date()
+  for (let offset = 1; offset <= 4; offset++) {
+    const d = new Date(now.getFullYear(), now.getMonth() + offset, 1)
+    const ym = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+
+    try {
+      const monthHtml = await fetchHTML(`https://operabaltycka.pl/repertuar/filterAjax?year-month=${ym}`)
+      const monthEvents = parseGdanskHTML(monthHtml)
+      allEvents.push(...monthEvents)
+    } catch (err) {
+      console.error(`  [Gdańsk] Błąd miesiąca ${ym}: ${err.message}`)
+    }
+  }
+
+  return allEvents
 }
 
 // ── 3. OPERA WROCŁAWSKA ──────────────────────────────────────────────────────
