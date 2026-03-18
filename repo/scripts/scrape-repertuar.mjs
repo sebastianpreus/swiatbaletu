@@ -770,10 +770,10 @@ async function scrapeLodz() {
             dostepnosc = 'dostepne'
             ticketLink = btnHref
           } else if (btnLower.includes('odwołane') || btnLower.includes('cancelled')) {
-            dostepnosc = 'wyprzedane'
+            dostepnosc = 'odwolane'
           } else if (btnLower.includes('info')) {
-            // "Info" — no ticket sale, link to event page
-            ticketLink = btnHref
+            dostepnosc = 'info'
+            ticketLink = btnHref // link to event page for details
           }
 
           allEvents.push({

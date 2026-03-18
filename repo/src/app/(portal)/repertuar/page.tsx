@@ -25,15 +25,19 @@ function dostepnoscLabel(d: string) {
     case 'malo_miejsc': return 'Ostatnie bilety'
     case 'wyprzedane': return 'Bilety wyprzedane'
     case 'premiera': return 'Premiera'
+    case 'odwolane': return 'Odwołane'
+    case 'info': return 'Info'
     default: return 'Bilety dostępne'
   }
 }
 
-function dostepnoscVariant(d: string): 'red' | 'amber' | 'green' {
+function dostepnoscVariant(d: string): 'red' | 'amber' | 'green' | 'gray' {
   switch (d) {
     case 'malo_miejsc': return 'amber'
     case 'wyprzedane': return 'red'
     case 'premiera': return 'amber'
+    case 'odwolane': return 'gray'
+    case 'info': return 'amber'
     default: return 'green'
   }
 }
@@ -125,14 +129,14 @@ export default async function RepertuarPage({
                     {dostepnoscLabel(p.dostepnosc)}
                   </Badge>
                 )}
-                {p.dostepnosc !== 'wyprzedane' && p.link_bilety && (
+                {p.dostepnosc !== 'wyprzedane' && p.dostepnosc !== 'odwolane' && p.link_bilety && (
                   <a
                     href={p.link_bilety}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-[11px] tracking-[0.07em] uppercase bg-gold text-white rounded-[2px] px-3 py-[5px] hover:bg-gold-dim transition-all"
                   >
-                    Kup bilet
+                    {p.dostepnosc === 'info' ? 'Info' : 'Kup bilet'}
                   </a>
                 )}
                 {p.link_szczegoly && (
