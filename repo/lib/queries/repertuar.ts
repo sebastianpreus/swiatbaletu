@@ -10,6 +10,7 @@ export async function getPrzedstawienia(miasto?: string) {
       id,
       data_czas,
       link_bilety,
+      link_szczegoly,
       dostepnosc,
       cena_od,
       notatka,

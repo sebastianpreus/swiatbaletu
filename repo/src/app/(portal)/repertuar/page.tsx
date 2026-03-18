@@ -22,8 +22,8 @@ function formatTime(dateStr: string) {
 
 function dostepnoscLabel(d: string) {
   switch (d) {
-    case 'malo_miejsc': return 'Prawie wyprzedane'
-    case 'wyprzedane': return 'Wyprzedane'
+    case 'malo_miejsc': return 'Ostatnie bilety'
+    case 'wyprzedane': return 'Bilety wyprzedane'
     case 'premiera': return 'Premiera'
     default: return 'Bilety dostępne'
   }
@@ -31,7 +31,7 @@ function dostepnoscLabel(d: string) {
 
 function dostepnoscVariant(d: string): 'red' | 'amber' | 'green' {
   switch (d) {
-    case 'malo_miejsc': return 'red'
+    case 'malo_miejsc': return 'amber'
     case 'wyprzedane': return 'red'
     case 'premiera': return 'amber'
     default: return 'green'
@@ -114,7 +114,7 @@ export default async function RepertuarPage({
                   <div className="text-[11px] text-gold-dim italic mt-1">{p.notatka}</div>
                 )}
               </div>
-              <div className="flex items-center gap-3 shrink-0">
+              <div className="flex items-center gap-2 sm:gap-3 shrink-0 flex-wrap justify-end">
                 {p.cena_od && (
                   <div className="text-[12px] text-text-2">
                     od <span className="text-text-1 font-medium">{(p.cena_od / 100).toFixed(0)} zł</span>
@@ -123,14 +123,24 @@ export default async function RepertuarPage({
                 <Badge variant={dostepnoscVariant(p.dostepnosc)}>
                   {dostepnoscLabel(p.dostepnosc)}
                 </Badge>
-                {p.link_bilety && (
+                {p.dostepnosc !== 'wyprzedane' && p.link_bilety && (
                   <a
                     href={p.link_bilety}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-[11px] tracking-[0.07em] uppercase text-gold-dim border-[0.5px] border-gold-dim rounded-[2px] px-3 py-[5px] hover:text-gold hover:border-gold transition-all"
+                    className="text-[11px] tracking-[0.07em] uppercase bg-gold text-white rounded-[2px] px-3 py-[5px] hover:bg-gold-dim transition-all"
                   >
                     Kup bilet
+                  </a>
+                )}
+                {p.link_szczegoly && (
+                  <a
+                    href={p.link_szczegoly}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[11px] tracking-[0.07em] uppercase text-text-2 border-[0.5px] border-border rounded-[2px] px-3 py-[5px] hover:text-gold hover:border-gold transition-all"
+                  >
+                    Czytaj więcej
                   </a>
                 )}
               </div>

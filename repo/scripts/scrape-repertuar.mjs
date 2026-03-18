@@ -152,8 +152,25 @@ function parseGdanskHTML(html) {
     const $item = $(`#desc-repertoire-title-${i}`).closest('.repertoire-list-item__content')
     const label = $item.find('.repertoire-list-item__label').text().trim()
     const author = $item.find('.repertoire-list-item__author').text().trim()
-    const $parent = $(`#desc-repertoire-title-${i}`).closest('[class*="repertoire-list"]')
-    const ticketLink = $parent.find('a[href*="bilety24"]').first().attr('href') || ''
+
+    // Use aria-describedby to find matching buttons for this event
+    const descId = `desc-repertoire-title-${i}`
+    const $ticketBtn = $(`a.btn--yellow[aria-describedby*="${descId}"]`)
+    const ticketLink = $ticketBtn.attr('href') || ''
+
+    // "czytaj więcej" link = event detail page
+    const $detailBtn = $(`a.btn--green[aria-describedby*="${descId}"]`)
+    const detailLink = $detailBtn.attr('href') || ''
+
+    // Check availability: disabled button = sold out, "ostatnie bilety" = last tickets
+    const $soldOutBtn = $item.closest('.repertoire-list-item').find('button[disabled]')
+    const $lastTickets = $item.closest('.repertoire-list-item').find('.repertoire-list-item__tickets-title')
+    let dostepnosc = 'dostepne'
+    if ($soldOutBtn.length && $soldOutBtn.text().includes('wyprzedane')) {
+      dostepnosc = 'wyprzedane'
+    } else if ($lastTickets.length && $lastTickets.text().includes('ostatnie')) {
+      dostepnosc = 'malo_miejsc'
+    }
 
     events.push({
       tytul: title,
@@ -161,7 +178,8 @@ function parseGdanskHTML(html) {
       kategoria: categorize(label),
       data_czas: dateTime,
       link_bilety: ticketLink,
-      zrodlo_url: 'https://operabaltycka.pl/repertuar',
+      dostepnosc,
+      zrodlo_url: detailLink ? `https://operabaltycka.pl${detailLink}` : 'https://operabaltycka.pl/repertuar',
     })
   }
 
@@ -798,14 +816,18 @@ async function syncToSupabase(teatrSlug, teatrName, events) {
 
     if (existing) { skipped++; continue }
 
-    const { error } = await supabase.from('przedstawienia').insert({
+    const insertData = {
       spektakl_id: spektaklId,
       teatr_id: teatrId,
       data_czas: event.data_czas,
       link_bilety: event.link_bilety || null,
       dostepnosc: event.dostepnosc || 'dostepne',
       notatka: event.kategoria || null,
-    })
+    }
+    // Add link_szczegoly if column exists (added via ALTER TABLE)
+    if (event.zrodlo_url) insertData.link_szczegoly = event.zrodlo_url
+
+    const { error } = await supabase.from('przedstawienia').insert(insertData)
 
     if (error) {
       console.error(`  ✗ Error: ${event.tytul} @ ${event.data_czas}: ${error.message}`)
