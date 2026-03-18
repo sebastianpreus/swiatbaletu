@@ -120,9 +120,11 @@ export default async function RepertuarPage({
                     od <span className="text-text-1 font-medium">{(p.cena_od / 100).toFixed(0)} zł</span>
                   </div>
                 )}
-                <Badge variant={dostepnoscVariant(p.dostepnosc)}>
-                  {dostepnoscLabel(p.dostepnosc)}
-                </Badge>
+                {p.dostepnosc && (
+                  <Badge variant={dostepnoscVariant(p.dostepnosc)}>
+                    {dostepnoscLabel(p.dostepnosc)}
+                  </Badge>
+                )}
                 {p.dostepnosc !== 'wyprzedane' && p.link_bilety && (
                   <a
                     href={p.link_bilety}

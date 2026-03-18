@@ -103,12 +103,10 @@ async function scrapeWarszawa() {
         ).toISOString()
 
         // Ticket link: a.btn.yellow with href to butik.teatrwielki.pl
-        const $price = $el.find('.price')
-        const ticketLink = $price.find('a.yellow, a.btn.yellow').first().attr('href') || ''
-        const detailLink = $price.find('a.btn:not(.yellow)').first().attr('href') || href
-
-        // If no ticket button → likely sold out or not for sale
-        const dostepnosc = ticketLink ? 'dostepne' : 'wyprzedane'
+        // IMPORTANT: use > direct child selector to avoid picking up buttons from nested events
+        const $price = $el.find('> .price')
+        const ticketLink = $price.find('a.yellow').first().attr('href') || ''
+        const detailLink = $price.find('a.btn').not('.yellow').first().attr('href') || ''
 
         events.push({
           tytul: title,
@@ -116,9 +114,9 @@ async function scrapeWarszawa() {
           kategoria: categorize(category),
           data_czas: dateTime,
           link_bilety: ticketLink,
-          dostepnosc,
+          dostepnosc: null, // kalendarium doesn't have availability info
           sala: hall,
-          zrodlo_url: detailLink.startsWith('http') ? detailLink : `https://teatrwielki.pl${detailLink}`,
+          zrodlo_url: (detailLink || href).startsWith('http') ? (detailLink || href) : `https://teatrwielki.pl${detailLink || href}`,
         })
       })
     } catch (err) {
@@ -830,7 +828,7 @@ async function syncToSupabase(teatrSlug, teatrName, events) {
       teatr_id: teatrId,
       data_czas: event.data_czas,
       link_bilety: event.link_bilety || null,
-      dostepnosc: event.dostepnosc || 'dostepne',
+      dostepnosc: event.dostepnosc || null,
       notatka: event.kategoria || null,
     }
     // Add link_szczegoly if column exists (added via ALTER TABLE)
