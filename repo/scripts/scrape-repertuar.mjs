@@ -70,7 +70,7 @@ async function scrapeWarszawa() {
   const seen = new Set() // deduplicate
   const now = new Date()
 
-  for (let offset = 0; offset < 4; offset++) {
+  for (let offset = 0; offset < 5; offset++) {
     const d = new Date(now.getFullYear(), now.getMonth() + offset, 1)
     const year = d.getFullYear()
     const month = String(d.getMonth() + 1).padStart(2, '0')
@@ -102,14 +102,23 @@ async function scrapeWarszawa() {
           parseInt(dateMatch[4]), parseInt(dateMatch[5])
         ).toISOString()
 
+        // Ticket link: a.btn.yellow with href to butik.teatrwielki.pl
+        const $price = $el.find('.price')
+        const ticketLink = $price.find('a.yellow, a.btn.yellow').first().attr('href') || ''
+        const detailLink = $price.find('a.btn:not(.yellow)').first().attr('href') || href
+
+        // If no ticket button → likely sold out or not for sale
+        const dostepnosc = ticketLink ? 'dostepne' : 'wyprzedane'
+
         events.push({
           tytul: title,
           kompozytor: composer,
           kategoria: categorize(category),
           data_czas: dateTime,
-          link_bilety: `https://teatrwielki.pl${href}`,
+          link_bilety: ticketLink,
+          dostepnosc,
           sala: hall,
-          zrodlo_url: `https://teatrwielki.pl${href}`,
+          zrodlo_url: detailLink.startsWith('http') ? detailLink : `https://teatrwielki.pl${detailLink}`,
         })
       })
     } catch (err) {
