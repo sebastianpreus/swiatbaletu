@@ -441,25 +441,30 @@ async function scrapeWroclaw() {
       dateTime = new Date(y, m, d, h, min).toISOString()
     }
 
-    // Ticket link: look for bilety.opera.wroclaw.pl links (actual purchase URL)
-    const ticketLink = $el.find('a[href*="bilety.opera.wroclaw.pl"]').first().attr('href') || ''
-
-    // Detail page link: spektakl.php?_id=...
+    // Detail page link: spektakl.php?_id=... (always present)
     const detailsHref = $el.find('a[href*="spektakl.php"]').first().attr('href') || ''
     const detailsLink = detailsHref
       ? (detailsHref.startsWith('http') ? detailsHref : `https://www.opera.wroclaw.pl/1/${detailsHref.replace(/^\.\//, '')}`)
       : ''
 
-    // Availability: check for "Brak miejsc" text or btn-disabled class
-    const btnTexts = $el.find('a').map((_, a) => $(a).text().trim().toLowerCase()).get()
-    const hasBrakMiejsc = btnTexts.some(t => t.includes('brak miejsc'))
-    const hasDisabled = $el.find('.btn-disabled, a[style*="not-allowed"]').length > 0
+    // Availability: check for "Brak miejsc" text or disabled buttons
+    const hasBrakMiejsc = $el.find('.btn-disabled').length > 0 ||
+      $el.find('a').filter((_, a) => $(a).text().trim().toLowerCase().includes('brak miejsc')).length > 0
+
+    // btn-red with cursor:not-allowed = sold out (even though text says "Kup bilet")
+    const buyBtn = $el.find('a.btn-red[href*="bilety.opera.wroclaw.pl"]').first()
+    const buyBtnDisabled = buyBtn.length > 0 && (buyBtn.attr('style') || '').includes('not-allowed')
+
+    let ticketLink = ''
     let dostepnosc = null
-    if (hasBrakMiejsc || hasDisabled) {
+    if (hasBrakMiejsc || buyBtnDisabled) {
       dostepnosc = 'wyprzedane'
-    } else if (ticketLink) {
+      ticketLink = '' // no point linking to blocked button
+    } else if (buyBtn.length > 0) {
+      ticketLink = buyBtn.attr('href') || ''
       dostepnosc = 'dostepne'
     }
+    // else: no ticket info at all (e.g. reservation by email only)
 
     if (dateTime) {
       events.push({
