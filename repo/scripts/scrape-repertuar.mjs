@@ -169,28 +169,188 @@ function parseGdanskHTML(html) {
 }
 
 async function scrapeGdansk() {
-  const allEvents = []
+  // The website filters months client-side via JS — curl/fetch always gets the same HTML.
+  // We must use Puppeteer to click through months.
+  let browser
+  try {
+    const puppeteer = await import('puppeteer')
+    browser = await puppeteer.default.launch({
+      headless: 'new',
+      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-web-security'],
+    })
+    const page = await browser.newPage()
+    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36')
 
-  // First page — current month
-  const html = await fetchHTML('https://operabaltycka.pl/repertuar')
-  allEvents.push(...parseGdanskHTML(html))
+    console.log('  [Gdańsk] Uruchamiam przeglądarkę...')
+    await page.setViewport({ width: 1280, height: 800 })
+    await page.goto('https://operabaltycka.pl/repertuar', {
+      waitUntil: 'networkidle2',
+      timeout: 30000,
+    })
+    await new Promise(r => setTimeout(r, 3000))
 
-  // Subsequent months via AJAX endpoint
-  const now = new Date()
-  for (let offset = 1; offset <= 4; offset++) {
-    const d = new Date(now.getFullYear(), now.getMonth() + offset, 1)
-    const ym = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
-
+    // Accept Cookiebot (required for JS to work properly)
     try {
-      const monthHtml = await fetchHTML(`https://operabaltycka.pl/repertuar/filterAjax?year-month=${ym}`)
-      const monthEvents = parseGdanskHTML(monthHtml)
-      allEvents.push(...monthEvents)
-    } catch (err) {
-      console.error(`  [Gdańsk] Błąd miesiąca ${ym}: ${err.message}`)
-    }
-  }
+      const frames = page.frames()
+      for (const frame of frames) {
+        if (frame.url().includes('cookiebot')) {
+          const allowBtn = await frame.$('#CybotCookiebotDialogBodyLevelButtonLevelOptinAllowAll')
+          if (allowBtn) {
+            await allowBtn.click()
+            console.log('  [Gdańsk] Cookiebot zaakceptowany')
+            await new Promise(r => setTimeout(r, 2000))
+          }
+        }
+      }
+    } catch { /* no cookiebot */ }
 
-  return allEvents
+    const parsedEvents = []
+    const seen = new Set()
+
+    // Extract events from current page state
+    async function extractCurrentEvents() {
+      return await page.evaluate(() => {
+        const events = []
+        // Get ALL repertoire items — including hidden ones from other months
+        // The page uses .repertoire-list-item__wrapper elements
+        const wrappers = document.querySelectorAll('.repertoire-list-item__wrapper, .repertoire-list-item')
+        console.log('Total wrappers found:', wrappers.length)
+
+        wrappers.forEach(wrapper => {
+          const titleEl = wrapper.querySelector('.repertoire-list-item__title, h2[class*="title"]')
+          const dayEl = wrapper.querySelector('[class*="repertoire-list-item__day"] time, [id^="desc-repertoire-date-d"]')
+          const myEl = wrapper.querySelector('.repertoire-list-item__month-year, [id^="desc-repertoire-date-my"]')
+          const hiEl = wrapper.querySelector('[id^="desc-repertoire-date-hi"], .repertoire-list-item__hour time')
+          const labelEl = wrapper.querySelector('.repertoire-list-item__label')
+          const authorEl = wrapper.querySelector('.repertoire-list-item__author')
+          const ticketEl = wrapper.querySelector('a[href*="bilety24"]')
+          const eventLink = wrapper.querySelector('a[href*="/wydarzenie/"]')
+
+          const title = titleEl?.textContent?.trim()
+          const day = dayEl?.textContent?.trim()
+          const monthYear = myEl?.textContent?.trim()
+          const time = hiEl?.textContent?.trim()
+
+          if (title && day && monthYear) {
+            events.push({
+              title, day, monthYear, time,
+              label: labelEl?.textContent?.trim() || '',
+              author: authorEl?.textContent?.trim() || '',
+              ticketLink: ticketEl?.href || '',
+              eventUrl: eventLink?.href || '',
+            })
+          }
+        })
+
+        // Also try: count all title IDs to see max index
+        let maxIdx = -1
+        for (let i = 0; i < 200; i++) {
+          if (document.getElementById('desc-repertoire-title-' + i)) maxIdx = i
+        }
+        if (events.length === 0 && maxIdx >= 0) {
+          console.log('Fallback: found IDs up to', maxIdx)
+          for (let i = 0; i <= maxIdx; i++) {
+            const t = document.getElementById('desc-repertoire-title-' + i)?.textContent?.trim()
+            const d = document.getElementById('desc-repertoire-date-d-' + i)?.textContent?.trim()
+            const m = document.getElementById('desc-repertoire-date-my-' + i)?.textContent?.trim()
+            const h = document.getElementById('desc-repertoire-date-hi-' + i)?.textContent?.trim()
+            if (t && d && m) events.push({ title: t, day: d, monthYear: m, time: h || '', label: '', author: '', ticketLink: '', eventUrl: '' })
+          }
+        }
+
+        return events
+      })
+    }
+
+    // Iterate through months
+    for (let monthIdx = 0; monthIdx < 5; monthIdx++) {
+      const rawEvents = await extractCurrentEvents()
+
+      for (const ev of rawEvents) {
+        let month = null, year = 2026
+        for (const [name, num] of Object.entries(MONTHS)) {
+          if (ev.monthYear.toLowerCase().includes(name)) { month = num; break }
+        }
+        const yearMatch = ev.monthYear.match(/(\d{4})/)
+        if (yearMatch) year = parseInt(yearMatch[1])
+        if (!month) continue
+
+        const timeMatch = ev.time?.match(/(\d+):(\d+)/)
+        const dateTime = new Date(year, month - 1, parseInt(ev.day),
+          timeMatch ? parseInt(timeMatch[1]) : 19,
+          timeMatch ? parseInt(timeMatch[2]) : 0
+        ).toISOString()
+
+        const key = `${dateTime}-${ev.title}`
+        if (!seen.has(key)) {
+          seen.add(key)
+          parsedEvents.push({
+            tytul: ev.title,
+            kompozytor: ev.author || '',
+            kategoria: categorize(ev.label),
+            data_czas: dateTime,
+            link_bilety: ev.ticketLink,
+            zrodlo_url: 'https://operabaltycka.pl/repertuar',
+          })
+        }
+      }
+
+      console.log(`  [Gdańsk] Miesiąc ${monthIdx + 1}: ${rawEvents.length} na stronie, razem: ${parsedEvents.length}`)
+
+      // Click next month button, wait for AJAX response, re-extract
+      try {
+        const nextBtn = await page.$('button.js-next-month')
+        if (!nextBtn) break
+
+        const [response] = await Promise.all([
+          page.waitForResponse(resp => resp.url().includes('filterAjax'), { timeout: 15000 }),
+          nextBtn.click(),
+        ])
+        await new Promise(r => setTimeout(r, 2000)) // let DOM update
+
+        // Re-extract from updated page
+        const rawEvents = await extractCurrentEvents()
+        let newCount = 0
+        for (const ev of rawEvents) {
+          let month = null, year = 2026
+          for (const [name, num] of Object.entries(MONTHS)) {
+            if (ev.monthYear.toLowerCase().includes(name)) { month = num; break }
+          }
+          const yearMatch = ev.monthYear.match(/(\d{4})/)
+          if (yearMatch) year = parseInt(yearMatch[1])
+          if (!month) continue
+          const timeMatch = ev.time?.match(/(\d+):(\d+)/)
+          const dateTime = new Date(year, month - 1, parseInt(ev.day),
+            timeMatch ? parseInt(timeMatch[1]) : 19, timeMatch ? parseInt(timeMatch[2]) : 0
+          ).toISOString()
+          const key = `${dateTime}-${ev.title}`
+          if (!seen.has(key)) {
+            seen.add(key)
+            parsedEvents.push({
+              tytul: ev.title, kompozytor: ev.author || '', kategoria: categorize(ev.label),
+              data_czas: dateTime, link_bilety: ev.ticketLink, zrodlo_url: 'https://operabaltycka.pl/repertuar',
+            })
+            newCount++
+          }
+        }
+        console.log(`  [Gdańsk] Miesiąc ${monthIdx + 2}: +${newCount} nowych, razem: ${parsedEvents.length}`)
+      } catch (err) {
+        // Timeout = no more AJAX = no more months
+        console.log(`  [Gdańsk] Koniec miesięcy (${err.message?.substring(0, 30)})`)
+        break
+      }
+    }
+
+    return parsedEvents
+  } catch (err) {
+    console.error(`  [Gdańsk] Puppeteer error: ${err.message}`)
+    // Fallback to static HTML (only current month)
+    console.log('  [Gdańsk] Fallback: static HTML (tylko bieżący miesiąc)')
+    const html = await fetchHTML('https://operabaltycka.pl/repertuar')
+    return parseGdanskHTML(html)
+  } finally {
+    if (browser) await browser.close()
+  }
 }
 
 // ── 3. OPERA WROCŁAWSKA ──────────────────────────────────────────────────────
