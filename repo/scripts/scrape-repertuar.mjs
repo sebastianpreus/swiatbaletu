@@ -708,81 +708,93 @@ async function scrapePoznan() {
 // Ticket links: a[href*="bilety24"] (twlodz.bilety24.pl/kup-bilety/?id=...)
 // Detail links: h3 a href pattern like "NAPOJ_MILOSNY,29,652"
 async function scrapeLodz() {
-  const html = await fetchHTML('https://www.operalodz.com/Repertuar,17')
-  const $ = cheerio.load(html)
-  const events = []
+  const allEvents = []
+  const seen = new Set()
+  const now = new Date()
 
-  // Split HTML by mp_date blocks — each event has: mp_date div, then main_program_right div
-  // Strategy: walk through all .mp_date elements and pair with next h3 title
-  const year = new Date().getFullYear()
+  // Use bilety24 shop — has months from March to June, accurate availability
+  for (let offset = 0; offset < 5; offset++) {
+    const d = new Date(now.getFullYear(), now.getMonth() + offset, 1)
+    const ym = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
 
-  // Find all date containers
-  $('.mp_date').each((_, dateEl) => {
-    const $date = $(dateEl)
-    const dateText = $date.find('.f30').first().text().trim() // "18.03"
-    const timeText = $date.find('.f30').last().text().trim()  // "11:00"
+    try {
+      const html = await fetchHTML(`https://twlodz.bilety24.pl/?b24_month=${ym}`)
+      const $ = cheerio.load(html)
 
-    const dateMatch = dateText.match(/(\d{1,2})\.(\d{2})/)
-    const timeMatch = timeText.match(/(\d{1,2}:\d{2})/)
-    if (!dateMatch) return
+      // Desktop view: .b24-event-month-list-default > .b24-day > .list-item
+      let currentDate = ''
+      $('.desktop-show .b24-day').each((_, dayEl) => {
+        const $day = $(dayEl)
+        const dayBar = $day.find('.b24-day-bar').text().trim() // "Piątek, 20 Marca"
 
-    const month = parseInt(dateMatch[2])
-    const day = parseInt(dateMatch[1])
-    const [h, min] = timeMatch ? timeMatch[1].split(':').map(Number) : [19, 0]
-    const dateTime = new Date(year, month - 1, day, h, min).toISOString()
+        $day.find('.list-item').each((_, itemEl) => {
+          const $item = $(itemEl)
 
-    // Find ticket link near this date — bilety24 links
-    const $ticketContainer = $date.parent()
-    const ticketLink = $ticketContainer.find('a[href*="bilety24"]').first().attr('href')
-      || $ticketContainer.find('a[href*="bilet"]').first().attr('href')
-      || ''
+          // Detail link: .list-item-image a[href*="wydarzenie"]
+          const detailLink = $item.find('a.list-item-image').attr('href') || ''
 
-    // Find title — it's in the sibling #main_program_right div
-    const $right = $ticketContainer.next('#main_program_right, [id="main_program_right"]')
-    const $titleLink = $right.find('h3 a').first()
-    const title = $titleLink.text().replace(/›/g, '').replace(/&rsaquo;/g, '').trim()
-    if (!title) return
+          // Button: a.btn-buy — text can be "KUP BILET", "INFO", "ODWOŁANE", etc.
+          const $btn = $item.find('a.btn-buy').first()
+          const btnText = $btn.text().trim()
+          const btnHref = $btn.attr('href') || ''
 
-    // Detail page link from h3 > a href (e.g. "NAPOJ_MILOSNY,29,652")
-    const titleHref = $titleLink.attr('href') || ''
-    const detailLink = titleHref
-      ? (titleHref.startsWith('http') ? titleHref : `https://www.operalodz.com/${titleHref.replace(/^\//, '')}`)
-      : ''
+          // Title from btn title attribute: "Kup bilet - Opera: NAPÓJ MIŁOSNY - 2026-03-20 17:30 - 18:30 - Łódź"
+          const btnTitle = $btn.attr('title') || ''
+          const titleMatch = btnTitle.match(/(?:Opera|Balet|Koncert|Edukacja|Musical|Wydarzenie)[:\s]+(.+?)\s*-\s*(\d{4}-\d{2}-\d{2})\s+(\d{2}:\d{2})/)
 
-    // Category and composer from spectacle_row_val
-    const rows = []
-    $right.find('.spectacle_row').each((_, row) => {
-      const label = $(row).find('.spectacle_row_lab').text().trim()
-      const value = $(row).find('.spectacle_row_val').text().trim()
-      rows.push({ label, value })
-    })
+          let title = '', dateStr = '', timeStr = '', category = ''
+          if (titleMatch) {
+            // Extract category from prefix
+            const catMatch = btnTitle.match(/^[^-]*-\s*(Opera|Balet|Koncert|Edukacja|Musical|Wydarzenie)/)
+            category = catMatch ? catMatch[1] : ''
+            title = titleMatch[1].trim()
+            dateStr = titleMatch[2]
+            timeStr = titleMatch[3]
+          }
 
-    const category = rows.find(r => !r.label && ['Opera', 'Balet', 'Koncert', 'Edukacja', 'Musical'].includes(r.value))?.value || ''
-    const composer = rows.find(r => r.label.includes('Kompozytor'))?.value || ''
+          if (!title || !dateStr) return
 
-    // Availability: no explicit indicators on this site, but if no ticket link exists it may be sold out
-    let dostepnosc = null
-    if (ticketLink) {
-      dostepnosc = 'dostepne'
+          const [y, m, dd] = dateStr.split('-').map(Number)
+          const [h, min] = timeStr.split(':').map(Number)
+          const dateTime = new Date(y, m - 1, dd, h, min).toISOString()
+
+          const key = `${dateTime}-${title}`
+          if (seen.has(key)) return
+          seen.add(key)
+
+          // Availability based on button text
+          let dostepnosc = null
+          let ticketLink = ''
+          const btnLower = btnText.toLowerCase()
+          if (btnLower.includes('kup bilet')) {
+            dostepnosc = 'dostepne'
+            ticketLink = btnHref
+          } else if (btnLower.includes('odwołane') || btnLower.includes('cancelled')) {
+            dostepnosc = 'wyprzedane'
+          } else if (btnLower.includes('info')) {
+            // "Info" — no ticket sale, link to event page
+            ticketLink = btnHref
+          }
+
+          allEvents.push({
+            tytul: title.replace(/\s+/g, ' '),
+            kategoria: categorize(category || title),
+            data_czas: dateTime,
+            link_bilety: ticketLink,
+            dostepnosc,
+            zrodlo_url: detailLink || `https://twlodz.bilety24.pl/?b24_month=${ym}`,
+          })
+        })
+      })
+
+      const monthEvents = allEvents.length - seen.size + [...seen].filter(k => allEvents.some(e => `${e.data_czas}-${e.tytul}` === k)).length
+      console.log(`  [Łódź] ${ym}: ${$('.desktop-show .list-item').length} pozycji`)
+    } catch (err) {
+      console.error(`  [Łódź] Błąd ${ym}: ${err.message}`)
     }
-    // Check for sold out text in the event block
-    const blockText = $ticketContainer.text().toLowerCase() + $right.text().toLowerCase()
-    if (blockText.includes('wyprzedane') || blockText.includes('brak miejsc')) {
-      dostepnosc = 'wyprzedane'
-    }
+  }
 
-    events.push({
-      tytul: title.replace(/\s+/g, ' '),
-      kompozytor: composer,
-      kategoria: categorize(category || title),
-      data_czas: dateTime,
-      link_bilety: ticketLink,
-      dostepnosc,
-      zrodlo_url: detailLink || 'https://www.operalodz.com/Repertuar,17',
-    })
-  })
-
-  return events
+  return allEvents
 }
 
 // ── 7. OPERA KRAKOWSKA ───────────────────────────────────────────────────────
