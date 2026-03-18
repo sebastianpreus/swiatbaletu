@@ -421,15 +421,17 @@ async function scrapeWroclaw() {
   const $ = cheerio.load(html)
   const events = []
 
-  $('.rep-single').each((_, el) => {
+  // Use LIST VIEW (.rep-single.list) — grid view has stale availability data
+  $('.rep-single.list').each((_, el) => {
     const $el = $(el)
-    const title = $el.find('h4.title').text().trim()
+    // Title is in h3.rep-list-title, may contain <br> with subtitle/composer
+    const titleEl = $el.find('.rep-list-title')
+    const titleHtml = titleEl.html() || ''
+    const title = (titleHtml.split(/<br\s*\/?>/i)[0] || '').replace(/<[^>]*>/g, '').trim()
     if (!title) return
 
     const category = $el.find('.feat-cat .feat-value').text().trim()
-    const day = $el.find('.rep-date .day').text().trim()
-    const monthStr = $el.find('.rep-date .month').text().trim() // "marca, So"
-    const time = $el.find('.rep-time').text().trim()
+    const time = $el.find('.rep-list-time').text().trim()
     const dateString = $el.find('.date-string').text().trim() // "20260321"
 
     let dateTime = null
@@ -441,30 +443,26 @@ async function scrapeWroclaw() {
       dateTime = new Date(y, m, d, h, min).toISOString()
     }
 
-    // Detail page link: spektakl.php?_id=... (always present)
+    // Detail page link: spektakl.php?_id=... (btn-grey in list view)
     const detailsHref = $el.find('a[href*="spektakl.php"]').first().attr('href') || ''
     const detailsLink = detailsHref
       ? (detailsHref.startsWith('http') ? detailsHref : `https://www.opera.wroclaw.pl/1/${detailsHref.replace(/^\.\//, '')}`)
       : ''
 
-    // Availability: check for "Brak miejsc" text or disabled buttons
+    // Availability from list view (accurate, unlike grid)
     const hasBrakMiejsc = $el.find('.btn-disabled').length > 0 ||
-      $el.find('a').filter((_, a) => $(a).text().trim().toLowerCase().includes('brak miejsc')).length > 0
+      $el.find('a, button').filter((_, a) => $(a).text().trim().toLowerCase().includes('brak miejsc')).length > 0
 
-    // btn-red with cursor:not-allowed = sold out (even though text says "Kup bilet")
     const buyBtn = $el.find('a.btn-red[href*="bilety.opera.wroclaw.pl"]').first()
-    const buyBtnDisabled = buyBtn.length > 0 && (buyBtn.attr('style') || '').includes('not-allowed')
 
     let ticketLink = ''
     let dostepnosc = null
-    if (hasBrakMiejsc || buyBtnDisabled) {
+    if (hasBrakMiejsc) {
       dostepnosc = 'wyprzedane'
-      ticketLink = '' // no point linking to blocked button
     } else if (buyBtn.length > 0) {
       ticketLink = buyBtn.attr('href') || ''
       dostepnosc = 'dostepne'
     }
-    // else: no ticket info at all (e.g. reservation by email only)
 
     if (dateTime) {
       events.push({
