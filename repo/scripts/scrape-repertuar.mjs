@@ -578,18 +578,18 @@ async function scrapePoznan() {
     const dateText = $item.find('.reportaile-item__date__title').text().trim()
     const timeInfo = $item.find('.reportaile-item__date__info').text().trim()
 
-    // Title: may be a link to detail page
+    // Title: text in .reportaile-item__name__title
     const $titleEl = $item.find('.reportaile-item__name__title')
-    const $titleLink = $titleEl.find('a').first()
-    const titleFull = ($titleLink.length ? $titleLink.text().trim() : $titleEl.text().trim())
+    const titleFull = $titleEl.text().trim()
     const category = $item.find('.reportaile-item__name__info small').text().trim()
 
     // Ticket link: btn-buy-ticket class
     const ticketLink = $item.find('a.btn-buy-ticket').first().attr('href') || ''
 
-    // Detail page link from title anchor
-    const titleHref = $titleLink.attr('href') || ''
-    const detailLink = titleHref
+    // Detail page link: <a> wrapping .reportaile-item__name
+    const $nameLink = $item.find('a[href]').filter((_, a) => $(a).find('.reportaile-item__name__title').length > 0).first()
+    const titleHref = $nameLink.attr('href') || ''
+    const detailLink = titleHref && titleHref !== '#'
       ? (titleHref.startsWith('http') ? titleHref : `https://opera.poznan.pl${titleHref.startsWith('/') ? '' : '/'}${titleHref}`)
       : ''
 
