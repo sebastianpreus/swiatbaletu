@@ -37,7 +37,7 @@ function dostepnoscVariant(d: string): 'red' | 'amber' | 'green' {
   }
 }
 
-const MIASTA = ['Wszystkie', 'Warszawa', 'Kraków', 'Wrocław', 'Gdańsk', 'Poznań', 'Łódź']
+const MIASTA = ['Wszystkie', 'Warszawa', 'Kraków', 'Wrocław', 'Gdańsk', 'Poznań', 'Łódź', 'Bydgoszcz']
 
 export default async function RepertuarPage({
   searchParams,

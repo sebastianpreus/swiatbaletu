@@ -1,6 +1,9 @@
 import { supabase } from '../supabase'
 
 export async function getPrzedstawienia(miasto?: string) {
+  // When filtering by city, use !inner join so rows without matching teatr are excluded
+  const teatrJoin = miasto ? 'teatr:teatry!inner' : 'teatr:teatry'
+
   let query = supabase
     .from('przedstawienia')
     .select(`
@@ -17,7 +20,7 @@ export async function getPrzedstawienia(miasto?: string) {
         choreograf,
         zdjecie_url
       ),
-      teatr:teatry (
+      ${teatrJoin} (
         id,
         nazwa,
         miasto,
@@ -28,7 +31,7 @@ export async function getPrzedstawienia(miasto?: string) {
     .order('data_czas', { ascending: true })
 
   if (miasto) {
-    query = query.eq('teatry.miasto', miasto)
+    query = query.eq('teatr.miasto', miasto)
   }
 
   const { data, error } = await query
