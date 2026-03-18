@@ -413,6 +413,9 @@ async function scrapeGdansk() {
 
 // ── 3. OPERA WROCŁAWSKA ──────────────────────────────────────────────────────
 // /1/repertuar.php — .rep-single blocks with .title, .feat-cat, .rep-date, .rep-time, .date-string
+// Ticket links: a[href*="bilety.opera.wroclaw.pl"] (Kup bilet)
+// Detail links: a[href*="spektakl.php"] (Szczegóły)
+// Sold out: text "Brak miejsc" or btn-disabled class
 async function scrapeWroclaw() {
   const html = await fetchHTML('https://www.opera.wroclaw.pl/1/repertuar.php')
   const $ = cheerio.load(html)
@@ -438,9 +441,25 @@ async function scrapeWroclaw() {
       dateTime = new Date(y, m, d, h, min).toISOString()
     }
 
-    const available = !$el.find('.btn-disabled').length
-    const detailsLink = $el.find('a[href*="spektakl.php"]').attr('href') || ''
-    const ticketLink = $el.find('a[href*="bilet"]').attr('href') || ''
+    // Ticket link: look for bilety.opera.wroclaw.pl links (actual purchase URL)
+    const ticketLink = $el.find('a[href*="bilety.opera.wroclaw.pl"]').first().attr('href') || ''
+
+    // Detail page link: spektakl.php?_id=...
+    const detailsHref = $el.find('a[href*="spektakl.php"]').first().attr('href') || ''
+    const detailsLink = detailsHref
+      ? (detailsHref.startsWith('http') ? detailsHref : `https://www.opera.wroclaw.pl/1/${detailsHref.replace(/^\.\//, '')}`)
+      : ''
+
+    // Availability: check for "Brak miejsc" text or btn-disabled class
+    const btnTexts = $el.find('a').map((_, a) => $(a).text().trim().toLowerCase()).get()
+    const hasBrakMiejsc = btnTexts.some(t => t.includes('brak miejsc'))
+    const hasDisabled = $el.find('.btn-disabled, a[style*="not-allowed"]').length > 0
+    let dostepnosc = null
+    if (hasBrakMiejsc || hasDisabled) {
+      dostepnosc = 'wyprzedane'
+    } else if (ticketLink) {
+      dostepnosc = 'dostepne'
+    }
 
     if (dateTime) {
       events.push({
@@ -448,8 +467,8 @@ async function scrapeWroclaw() {
         kategoria: categorize(category || title),
         data_czas: dateTime,
         link_bilety: ticketLink,
-        dostepnosc: available ? 'dostepne' : 'wyprzedane',
-        zrodlo_url: detailsLink ? `https://www.opera.wroclaw.pl/1/${detailsLink}` : 'https://www.opera.wroclaw.pl/1/repertuar.php',
+        dostepnosc,
+        zrodlo_url: detailsLink || 'https://www.opera.wroclaw.pl/1/repertuar.php',
       })
     }
   })
@@ -459,21 +478,16 @@ async function scrapeWroclaw() {
 
 // ── 4. OPERA NOVA BYDGOSZCZ ─────────────────────────────────────────────────
 // /repertuar.html — month sections with h3 (Marzec/Kwiecień/...), day h2, title h5>a, time, ticket
+// Ticket links: a[href*="bilety.operanova.bydgoszcz.pl"] (Kup Bilet)
+// Detail links: a[href*="/spektakle/"] (e.g. /spektakle/balet/carmen.html)
 async function scrapeBydgoszcz() {
   const html = await fetchHTML('https://www.opera.bydgoszcz.pl/repertuar.html')
   const $ = cheerio.load(html)
   const events = []
   const seen = new Set()
   const year = new Date().getFullYear()
-  const monthMap = { 'marzec': 3, 'kwiecień': 4, 'maj': 5, 'czerwiec': 6, 'lipiec': 7, 'sierpień': 8 }
-
-  // Strategy: find all month sections, then inside each, find day+event blocks
-  // Month headers: h3.text-warning containing month name
-  // Day blocks: h2 with day number, then h5>a with title, small with category, time text, ticket link
-
-  // Walk through the mobile list view which has cleaner structure
-  // Pattern in d-lg-none: h2(day), h5>a(title)+small(cat), time, ticket link
-  let currentMonth = null
+  const monthMap = { 'marzec': 3, 'kwiecień': 4, 'maj': 5, 'czerwiec': 6, 'lipiec': 7, 'sierpień': 8,
+    'wrzesień': 9, 'październik': 10, 'listopad': 11, 'grudzień': 12, 'styczeń': 1, 'luty': 2 }
 
   // Find all current-month sections
   $('.current-month').each((_, section) => {
@@ -482,8 +496,7 @@ async function scrapeBydgoszcz() {
     const month = monthMap[monthName]
     if (!month) return
 
-    // Find all event blocks within this month
-    // Each event: text-center p-1 block with h2 (day), h5>a (title), small (cat), time, ticket
+    // Each event: text-center block with h2 (day), h5>a (title), small (cat), time, ticket
     $section.find('.text-center.p-1, .text-center').each((_, block) => {
       const $block = $(block)
       const dayText = $block.find('h2').first().text().trim()
@@ -495,14 +508,21 @@ async function scrapeBydgoszcz() {
       if (!title) return
 
       const category = $block.find('h5 small').text().trim()
-      const href = $titleLink.attr('href') || ''
+      const detailHref = $titleLink.attr('href') || ''
 
       // Time — plain text like "19:00"
       const blockText = $block.text()
       const timeMatch = blockText.match(/(\d{1,2}:\d{2})/)
 
-      // Ticket link
-      const ticketLink = $block.find('a[href*="bilety"]').first().attr('href') || ''
+      // Ticket link: look for bilety.operanova.bydgoszcz.pl or any bilety link
+      const ticketLink = $block.find('a[href*="bilety.operanova.bydgoszcz.pl"]').first().attr('href')
+        || $block.find('a[href*="bilety"]').not('[href*="spektakle"]').first().attr('href')
+        || ''
+
+      // Detail page link
+      const detailLink = detailHref
+        ? (detailHref.startsWith('http') ? detailHref : `https://www.opera.bydgoszcz.pl${detailHref.startsWith('/') ? '' : '/'}${detailHref}`)
+        : ''
 
       const dateTime = new Date(year, month - 1, day,
         ...(timeMatch ? timeMatch[1].split(':').map(Number) : [19, 0])
@@ -512,12 +532,23 @@ async function scrapeBydgoszcz() {
       if (seen.has(key)) return
       seen.add(key)
 
+      // Availability
+      let dostepnosc = null
+      if (ticketLink) {
+        dostepnosc = 'dostepne'
+      }
+      const lowerText = blockText.toLowerCase()
+      if (lowerText.includes('wyprzedane') || lowerText.includes('brak miejsc')) {
+        dostepnosc = 'wyprzedane'
+      }
+
       events.push({
         tytul: title,
         kategoria: categorize(category || title),
         data_czas: dateTime,
         link_bilety: ticketLink,
-        zrodlo_url: href ? `https://www.opera.bydgoszcz.pl${href}` : 'https://www.opera.bydgoszcz.pl/repertuar.html',
+        dostepnosc,
+        zrodlo_url: detailLink || 'https://www.opera.bydgoszcz.pl/repertuar.html',
       })
     })
   })
@@ -527,26 +558,37 @@ async function scrapeBydgoszcz() {
 
 // ── 5. TEATR WIELKI POZNAŃ ───────────────────────────────────────────────────
 // /repertuar — sequential .reportaile-item__date + .reportaile-item__name blocks
+// Ticket links: a.btn-buy-ticket[href*="bilety.opera.poznan.pl"]
+// Detail links: title <a> inside .reportaile-item__name__title (e.g. /turandot-giacomo-puccini)
 async function scrapePoznan() {
   const html = await fetchHTML('https://opera.poznan.pl/repertuar')
   const $ = cheerio.load(html)
   const events = []
   const seen = new Set()
 
-  // Collect all date blocks and pair with adjacent name blocks
-  const $dates = $('.reportaile-item__date')
-  $dates.each((_, dateEl) => {
-    const $dateBlock = $(dateEl)
-    const dateText = $dateBlock.find('.reportaile-item__date__title').text().trim()
-    const timeInfo = $dateBlock.find('.reportaile-item__date__info').text().trim()
+  // Each .reportaile-item contains date, name, checkout sections
+  // Walk through .reportaile-item containers or date+name sibling pairs
+  const $items = $('.reportaile-item')
 
-    // Find the next sibling name block
-    const $nameBlock = $dateBlock.next('.reportaile-item__name')
-    if (!$nameBlock.length) return
+  $items.each((_, item) => {
+    const $item = $(item)
+    const dateText = $item.find('.reportaile-item__date__title').text().trim()
+    const timeInfo = $item.find('.reportaile-item__date__info').text().trim()
 
-    const titleFull = $nameBlock.find('.reportaile-item__name__title').text().trim()
-    const category = $nameBlock.find('.reportaile-item__name__info small').text().trim()
-    const ticketLink = $nameBlock.nextAll('.btn-buy-ticket, .reportaile-item__checkout').first().find('a').attr('href') || ''
+    // Title: may be a link to detail page
+    const $titleEl = $item.find('.reportaile-item__name__title')
+    const $titleLink = $titleEl.find('a').first()
+    const titleFull = ($titleLink.length ? $titleLink.text().trim() : $titleEl.text().trim())
+    const category = $item.find('.reportaile-item__name__info small').text().trim()
+
+    // Ticket link: btn-buy-ticket class
+    const ticketLink = $item.find('a.btn-buy-ticket').first().attr('href') || ''
+
+    // Detail page link from title anchor
+    const titleHref = $titleLink.attr('href') || ''
+    const detailLink = titleHref
+      ? (titleHref.startsWith('http') ? titleHref : `https://opera.poznan.pl${titleHref.startsWith('/') ? '' : '/'}${titleHref}`)
+      : ''
 
     if (!titleFull) return
 
@@ -570,9 +612,19 @@ async function scrapePoznan() {
     const title = parts[0].trim()
     const composer = parts.slice(1).join(' - ').trim()
 
-    // Find venue from sibling .reportaile-item__place
-    const $place = $nameBlock.nextAll('.reportaile-item__place').first()
-    const venue = $place.find('.place-name').text().trim()
+    // Find venue from .reportaile-item__place
+    const venue = $item.find('.place-name').text().trim()
+
+    // Availability: check if ticket button exists and is not disabled
+    let dostepnosc = null
+    if (ticketLink) {
+      dostepnosc = 'dostepne'
+    }
+    // Check for sold out indicators
+    const itemText = $item.text().toLowerCase()
+    if (itemText.includes('wyprzedane') || itemText.includes('brak miejsc') || itemText.includes('sold out')) {
+      dostepnosc = 'wyprzedane'
+    }
 
     events.push({
       tytul: title,
@@ -580,16 +632,78 @@ async function scrapePoznan() {
       kategoria: categorize(category),
       data_czas: dateTime,
       link_bilety: ticketLink,
+      dostepnosc,
       sala: venue,
-      zrodlo_url: 'https://opera.poznan.pl/repertuar',
+      zrodlo_url: detailLink || 'https://opera.poznan.pl/repertuar',
     })
   })
+
+  // Fallback: if .reportaile-item didn't match, try the old date+name sibling approach
+  if (events.length === 0) {
+    const $dates = $('.reportaile-item__date')
+    $dates.each((_, dateEl) => {
+      const $dateBlock = $(dateEl)
+      const dateText = $dateBlock.find('.reportaile-item__date__title').text().trim()
+      const timeInfo = $dateBlock.find('.reportaile-item__date__info').text().trim()
+
+      const $nameBlock = $dateBlock.next('.reportaile-item__name')
+      if (!$nameBlock.length) return
+
+      const $titleLink = $nameBlock.find('.reportaile-item__name__title a').first()
+      const titleFull = ($titleLink.length ? $titleLink.text().trim() : $nameBlock.find('.reportaile-item__name__title').text().trim())
+      const category = $nameBlock.find('.reportaile-item__name__info small').text().trim()
+
+      // Ticket link from siblings
+      const ticketLink = $nameBlock.nextAll('a.btn-buy-ticket').first().attr('href')
+        || $nameBlock.parent().find('a.btn-buy-ticket').first().attr('href')
+        || ''
+
+      // Detail link from title
+      const titleHref = $titleLink.attr('href') || ''
+      const detailLink = titleHref
+        ? (titleHref.startsWith('http') ? titleHref : `https://opera.poznan.pl${titleHref.startsWith('/') ? '' : '/'}${titleHref}`)
+        : ''
+
+      if (!titleFull) return
+
+      const dateMatch = dateText.match(/(\d{1,2})\.(\d{2})\.(\d{4})/)
+      if (!dateMatch) return
+
+      const timeMatch = timeInfo.match(/(\d{1,2}:\d{2})/)
+      const dateTime = new Date(
+        parseInt(dateMatch[3]), parseInt(dateMatch[2]) - 1, parseInt(dateMatch[1]),
+        ...(timeMatch ? timeMatch[1].split(':').map(Number) : [19, 0])
+      ).toISOString()
+
+      const key = `${dateTime}-${titleFull}`
+      if (seen.has(key)) return
+      seen.add(key)
+
+      const parts = titleFull.split(/\s*-\s*/)
+      const title = parts[0].trim()
+      const composer = parts.slice(1).join(' - ').trim()
+      const venue = $nameBlock.nextAll('.reportaile-item__place').first().find('.place-name').text().trim()
+
+      events.push({
+        tytul: title,
+        kompozytor: composer,
+        kategoria: categorize(category),
+        data_czas: dateTime,
+        link_bilety: ticketLink,
+        dostepnosc: ticketLink ? 'dostepne' : null,
+        sala: venue,
+        zrodlo_url: detailLink || 'https://opera.poznan.pl/repertuar',
+      })
+    })
+  }
 
   return events
 }
 
 // ── 6. TEATR WIELKI ŁÓDŹ ─────────────────────────────────────────────────────
 // /Repertuar,17 — event blocks: .mp_date (DD.MM, day, HH:MM) + h3 a (title) + .spectacle_row_val (category, composer)
+// Ticket links: a[href*="bilety24"] (twlodz.bilety24.pl/kup-bilety/?id=...)
+// Detail links: h3 a href pattern like "NAPOJ_MILOSNY,29,652"
 async function scrapeLodz() {
   const html = await fetchHTML('https://www.operalodz.com/Repertuar,17')
   const $ = cheerio.load(html)
@@ -614,14 +728,23 @@ async function scrapeLodz() {
     const [h, min] = timeMatch ? timeMatch[1].split(':').map(Number) : [19, 0]
     const dateTime = new Date(year, month - 1, day, h, min).toISOString()
 
-    // Find ticket link near this date
+    // Find ticket link near this date — bilety24 links
     const $ticketContainer = $date.parent()
-    const ticketLink = $ticketContainer.find('a[href*="bilety24"], a[href*="bilet"]').first().attr('href') || ''
+    const ticketLink = $ticketContainer.find('a[href*="bilety24"]').first().attr('href')
+      || $ticketContainer.find('a[href*="bilet"]').first().attr('href')
+      || ''
 
     // Find title — it's in the sibling #main_program_right div
     const $right = $ticketContainer.next('#main_program_right, [id="main_program_right"]')
-    const title = $right.find('h3 a').first().text().replace(/›/g, '').replace(/&rsaquo;/g, '').trim()
+    const $titleLink = $right.find('h3 a').first()
+    const title = $titleLink.text().replace(/›/g, '').replace(/&rsaquo;/g, '').trim()
     if (!title) return
+
+    // Detail page link from h3 > a href (e.g. "NAPOJ_MILOSNY,29,652")
+    const titleHref = $titleLink.attr('href') || ''
+    const detailLink = titleHref
+      ? (titleHref.startsWith('http') ? titleHref : `https://www.operalodz.com/${titleHref.replace(/^\//, '')}`)
+      : ''
 
     // Category and composer from spectacle_row_val
     const rows = []
@@ -634,13 +757,25 @@ async function scrapeLodz() {
     const category = rows.find(r => !r.label && ['Opera', 'Balet', 'Koncert', 'Edukacja', 'Musical'].includes(r.value))?.value || ''
     const composer = rows.find(r => r.label.includes('Kompozytor'))?.value || ''
 
+    // Availability: no explicit indicators on this site, but if no ticket link exists it may be sold out
+    let dostepnosc = null
+    if (ticketLink) {
+      dostepnosc = 'dostepne'
+    }
+    // Check for sold out text in the event block
+    const blockText = $ticketContainer.text().toLowerCase() + $right.text().toLowerCase()
+    if (blockText.includes('wyprzedane') || blockText.includes('brak miejsc')) {
+      dostepnosc = 'wyprzedane'
+    }
+
     events.push({
       tytul: title.replace(/\s+/g, ' '),
       kompozytor: composer,
       kategoria: categorize(category || title),
       data_czas: dateTime,
       link_bilety: ticketLink,
-      zrodlo_url: 'https://www.operalodz.com/Repertuar,17',
+      dostepnosc,
+      zrodlo_url: detailLink || 'https://www.operalodz.com/Repertuar,17',
     })
   })
 
@@ -877,7 +1012,10 @@ async function main() {
       if (DRY_RUN) {
         for (const e of events.slice(0, 5)) {
           const dt = e.data_czas ? new Date(e.data_czas).toLocaleString('pl-PL', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : '??'
-          console.log(`    • ${dt} | ${e.kategoria} | ${e.tytul}`)
+          const avail = e.dostepnosc ? ` [${e.dostepnosc}]` : ''
+          const ticket = e.link_bilety ? ' [BILET]' : ''
+          const detail = e.zrodlo_url && e.zrodlo_url !== '' ? ' [URL]' : ''
+          console.log(`    • ${dt} | ${e.kategoria} | ${e.tytul}${avail}${ticket}${detail}`)
         }
         if (events.length > 5) console.log(`    ... i ${events.length - 5} więcej`)
         results.push({ theater: theater.name, events: events.length, added: 0, skipped: 0 })
