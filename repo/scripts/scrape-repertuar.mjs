@@ -223,7 +223,11 @@ async function scrapeGdansk() {
           const hiEl = wrapper.querySelector('[id^="desc-repertoire-date-hi"], .repertoire-list-item__hour time')
           const labelEl = wrapper.querySelector('.repertoire-list-item__label')
           const authorEl = wrapper.querySelector('.repertoire-list-item__author')
-          const ticketEl = wrapper.querySelector('a[href*="bilety24"]')
+          // Ticket links use aria-describedby with the title ID
+          const titleId = titleEl?.id || ''
+          const ticketEl = titleId
+            ? document.querySelector(`a[href*="bilety24"][aria-describedby*="${titleId}"]`)
+            : wrapper.querySelector('a[href*="bilety24"]')
           const eventLink = wrapper.querySelector('a[href*="/wydarzenie/"]')
 
           const title = titleEl?.textContent?.trim()

@@ -11,12 +11,13 @@ function formatDate(dateStr: string) {
   const d = new Date(dateStr)
   return d.toLocaleDateString('pl-PL', {
     weekday: 'short', day: 'numeric', month: 'long', year: 'numeric',
+    timeZone: 'Europe/Warsaw',
   })
 }
 
 function formatTime(dateStr: string) {
   const d = new Date(dateStr)
-  return d.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' })
+  return d.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Warsaw' })
 }
 
 function dostepnoscLabel(d: string) {

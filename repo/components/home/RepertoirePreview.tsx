@@ -4,7 +4,7 @@ import { getPrzedstawienia } from '../../lib/queries/repertuar'
 
 function formatDate(dateStr: string) {
   const d = new Date(dateStr)
-  return d.toLocaleDateString('pl-PL', { day: 'numeric', month: 'short' })
+  return d.toLocaleDateString('pl-PL', { day: 'numeric', month: 'short', timeZone: 'Europe/Warsaw' })
 }
 
 function dostepnoscLabel(d: string) {
