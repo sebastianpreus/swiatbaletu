@@ -930,7 +930,7 @@ async function ensureSpektakl(tytul, kompozytor, teatrId) {
 }
 
 async function syncToSupabase(teatrSlug, teatrName, events) {
-  if (events.length === 0) return { added: 0, skipped: 0 }
+  if (events.length === 0) return { added: 0, updated: 0, unchanged: 0 }
 
   const miastaMap = {
     'teatr-wielki-warszawa': 'Warszawa',
@@ -943,42 +943,61 @@ async function syncToSupabase(teatrSlug, teatrName, events) {
   }
 
   const teatrId = await ensureTeatr(teatrSlug, teatrName, miastaMap[teatrSlug])
-  let added = 0, skipped = 0
+  let added = 0, updated = 0, unchanged = 0
 
   for (const event of events) {
     const spektaklId = await ensureSpektakl(event.tytul, event.kompozytor || null, teatrId)
 
+    const updateData = {
+      link_bilety: event.link_bilety || null,
+      dostepnosc: event.dostepnosc || null,
+      notatka: event.kategoria || null,
+    }
+    if (event.zrodlo_url) updateData.link_szczegoly = event.zrodlo_url
+
     // Check if this exact showing already exists
     const { data: existing } = await supabase.from('przedstawienia')
-      .select('id')
+      .select('id, dostepnosc, link_bilety')
       .eq('spektakl_id', spektaklId)
       .eq('teatr_id', teatrId)
       .eq('data_czas', event.data_czas)
       .maybeSingle()
 
-    if (existing) { skipped++; continue }
+    if (existing) {
+      // Update if anything changed (availability, ticket link, etc.)
+      const changed = existing.dostepnosc !== updateData.dostepnosc ||
+                       existing.link_bilety !== updateData.link_bilety
+      if (changed) {
+        const { error } = await supabase.from('przedstawienia')
+          .update(updateData)
+          .eq('id', existing.id)
+        if (error) {
+          console.error(`  ✗ Update error: ${event.tytul}: ${error.message}`)
+        } else {
+          updated++
+        }
+      } else {
+        unchanged++
+      }
+      continue
+    }
 
-    const insertData = {
+    // Insert new
+    const { error } = await supabase.from('przedstawienia').insert({
       spektakl_id: spektaklId,
       teatr_id: teatrId,
       data_czas: event.data_czas,
-      link_bilety: event.link_bilety || null,
-      dostepnosc: event.dostepnosc || null,
-      notatka: event.kategoria || null,
-    }
-    // Add link_szczegoly if column exists (added via ALTER TABLE)
-    if (event.zrodlo_url) insertData.link_szczegoly = event.zrodlo_url
-
-    const { error } = await supabase.from('przedstawienia').insert(insertData)
+      ...updateData,
+    })
 
     if (error) {
-      console.error(`  ✗ Error: ${event.tytul} @ ${event.data_czas}: ${error.message}`)
+      console.error(`  ✗ Insert error: ${event.tytul} @ ${event.data_czas}: ${error.message}`)
     } else {
       added++
     }
   }
 
-  return { added, skipped }
+  return { added, updated, unchanged }
 }
 
 // ── Main ─────────────────────────────────────────────────────────────────────
@@ -1018,15 +1037,15 @@ async function main() {
           console.log(`    • ${dt} | ${e.kategoria} | ${e.tytul}${avail}${ticket}${detail}`)
         }
         if (events.length > 5) console.log(`    ... i ${events.length - 5} więcej`)
-        results.push({ theater: theater.name, events: events.length, added: 0, skipped: 0 })
+        results.push({ theater: theater.name, events: events.length, added: 0, updated: 0, unchanged: 0 })
       } else {
-        const { added, skipped } = await syncToSupabase(theater.slug, theater.name, events)
-        console.log(`  ✓ Dodano: ${added}, pominięto (duplikaty): ${skipped}`)
-        results.push({ theater: theater.name, events: events.length, added, skipped })
+        const { added, updated, unchanged } = await syncToSupabase(theater.slug, theater.name, events)
+        console.log(`  ✓ Nowych: ${added}, zaktualizowanych: ${updated}, bez zmian: ${unchanged}`)
+        results.push({ theater: theater.name, events: events.length, added, updated, unchanged })
       }
     } catch (err) {
       console.error(`  ✗ Błąd: ${err.message}`)
-      results.push({ theater: theater.name, events: 0, added: 0, skipped: 0, error: err.message })
+      results.push({ theater: theater.name, events: 0, added: 0, updated: 0, unchanged: 0, error: err.message })
     }
 
     console.log()
@@ -1040,7 +1059,7 @@ async function main() {
   for (const r of results) {
     totalEvents += r.events
     totalAdded += r.added
-    const status = r.error ? `✗ ${r.error}` : `✓ ${r.events} wydarzeń${DRY_RUN ? '' : `, ${r.added} nowych`}`
+    const status = r.error ? `✗ ${r.error}` : `✓ ${r.events} wydarzeń${DRY_RUN ? '' : `, +${r.added} nowych, ↻${r.updated} zaktual.`}`
     console.log(`  ${r.theater}: ${status}`)
   }
   console.log(`\n  RAZEM: ${totalEvents} wydarzeń${DRY_RUN ? '' : `, ${totalAdded} dodanych do bazy`}`)
