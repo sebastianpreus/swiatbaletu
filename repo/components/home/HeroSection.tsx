@@ -63,13 +63,13 @@ export default async function HeroSection() {
         </div>
 
         {/* Side articles */}
-        <div className="py-7 pl-0 md:pl-7 flex flex-col justify-between border-t-[0.5px] md:border-t-0 border-border md:pt-16">
+        <div className="pt-5 pb-7 pl-0 md:pl-7 flex flex-col justify-between border-t-[0.5px] md:border-t-0 border-border">
           {sideArticles.length > 0 ? (
             sideArticles.map((article, idx) => (
               <Link
                 key={article._id}
                 href={`/artykuly/${article.slug.current}`}
-                className={`py-[14px] cursor-pointer group flex gap-4 ${
+                className={`py-[18px] cursor-pointer group flex gap-4 ${
                   idx < sideArticles.length - 1 ? 'border-b-[0.5px] border-border' : ''
                 }`}
               >
