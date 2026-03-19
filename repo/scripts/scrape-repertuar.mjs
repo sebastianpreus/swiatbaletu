@@ -480,9 +480,8 @@ async function scrapeWroclaw() {
 }
 
 // ── 4. OPERA NOVA BYDGOSZCZ ─────────────────────────────────────────────────
-// /repertuar.html — month sections with h3 (Marzec/Kwiecień/...), day h2, title h5>a, time, ticket
-// Ticket links: a[href*="bilety.operanova.bydgoszcz.pl"] (Kup Bilet)
-// Detail links: a[href*="/spektakle/"] (e.g. /spektakle/balet/carmen.html)
+// /repertuar.html — all months in one HTML (slick carousel), mobile view (.d-lg-none .text-center.p-1)
+// Month changes detected by day number decreasing (e.g. 29 → 01 = next month)
 async function scrapeBydgoszcz() {
   const html = await fetchHTML('https://www.opera.bydgoszcz.pl/repertuar.html')
   const $ = cheerio.load(html)
@@ -492,58 +491,52 @@ async function scrapeBydgoszcz() {
   const monthMap = { 'marzec': 3, 'kwiecień': 4, 'maj': 5, 'czerwiec': 6, 'lipiec': 7, 'sierpień': 8,
     'wrzesień': 9, 'październik': 10, 'listopad': 11, 'grudzień': 12, 'styczeń': 1, 'luty': 2 }
 
-  // Find all current-month sections
-  $('.current-month').each((_, section) => {
-    const $section = $(section)
-    const monthName = $section.find('h3.text-warning').first().text().trim().toLowerCase()
-    const month = monthMap[monthName]
-    if (!month) return
+  // Get starting month from header
+  const monthName = $('.current-month h3.text-warning').first().text().trim().toLowerCase()
+  let currentMonth = monthMap[monthName] || new Date().getMonth() + 1
+  let prevDay = 0
 
-    // Each event: text-center block with h2 (day), h5>a (title), small (cat), time, ticket
-    $section.find('.text-center.p-1, .text-center').each((_, block) => {
-      const $block = $(block)
-      const dayText = $block.find('h2').first().text().trim()
-      const day = parseInt(dayText)
-      if (isNaN(day) || day < 1 || day > 31) return
+  // Use mobile view entries — one per event, simpler structure
+  $('.d-lg-none .text-center.p-1').each((_, block) => {
+    const $block = $(block)
+    const dayText = $block.find('h2.text-black').first().text().trim()
+    const day = parseInt(dayText)
+    if (isNaN(day) || day < 1 || day > 31) return
 
-      const $titleLink = $block.find('h5 a[href*="spektakle"]').first()
-      const title = $titleLink.text().trim()
-      if (!title) return
+    // Detect month change: day decreased means next month
+    if (day < prevDay) currentMonth++
+    prevDay = day
 
-      const category = $block.find('h5 small').text().trim()
-      const detailHref = $titleLink.attr('href') || ''
+    const $titleLink = $block.find('h5.text-warning a').first()
+    const title = $titleLink.text().trim()
+    if (!title) return
 
-      // Time — plain text like "19:00"
-      const blockText = $block.text()
-      const timeMatch = blockText.match(/(\d{1,2}:\d{2})/)
+    const category = $block.find('h5 small, small.text-dark').text().trim()
+    const detailHref = $titleLink.attr('href') || ''
 
-      // Ticket link: look for bilety.operanova.bydgoszcz.pl or any bilety link
-      const ticketLink = $block.find('a[href*="bilety.operanova.bydgoszcz.pl"]').first().attr('href')
-        || $block.find('a[href*="bilety"]').not('[href*="spektakle"]').first().attr('href')
-        || ''
+    const blockText = $block.text()
+    const timeMatch = blockText.match(/(\d{1,2}:\d{2})/)
 
-      // Detail page link
-      const detailLink = detailHref
-        ? (detailHref.startsWith('http') ? detailHref : `https://www.opera.bydgoszcz.pl${detailHref.startsWith('/') ? '' : '/'}${detailHref}`)
-        : ''
+    const ticketLink = $block.find('a[href*="bilety.operanova.bydgoszcz.pl"]').first().attr('href')
+      || $block.find('a.btn-warning').first().attr('href')
+      || ''
 
-      const dateTime = new Date(year, month - 1, day,
-        ...(timeMatch ? timeMatch[1].split(':').map(Number) : [19, 0])
-      ).toISOString()
+    const detailLink = detailHref
+      ? (detailHref.startsWith('http') ? detailHref : `https://www.opera.bydgoszcz.pl${detailHref.startsWith('/') ? '' : '/'}${detailHref}`)
+      : ''
 
-      const key = `${dateTime}-${title}`
-      if (seen.has(key)) return
-      seen.add(key)
+    const dateTime = new Date(year, currentMonth - 1, day,
+      ...(timeMatch ? timeMatch[1].split(':').map(Number) : [19, 0])
+    ).toISOString()
 
-      // Availability
-      let dostepnosc = null
-      if (ticketLink) {
-        dostepnosc = 'dostepne'
-      }
-      const lowerText = blockText.toLowerCase()
-      if (lowerText.includes('wyprzedane') || lowerText.includes('brak miejsc')) {
-        dostepnosc = 'wyprzedane'
-      }
+    const key = `${dateTime}-${title}`
+    if (seen.has(key)) return
+    seen.add(key)
+
+    let dostepnosc = null
+    if (ticketLink) dostepnosc = 'dostepne'
+    const lowerText = blockText.toLowerCase()
+    if (lowerText.includes('wyprzedane') || lowerText.includes('brak miejsc')) dostepnosc = 'wyprzedane'
 
       events.push({
         tytul: title,
@@ -554,7 +547,6 @@ async function scrapeBydgoszcz() {
         zrodlo_url: detailLink || 'https://www.opera.bydgoszcz.pl/repertuar.html',
       })
     })
-  })
 
   return events
 }
