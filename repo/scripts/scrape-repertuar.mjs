@@ -91,19 +91,20 @@ async function scrapeWarszawa() {
       seen.add(key)
 
       // Map etykietaPrzycisku to dostepnosc
+      // Empty label = tickets available (default state on butik)
       const label = (e.etykietaPrzycisku || '').toLowerCase()
-      let dostepnosc = null
-      let ticketLink = ''
+      let dostepnosc = 'dostepne' // default: available
+      let ticketLink = `https://butik.teatrwielki.pl/rezerwacja/miejsca.html?id=${e.id}`
 
-      if (label.includes('kup bilet')) {
-        dostepnosc = 'dostepne'
-        ticketLink = `https://butik.teatrwielki.pl/rezerwacja/miejsca.html?id=${e.id}`
-      } else if (label.includes('sprzedaż zakończona') || label.includes('brak miejsc')) {
+      if (label.includes('sprzedaż zakończona') || label.includes('brak miejsc')) {
         dostepnosc = 'wyprzedane'
+        ticketLink = ''
       } else if (label.includes('powiadom')) {
         dostepnosc = 'wyprzedane'
+        ticketLink = ''
       } else if (label.includes('niedostępny')) {
         dostepnosc = 'info'
+        ticketLink = ''
       }
 
       if (e.infoOdwolany) dostepnosc = 'odwolane'
