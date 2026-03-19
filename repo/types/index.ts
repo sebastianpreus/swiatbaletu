@@ -38,6 +38,7 @@ export interface Sylwetka {
   aktywny: boolean
   polskiArtysta: boolean
   wyroznienie: boolean
+  galeria?: { asset: unknown; alt?: string; caption?: string }[]
 }
 
 export interface Wywiad {
