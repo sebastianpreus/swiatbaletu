@@ -26,6 +26,7 @@ const supabase = createClient(
 )
 
 const DRY_RUN = process.argv.includes('--dry-run')
+const CLEAN_FUTURE = process.argv.includes('--clean-future')
 const TEATR_FILTER = (() => {
   const idx = process.argv.indexOf('--teatr')
   return idx !== -1 ? process.argv[idx + 1]?.toLowerCase() : null
@@ -982,6 +983,18 @@ async function syncToSupabase(teatrSlug, teatrName, events) {
   }
 
   const teatrId = await ensureTeatr(teatrSlug, teatrName, miastaMap[teatrSlug])
+
+  // Clean future events before reimport (preserves history)
+  if (CLEAN_FUTURE) {
+    const today = new Date().toISOString().split('T')[0] + 'T00:00:00'
+    const { error } = await supabase.from('przedstawienia')
+      .delete()
+      .eq('teatr_id', teatrId)
+      .gte('data_czas', today)
+    if (error) console.error(`  ✗ Clean future error: ${error.message}`)
+    else console.log(`  ♻ Wyczyszczono przyszłe przedstawienia`)
+  }
+
   let added = 0, updated = 0, unchanged = 0
 
   for (const event of events) {
