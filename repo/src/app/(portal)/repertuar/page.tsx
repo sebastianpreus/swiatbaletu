@@ -178,7 +178,7 @@ export default async function RepertuarPage({
               href={filterUrl({ status: d.value || undefined })}
               className={`text-[10px] tracking-[0.06em] uppercase px-3 py-[5px] rounded-[2px] border-[0.5px] transition-all ${
                 isActive
-                  ? 'bg-text-1 text-bg-main border-text-1'
+                  ? 'bg-gold text-white border-gold'
                   : 'text-text-2 border-border hover:border-gold-dim hover:text-gold'
               }`}
             >
