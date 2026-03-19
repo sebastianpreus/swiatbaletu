@@ -66,61 +66,60 @@ function categorize(text) {
 // ── 1. TEATR WIELKI WARSZAWA ─────────────────────────────────────────────────
 // Endpoint: /kalendarium/data/YYYY/MM/ — returns HTML with .event elements
 async function scrapeWarszawa() {
-  const events = []
-  const seen = new Set() // deduplicate
+  // butik.teatrwielki.pl JSON API — full data with availability, no Puppeteer needed
   const now = new Date()
+  const dataOd = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`
 
-  for (let offset = 0; offset < 5; offset++) {
-    const d = new Date(now.getFullYear(), now.getMonth() + offset, 1)
-    const year = d.getFullYear()
-    const month = String(d.getMonth() + 1).padStart(2, '0')
+  const resp = await fetch(`https://butik.teatrwielki.pl/rezerwacja/termin.html?json=true&ajax_action=pobierz_terminy&data_od=${dataOd}`, {
+    headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)', 'Cookie': 'SERVER=app01' }
+  })
+  if (!resp.ok) throw new Error(`HTTP ${resp.status}`)
+  const json = await resp.json()
+  if (json.status !== 'complete') throw new Error(`API status: ${json.status}`)
 
-    try {
-      const html = await fetchHTML(`https://teatrwielki.pl/kalendarium/data/${year}/${month}/`)
-      const $ = cheerio.load(html)
+  const events = []
+  const seen = new Set()
 
-      $('li.data-event').each((_, el) => {
-        const $el = $(el)
-        const $a = $el.find('.event-in h3 a').first()
-        const title = $a.text().trim()
-        if (!title) return
+  for (const [date, dayEvents] of Object.entries(json.data)) {
+    for (const e of dayEvents) {
+      const [y, m, d] = date.split('-').map(Number)
+      const [h, min] = (e.godzinaTerminu || '19:00').split(':').map(Number)
+      const dateTime = new Date(y, m - 1, d, h, min).toISOString()
 
-        const href = $a.attr('href') || ''
-        const category = $el.find('.category').first().text().trim()
-        const hall = $el.find('.hall').first().text().trim()
-        const composer = $el.find('.event-in h4').first().text().trim()
+      const key = `${dateTime}-${e.tytul}`
+      if (seen.has(key)) continue
+      seen.add(key)
 
-        const dateMatch = href.match(/termin\/(\d{4})-(\d{2})-(\d{2})_(\d{2})-(\d{2})/)
-        if (!dateMatch) return
+      // Map etykietaPrzycisku to dostepnosc
+      const label = (e.etykietaPrzycisku || '').toLowerCase()
+      let dostepnosc = null
+      let ticketLink = ''
 
-        // Deduplicate by href (same event appears in nested li)
-        if (seen.has(href)) return
-        seen.add(href)
+      if (label.includes('kup bilet')) {
+        dostepnosc = 'dostepne'
+        ticketLink = `https://butik.teatrwielki.pl/rezerwacja/miejsca.html?id=${e.id}`
+      } else if (label.includes('sprzedaż zakończona') || label.includes('brak miejsc')) {
+        dostepnosc = 'wyprzedane'
+      } else if (label.includes('powiadom')) {
+        dostepnosc = 'wyprzedane'
+      } else if (label.includes('niedostępny')) {
+        dostepnosc = 'info'
+      }
 
-        const dateTime = new Date(
-          parseInt(dateMatch[1]), parseInt(dateMatch[2]) - 1, parseInt(dateMatch[3]),
-          parseInt(dateMatch[4]), parseInt(dateMatch[5])
-        ).toISOString()
+      if (e.infoOdwolany) dostepnosc = 'odwolane'
 
-        // Ticket link: a.btn.yellow with href to butik.teatrwielki.pl
-        // IMPORTANT: use > direct child selector to avoid picking up buttons from nested events
-        const $price = $el.find('> .price')
-        const ticketLink = $price.find('a.yellow').first().attr('href') || ''
-        const detailLink = $price.find('a.btn').not('.yellow').first().attr('href') || ''
+      // Category from opis field
+      const opisLower = (e.opis || '').toLowerCase()
 
-        events.push({
-          tytul: title,
-          kompozytor: composer,
-          kategoria: categorize(category),
-          data_czas: dateTime,
-          link_bilety: ticketLink,
-          dostepnosc: null, // kalendarium doesn't have availability info
-          sala: hall,
-          zrodlo_url: (detailLink || href).startsWith('http') ? (detailLink || href) : `https://teatrwielki.pl${detailLink || href}`,
-        })
+      events.push({
+        tytul: e.tytul || '',
+        kompozytor: e.autor || '',
+        kategoria: categorize(opisLower.includes('balet') ? 'Balet' : opisLower.includes('opera') ? 'Opera' : opisLower.includes('koncert') ? 'Koncert' : e.tytul),
+        data_czas: dateTime,
+        link_bilety: ticketLink,
+        dostepnosc,
+        zrodlo_url: e.urlWydarzenia || 'https://teatrwielki.pl/kalendarium/',
       })
-    } catch (err) {
-      console.error(`  [Warszawa] Błąd miesiąca ${month}: ${err.message}`)
     }
   }
 
