@@ -41,12 +41,18 @@ export default async function HeroSection() {
               {hero.zajawka}
             </p>
           )}
-          <div className="w-full aspect-video rounded-lg mb-[22px] flex items-center justify-center border-[0.5px] border-border relative overflow-hidden bg-gradient-to-br from-[#f0ece0] via-[#e8dfc8] to-[#f0ece0] dark:from-[#0a0803] dark:via-[#1c1408] dark:to-[#0d0c06]">
+          <Link
+            href={`/artykuly/${hero.slug.current}`}
+            className="inline-flex items-center gap-[6px] text-[11px] tracking-[0.07em] uppercase text-gold-dim border-[0.5px] border-gold-dim rounded-[2px] px-4 py-2 hover:text-gold hover:border-gold transition-all mb-[22px]"
+          >
+            Czytaj więcej &rarr;
+          </Link>
+          <div className="w-full rounded-lg flex items-center justify-center border-[0.5px] border-border relative overflow-hidden bg-gradient-to-br from-[#f0ece0] via-[#e8dfc8] to-[#f0ece0] dark:from-[#0a0803] dark:via-[#1c1408] dark:to-[#0d0c06]">
             {hero.zdjecie ? (
               <img
                 src={urlFor(hero.zdjecie).width(800).url()}
                 alt={hero.zdjecie.alt || hero.tytul}
-                className="w-full h-full object-cover object-top"
+                className="w-full object-cover object-top"
               />
             ) : (
               <span className="font-serif text-[62px] italic text-gold opacity-[0.12] select-none">
@@ -54,12 +60,6 @@ export default async function HeroSection() {
               </span>
             )}
           </div>
-          <Link
-            href={`/artykuly/${hero.slug.current}`}
-            className="inline-flex items-center gap-[6px] text-[11px] tracking-[0.07em] uppercase text-gold-dim border-[0.5px] border-gold-dim rounded-[2px] px-4 py-2 hover:text-gold hover:border-gold transition-all"
-          >
-            Czytaj więcej &rarr;
-          </Link>
         </div>
 
         {/* Side articles */}
