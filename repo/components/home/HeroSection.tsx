@@ -43,23 +43,23 @@ export default async function HeroSection() {
           )}
           <Link
             href={`/artykuly/${hero.slug.current}`}
-            className="inline-flex items-center gap-[6px] text-[11px] tracking-[0.07em] uppercase text-gold-dim border-[0.5px] border-gold-dim rounded-[2px] px-4 py-2 hover:text-gold hover:border-gold transition-all mb-[22px]"
+            className="block w-full rounded-lg border-[0.5px] border-border relative overflow-hidden bg-gradient-to-br from-[#f0ece0] via-[#e8dfc8] to-[#f0ece0] dark:from-[#0a0803] dark:via-[#1c1408] dark:to-[#0d0c06] group"
           >
-            Czytaj więcej &rarr;
-          </Link>
-          <div className="w-full rounded-lg flex items-center justify-center border-[0.5px] border-border relative overflow-hidden bg-gradient-to-br from-[#f0ece0] via-[#e8dfc8] to-[#f0ece0] dark:from-[#0a0803] dark:via-[#1c1408] dark:to-[#0d0c06]">
             {hero.zdjecie ? (
               <img
                 src={urlFor(hero.zdjecie).width(800).url()}
                 alt={hero.zdjecie.alt || hero.tytul}
-                className="w-full object-cover object-top"
+                className="w-full object-cover object-top group-hover:scale-[1.02] transition-transform duration-500"
               />
             ) : (
-              <span className="font-serif text-[62px] italic text-gold opacity-[0.12] select-none">
+              <span className="font-serif text-[62px] italic text-gold opacity-[0.12] select-none py-20 block text-center">
                 Świat Baletu
               </span>
             )}
-          </div>
+            <span className="absolute bottom-4 left-4 inline-flex items-center gap-[6px] text-[11px] tracking-[0.07em] uppercase text-white bg-gold/80 backdrop-blur-sm rounded-[2px] px-4 py-2 group-hover:bg-gold transition-all">
+              Czytaj więcej &rarr;
+            </span>
+          </Link>
         </div>
 
         {/* Side articles */}
@@ -74,9 +74,9 @@ export default async function HeroSection() {
                 }`}
               >
                 {article.zdjecie && (
-                  <div className="w-[72px] h-[52px] rounded-[4px] overflow-hidden shrink-0 border-[0.5px] border-border">
+                  <div className="w-[88px] self-stretch rounded-[4px] overflow-hidden shrink-0 border-[0.5px] border-border">
                     <img
-                      src={urlFor(article.zdjecie).width(144).height(104).url()}
+                      src={urlFor(article.zdjecie).width(176).height(176).url()}
                       alt={article.zdjecie.alt || article.tytul}
                       className="w-full h-full object-cover"
                     />
