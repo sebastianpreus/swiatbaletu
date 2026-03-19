@@ -533,20 +533,69 @@ async function scrapeBydgoszcz() {
     if (seen.has(key)) return
     seen.add(key)
 
-    let dostepnosc = null
-    if (ticketLink) dostepnosc = 'dostepne'
-    const lowerText = blockText.toLowerCase()
-    if (lowerText.includes('wyprzedane') || lowerText.includes('brak miejsc')) dostepnosc = 'wyprzedane'
-
-      events.push({
-        tytul: title,
-        kategoria: categorize(category || title),
-        data_czas: dateTime,
-        link_bilety: ticketLink,
-        dostepnosc,
-        zrodlo_url: detailLink || 'https://www.opera.bydgoszcz.pl/repertuar.html',
-      })
+    events.push({
+      tytul: title,
+      kategoria: categorize(category || title),
+      data_czas: dateTime,
+      link_bilety: ticketLink,
+      dostepnosc: null, // will be filled from bilety.operanova
+      zrodlo_url: detailLink || 'https://www.opera.bydgoszcz.pl/repertuar.html',
+      _day: day, _month: currentMonth,
     })
+  })
+
+  // Fetch real availability from bilety.operanova.bydgoszcz.pl
+  const monthsToCheck = [...new Set(events.map(e => e._month))]
+  const availMap = new Map() // "day-month-HH:MM-TITLE_NORM" => { sold, href }
+
+  for (const m of monthsToCheck) {
+    const ym = `${year}-${String(m).padStart(2, '0')}`
+    try {
+      const biletHtml = await fetchHTML(`https://bilety.operanova.bydgoszcz.pl/MSI/mvc/pl?sort=Name&date=${ym}&datestart=0`)
+      const $b = cheerio.load(biletHtml)
+
+      $b('.movies-movie__single').each((_, card) => {
+        const cardTitle = $b(card).find('h2').text().trim().toUpperCase()
+
+        $b(card).find('.movies-movie__single__options del.disabled, .movies-movie__single__options a.js-link-popup').each((_, dateEl) => {
+          const text = $b(dateEl).text().trim().replace(/\s+/g, ' ')
+          const isSold = dateEl.tagName === 'del'
+          const href = $b(dateEl).attr('href') || ''
+          // text like "19 mar 19:00" or "27 mar 19:00"
+          const dm = text.match(/(\d+)\s+\w+\s+(\d+:\d+)/)
+          if (dm) {
+            const key = `${dm[1]}-${m}-${dm[2]}-${cardTitle}`
+            availMap.set(key, { sold: isSold, href: isSold ? '' : `https://bilety.operanova.bydgoszcz.pl${href}` })
+          }
+        })
+      })
+    } catch (err) {
+      console.error(`  [Bydgoszcz] Błąd bilety ${ym}: ${err.message}`)
+    }
+  }
+
+  // Match availability back to events
+  for (const ev of events) {
+    const timeMatch = ev.data_czas.match(/T(\d+):(\d+)/)
+    const h = timeMatch ? parseInt(timeMatch[1]) + 1 : 19 // UTC→CET
+    const mm = timeMatch ? timeMatch[2] : '00'
+    const titleNorm = ev.tytul.toUpperCase()
+
+    // Try matching with title normalization (bilety may add "- balet", double spaces etc.)
+    for (const [key, val] of availMap) {
+      const parts = key.split('-')
+      const day = parts[0], month = parts[1]
+      const cardTitle = parts.slice(3).join('-').replace(/\s+/g, ' ')
+      if (parseInt(day) === ev._day && parseInt(month) === ev._month && (cardTitle.includes(titleNorm.substring(0, 5)) || titleNorm.includes(cardTitle.substring(0, 5)))) {
+        ev.dostepnosc = val.sold ? 'wyprzedane' : 'dostepne'
+        if (val.href && !val.sold) ev.link_bilety = val.href
+        break
+      }
+    }
+
+    delete ev._day
+    delete ev._month
+  }
 
   return events
 }
