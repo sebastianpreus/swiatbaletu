@@ -1,11 +1,16 @@
 import Link from 'next/link'
-import { getPrzedstawienia } from '../../../../lib/queries/repertuar'
+import { readFileSync } from 'fs'
+import { join } from 'path'
+import { getPrzedstawienia, getRepertuarMeta } from '../../../../lib/queries/repertuar'
 import Badge from '../../../../components/ui/Badge'
 
 export const metadata = {
   title: 'Repertuar — Świat Baletu',
   description: 'Pełny repertuar baletowy polskich teatrów operowych.',
 }
+
+// Force dynamic rendering (data changes frequently)
+export const dynamic = 'force-dynamic'
 
 function formatDate(dateStr: string) {
   const d = new Date(dateStr)
@@ -42,36 +47,88 @@ function dostepnoscVariant(d: string): 'red' | 'amber' | 'green' | 'gray' {
   }
 }
 
+function formatMonthLabel(ym: string) {
+  const [y, m] = ym.split('-').map(Number)
+  const d = new Date(y, m - 1, 1)
+  return d.toLocaleDateString('pl-PL', { month: 'long', year: 'numeric' })
+}
+
 const MIASTA = ['Wszystkie', 'Warszawa', 'Kraków', 'Wrocław', 'Gdańsk', 'Poznań', 'Łódź', 'Bydgoszcz']
+
+const DOSTEPNOSCI = [
+  { value: '', label: 'Wszystkie' },
+  { value: 'dostepne', label: 'Dostępne' },
+  { value: 'wyprzedane', label: 'Wyprzedane' },
+  { value: 'malo_miejsc', label: 'Ostatnie bilety' },
+  { value: 'odwolane', label: 'Odwołane' },
+]
 
 export default async function RepertuarPage({
   searchParams,
 }: {
-  searchParams: Promise<{ miasto?: string }>
+  searchParams: Promise<{ miasto?: string; miesiac?: string; status?: string }>
 }) {
-  const { miasto } = await searchParams
+  const params = await searchParams
+  const { miasto, miesiac, status } = params
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let przedstawienia: any[] = []
+  let months: string[] = []
 
   try {
-    przedstawienia = (await getPrzedstawienia(miasto === 'Wszystkie' ? undefined : miasto)) ?? []
+    const [data, meta] = await Promise.all([
+      getPrzedstawienia({
+        miasto: miasto === 'Wszystkie' ? undefined : miasto,
+        miesiac: miesiac || undefined,
+        dostepnosc: status || undefined,
+      }),
+      getRepertuarMeta(),
+    ])
+    przedstawienia = data ?? []
+    months = meta.months
   } catch {
     // Supabase not configured
+  }
+
+  let lastUpdate = ''
+  try {
+    const raw = readFileSync(join(process.cwd(), 'public', 'last-scrape.json'), 'utf-8')
+    const meta = JSON.parse(raw)
+    lastUpdate = new Date(meta.timestamp).toLocaleDateString('pl-PL', {
+      day: 'numeric', month: 'long', year: 'numeric',
+      hour: '2-digit', minute: '2-digit',
+      timeZone: 'Europe/Warsaw',
+    })
+  } catch {
+    // File doesn't exist yet
+  }
+
+  // Build filter URL helper
+  function filterUrl(overrides: Record<string, string | undefined>) {
+    const p = new URLSearchParams()
+    const merged = { miasto, miesiac, status, ...overrides }
+    for (const [k, v] of Object.entries(merged)) {
+      if (v && v !== 'Wszystkie' && v !== '') p.set(k, v)
+    }
+    const qs = p.toString()
+    return `/repertuar${qs ? `?${qs}` : ''}`
   }
 
   return (
     <div className="max-w-[1100px] mx-auto px-6 py-10">
       <h1 className="font-serif text-[36px] font-normal text-text-1 mb-2">Repertuar</h1>
-      <p className="text-[13px] text-text-2 mb-6">Najbliższe spektakle baletowe w polskich teatrach.</p>
+      <p className="text-[13px] text-text-2 mb-6">
+        Najbliższe spektakle baletowe w polskich teatrach.{' '}
+        <span className="text-text-2/60">(ostatnia aktualizacja: {lastUpdate})</span>
+      </p>
 
       {/* City filter */}
-      <div className="flex flex-wrap gap-2 mb-8">
+      <div className="flex flex-wrap gap-2 mb-4">
         {MIASTA.map((m) => {
           const isActive = (!miasto && m === 'Wszystkie') || miasto === m
           return (
             <Link
               key={m}
-              href={m === 'Wszystkie' ? '/repertuar' : `/repertuar?miasto=${encodeURIComponent(m)}`}
+              href={filterUrl({ miasto: m === 'Wszystkie' ? undefined : m })}
               className={`text-[11px] tracking-[0.06em] uppercase px-4 py-[6px] rounded-[2px] border-[0.5px] transition-all ${
                 isActive
                   ? 'bg-gold text-white border-gold'
@@ -79,6 +136,58 @@ export default async function RepertuarPage({
               }`}
             >
               {m}
+            </Link>
+          )
+        })}
+      </div>
+
+      {/* Month filter */}
+      {months.length > 0 && (
+        <div className="flex flex-wrap gap-2 mb-4">
+          <Link
+            href={filterUrl({ miesiac: undefined })}
+            className={`text-[11px] tracking-[0.06em] uppercase px-4 py-[6px] rounded-[2px] border-[0.5px] transition-all ${
+              !miesiac
+                ? 'bg-gold text-white border-gold'
+                : 'text-text-2 border-border hover:border-gold-dim hover:text-gold'
+            }`}
+          >
+            Nadchodzące
+          </Link>
+          {months.map((ym) => {
+            const isActive = miesiac === ym
+            return (
+              <Link
+                key={ym}
+                href={filterUrl({ miesiac: ym })}
+                className={`text-[11px] tracking-[0.06em] uppercase px-4 py-[6px] rounded-[2px] border-[0.5px] transition-all ${
+                  isActive
+                    ? 'bg-gold text-white border-gold'
+                    : 'text-text-2 border-border hover:border-gold-dim hover:text-gold'
+                }`}
+              >
+                {formatMonthLabel(ym)}
+              </Link>
+            )
+          })}
+        </div>
+      )}
+
+      {/* Availability filter */}
+      <div className="flex flex-wrap gap-2 mb-8">
+        {DOSTEPNOSCI.map((d) => {
+          const isActive = (!status && d.value === '') || status === d.value
+          return (
+            <Link
+              key={d.value}
+              href={filterUrl({ status: d.value || undefined })}
+              className={`text-[10px] tracking-[0.06em] uppercase px-3 py-[5px] rounded-[2px] border-[0.5px] transition-all ${
+                isActive
+                  ? 'bg-text-1 text-bg-main border-text-1'
+                  : 'text-text-2 border-border hover:border-gold-dim hover:text-gold'
+              }`}
+            >
+              {d.label}
             </Link>
           )
         })}

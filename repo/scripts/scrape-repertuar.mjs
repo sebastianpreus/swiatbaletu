@@ -1116,6 +1116,19 @@ async function main() {
   }
   console.log(`\n  RAZEM: ${totalEvents} wydarzeń${DRY_RUN ? '' : `, ${totalAdded} dodanych do bazy`}`)
   console.log()
+
+  // Save last scrape timestamp
+  if (!DRY_RUN) {
+    const fs = await import('fs')
+    const path = await import('path')
+    const tsFile = path.default.join(import.meta.dirname, '..', 'public', 'last-scrape.json')
+    fs.default.writeFileSync(tsFile, JSON.stringify({
+      timestamp: new Date().toISOString(),
+      events: totalEvents,
+      added: totalAdded,
+    }))
+    console.log(`  Zapisano timestamp: ${tsFile}`)
+  }
 }
 
 main().catch(err => {

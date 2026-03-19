@@ -1,7 +1,11 @@
 import { supabase } from '../supabase'
 
-export async function getPrzedstawienia(miasto?: string) {
-  // When filtering by city, use !inner join so rows without matching teatr are excluded
+export async function getPrzedstawienia(filters?: {
+  miasto?: string
+  miesiac?: string  // format: "2026-03"
+  dostepnosc?: string  // "dostepne" | "wyprzedane" | "malo_miejsc" | "odwolane"
+}) {
+  const miasto = filters?.miasto
   const teatrJoin = miasto ? 'teatr:teatry!inner' : 'teatr:teatry'
 
   let query = supabase
@@ -28,11 +32,28 @@ export async function getPrzedstawienia(miasto?: string) {
         slug
       )
     `)
-    .gte('data_czas', new Date().toISOString())
     .order('data_czas', { ascending: true })
+
+  // Month filter or default to today onwards
+  if (filters?.miesiac) {
+    const [y, m] = filters.miesiac.split('-').map(Number)
+    const start = new Date(y, m - 1, 1).toISOString()
+    const end = new Date(y, m, 0, 23, 59, 59).toISOString()
+    query = query.gte('data_czas', start).lte('data_czas', end)
+  } else {
+    query = query.gte('data_czas', new Date().toISOString())
+  }
 
   if (miasto) {
     query = query.eq('teatr.miasto', miasto)
+  }
+
+  if (filters?.dostepnosc) {
+    if (filters.dostepnosc === 'dostepne') {
+      query = query.in('dostepnosc', ['dostepne', 'premiera'])
+    } else {
+      query = query.eq('dostepnosc', filters.dostepnosc)
+    }
   }
 
   const { data, error } = await query
@@ -43,6 +64,25 @@ export async function getPrzedstawienia(miasto?: string) {
   }
 
   return data
+}
+
+export async function getRepertuarMeta() {
+  // Get available months and last update time
+  const { data: months } = await supabase
+    .from('przedstawienia')
+    .select('data_czas')
+    .gte('data_czas', new Date().toISOString())
+    .order('data_czas', { ascending: true })
+
+  const uniqueMonths = new Set<string>()
+  for (const row of months || []) {
+    const d = new Date(row.data_czas)
+    uniqueMonths.add(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`)
+  }
+
+  return {
+    months: Array.from(uniqueMonths).sort(),
+  }
 }
 
 export async function getSpektaklById(id: string) {
