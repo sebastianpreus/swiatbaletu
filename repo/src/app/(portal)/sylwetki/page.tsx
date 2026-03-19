@@ -9,6 +9,8 @@ export const metadata = {
   description: 'Baza artystów baletu — tancerze, choreografowie, dyrygenci i legendy.',
 }
 
+export const revalidate = 60 // odświeżaj co 60 sekund
+
 export default async function ProfilesPage() {
   let profiles: Sylwetka[] = []
 

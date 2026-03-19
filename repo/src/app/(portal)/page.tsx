@@ -1,3 +1,5 @@
+export const revalidate = 60
+
 import HeroSection from '../../../components/home/HeroSection'
 import PromoBanner from '../../../components/home/PromoBanner'
 import RepertoirePreview from '../../../components/home/RepertoirePreview'
