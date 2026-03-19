@@ -50,7 +50,7 @@ export async function getPrzedstawienia(filters?: {
 
   if (filters?.dostepnosc) {
     if (filters.dostepnosc === 'dostepne') {
-      query = query.in('dostepnosc', ['dostepne', 'premiera'])
+      query = query.in('dostepnosc', ['dostepne', 'premiera', 'malo_miejsc'])
     } else {
       query = query.eq('dostepnosc', filters.dostepnosc)
     }

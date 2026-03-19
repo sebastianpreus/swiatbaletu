@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { getPrzedstawienia, getRepertuarMeta } from '../../../../lib/queries/repertuar'
 import Badge from '../../../../components/ui/Badge'
+import FilterSelect from '../../../../components/ui/FilterSelect'
 
 export const metadata = {
   title: 'Repertuar — Świat Baletu',
@@ -57,7 +58,6 @@ const DOSTEPNOSCI = [
   { value: '', label: 'Wszystkie' },
   { value: 'dostepne', label: 'Dostępne' },
   { value: 'wyprzedane', label: 'Wyprzedane' },
-  { value: 'malo_miejsc', label: 'Ostatnie bilety' },
   { value: 'odwolane', label: 'Odwołane' },
 ]
 
@@ -136,56 +136,25 @@ export default async function RepertuarPage({
         })}
       </div>
 
-      {/* Month filter */}
-      {months.length > 0 && (
-        <div className="flex flex-wrap gap-2 mb-4">
-          <Link
-            href={filterUrl({ miesiac: undefined })}
-            className={`text-[11px] tracking-[0.06em] uppercase px-4 py-[6px] rounded-[2px] border-[0.5px] transition-all ${
-              !miesiac
-                ? 'bg-gold text-white border-gold'
-                : 'text-text-2 border-border hover:border-gold-dim hover:text-gold'
-            }`}
-          >
-            Nadchodzące
-          </Link>
-          {months.map((ym) => {
-            const isActive = miesiac === ym
-            return (
-              <Link
-                key={ym}
-                href={filterUrl({ miesiac: ym })}
-                className={`text-[11px] tracking-[0.06em] uppercase px-4 py-[6px] rounded-[2px] border-[0.5px] transition-all ${
-                  isActive
-                    ? 'bg-gold text-white border-gold'
-                    : 'text-text-2 border-border hover:border-gold-dim hover:text-gold'
-                }`}
-              >
-                {formatMonthLabel(ym)}
-              </Link>
-            )
-          })}
-        </div>
-      )}
-
-      {/* Availability filter */}
-      <div className="flex flex-wrap gap-2 mb-8">
-        {DOSTEPNOSCI.map((d) => {
-          const isActive = (!status && d.value === '') || status === d.value
-          return (
-            <Link
-              key={d.value}
-              href={filterUrl({ status: d.value || undefined })}
-              className={`text-[10px] tracking-[0.06em] uppercase px-3 py-[5px] rounded-[2px] border-[0.5px] transition-all ${
-                isActive
-                  ? 'bg-gold text-white border-gold'
-                  : 'text-text-2 border-border hover:border-gold-dim hover:text-gold'
-              }`}
-            >
-              {d.label}
-            </Link>
-          )
-        })}
+      {/* Month + Availability filters */}
+      <div className="flex flex-wrap gap-4 mb-8">
+        <FilterSelect
+          label="Miesiąc"
+          paramName="miesiac"
+          currentValue={miesiac || ''}
+          baseParams={{ miasto, status }}
+          options={[
+            { value: '', label: 'Wszystkie' },
+            ...months.map((ym) => ({ value: ym, label: formatMonthLabel(ym) })),
+          ]}
+        />
+        <FilterSelect
+          label="Dostępność"
+          paramName="status"
+          currentValue={status || ''}
+          baseParams={{ miasto, miesiac }}
+          options={DOSTEPNOSCI}
+        />
       </div>
 
       {przedstawienia.length === 0 ? (
