@@ -37,7 +37,10 @@ export async function getPrzedstawienia(filters?: {
   // Month filter or default to today onwards
   if (filters?.miesiac) {
     const [y, m] = filters.miesiac.split('-').map(Number)
-    const start = new Date(y, m - 1, 1).toISOString()
+    const now = new Date()
+    // Current month? Start from today. Future month? From 1st.
+    const isCurrentMonth = y === now.getFullYear() && m === now.getMonth() + 1
+    const start = isCurrentMonth ? now.toISOString() : new Date(y, m - 1, 1).toISOString()
     const end = new Date(y, m, 0, 23, 59, 59).toISOString()
     query = query.gte('data_czas', start).lte('data_czas', end)
   } else {
