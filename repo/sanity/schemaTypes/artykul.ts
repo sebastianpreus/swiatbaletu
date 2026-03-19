@@ -78,5 +78,12 @@ export const artykul = defineType({
       of: [{ type: 'string' }],
       title: 'Tagi',
     }),
+    defineField({
+      name: 'bannerGlowna',
+      type: 'boolean',
+      title: 'Pokaż na bannerze strony głównej?',
+      description: 'Wyróżniona informacja na pasku pod hero. Tylko jeden artykuł powinien mieć tę flagę.',
+      initialValue: false,
+    }),
   ],
 })
