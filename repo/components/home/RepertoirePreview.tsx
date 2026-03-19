@@ -93,7 +93,7 @@ export default async function RepertoirePreview() {
           linkText="Pełny repertuar →"
           linkHref="/repertuar"
         />
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-[10px]">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-[10px]">
           {shows.slice(0, 10).map((p) => {
             const link = p.link_szczegoly || p.link_bilety || '/repertuar'
             const isPast = p.dostepnosc === 'wyprzedane' || p.dostepnosc === 'odwolane'
