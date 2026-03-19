@@ -997,55 +997,92 @@ async function syncToSupabase(teatrSlug, teatrName, events) {
 
   let added = 0, updated = 0, unchanged = 0
 
+  // Ensure all spektakle exist first (deduplicated)
+  const spektaklCache = new Map()
   for (const event of events) {
-    const spektaklId = await ensureSpektakl(event.tytul, event.kompozytor || null, teatrId)
-
-    const updateData = {
-      link_bilety: event.link_bilety || null,
-      dostepnosc: event.dostepnosc || null,
-      notatka: event.kategoria || null,
+    const key = `${event.tytul}||${event.kompozytor || ''}`
+    if (!spektaklCache.has(key)) {
+      spektaklCache.set(key, await ensureSpektakl(event.tytul, event.kompozytor || null, teatrId))
     }
-    if (event.zrodlo_url) updateData.link_szczegoly = event.zrodlo_url
+  }
 
-    // Check if this exact showing already exists
-    const { data: existing } = await supabase.from('przedstawienia')
-      .select('id, dostepnosc, link_bilety')
-      .eq('spektakl_id', spektaklId)
-      .eq('teatr_id', teatrId)
-      .eq('data_czas', event.data_czas)
-      .maybeSingle()
-
-    if (existing) {
-      // Update if anything changed (availability, ticket link, etc.)
-      const changed = existing.dostepnosc !== updateData.dostepnosc ||
-                       existing.link_bilety !== updateData.link_bilety
-      if (changed) {
-        const { error } = await supabase.from('przedstawienia')
-          .update(updateData)
-          .eq('id', existing.id)
-        if (error) {
-          console.error(`  ✗ Update error: ${event.tytul}: ${error.message}`)
-        } else {
-          updated++
-        }
-      } else {
-        unchanged++
+  if (CLEAN_FUTURE) {
+    // After cleaning future, batch insert all events at once
+    const rows = events.map(event => {
+      const key = `${event.tytul}||${event.kompozytor || ''}`
+      const row = {
+        spektakl_id: spektaklCache.get(key),
+        teatr_id: teatrId,
+        data_czas: event.data_czas,
+        link_bilety: event.link_bilety || null,
+        dostepnosc: event.dostepnosc || null,
+        notatka: event.kategoria || null,
       }
-      continue
-    }
-
-    // Insert new
-    const { error } = await supabase.from('przedstawienia').insert({
-      spektakl_id: spektaklId,
-      teatr_id: teatrId,
-      data_czas: event.data_czas,
-      ...updateData,
+      if (event.zrodlo_url) row.link_szczegoly = event.zrodlo_url
+      return row
     })
 
-    if (error) {
-      console.error(`  ✗ Insert error: ${event.tytul} @ ${event.data_czas}: ${error.message}`)
-    } else {
-      added++
+    // Filter only future events for insert (past ones were not deleted)
+    const now = new Date().toISOString().split('T')[0] + 'T00:00:00'
+    const futureRows = rows.filter(r => r.data_czas >= now)
+    const pastRows = rows.filter(r => r.data_czas < now)
+
+    // Batch insert future in chunks of 100
+    for (let i = 0; i < futureRows.length; i += 100) {
+      const chunk = futureRows.slice(i, i + 100)
+      const { error } = await supabase.from('przedstawienia').insert(chunk)
+      if (error) {
+        console.error(`  ✗ Batch insert error: ${error.message}`)
+      } else {
+        added += chunk.length
+      }
+    }
+
+    // Past events — upsert individually (they still exist in DB)
+    for (const event of pastRows) {
+      // These were not deleted, just skip or update
+      unchanged++
+    }
+  } else {
+    // Without clean-future: check each event individually
+    for (const event of events) {
+      const key = `${event.tytul}||${event.kompozytor || ''}`
+      const spektaklId = spektaklCache.get(key)
+
+      const updateData = {
+        link_bilety: event.link_bilety || null,
+        dostepnosc: event.dostepnosc || null,
+        notatka: event.kategoria || null,
+      }
+      if (event.zrodlo_url) updateData.link_szczegoly = event.zrodlo_url
+
+      const { data: existing } = await supabase.from('przedstawienia')
+        .select('id, dostepnosc, link_bilety')
+        .eq('spektakl_id', spektaklId)
+        .eq('teatr_id', teatrId)
+        .eq('data_czas', event.data_czas)
+        .maybeSingle()
+
+      if (existing) {
+        const changed = existing.dostepnosc !== updateData.dostepnosc ||
+                         existing.link_bilety !== updateData.link_bilety
+        if (changed) {
+          const { error } = await supabase.from('przedstawienia')
+            .update(updateData)
+            .eq('id', existing.id)
+          if (error) console.error(`  ✗ Update error: ${event.tytul}: ${error.message}`)
+          else updated++
+        } else {
+          unchanged++
+        }
+        continue
+      }
+
+      const { error } = await supabase.from('przedstawienia').insert({
+        spektakl_id: spektaklId, teatr_id: teatrId, data_czas: event.data_czas, ...updateData,
+      })
+      if (error) console.error(`  ✗ Insert error: ${event.tytul}: ${error.message}`)
+      else added++
     }
   }
 
