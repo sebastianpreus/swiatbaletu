@@ -63,7 +63,7 @@ export default async function HeroSection() {
         </div>
 
         {/* Side articles */}
-        <div className="pt-10 pb-7 pl-0 md:pl-7 flex flex-col justify-between border-t-[0.5px] md:border-t-0 border-border">
+        <div className="py-7 pl-0 md:pl-7 flex flex-col justify-between border-t-[0.5px] md:border-t-0 border-border">
           {sideArticles.length > 0 ? (
             sideArticles.map((article, idx) => (
               <Link
@@ -74,9 +74,9 @@ export default async function HeroSection() {
                 }`}
               >
                 {article.zdjecie && (
-                  <div className="w-[88px] self-stretch min-h-[62px] rounded-[4px] overflow-hidden shrink-0 border-[0.5px] border-border">
+                  <div className="w-[100px] self-stretch rounded-[4px] overflow-hidden shrink-0 border-[0.5px] border-border">
                     <img
-                      src={urlFor(article.zdjecie).width(176).height(200).url()}
+                      src={urlFor(article.zdjecie).width(200).height(140).url()}
                       alt={article.zdjecie.alt || article.tytul}
                       className="w-full h-full object-cover"
                     />
