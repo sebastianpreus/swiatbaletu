@@ -92,6 +92,28 @@ export default async function ProfilePage({ params }: { params: Promise<{ slug: 
           <PortableText value={profile.bio} components={portableTextComponents} />
         </div>
       )}
+
+      {profile.galeria && profile.galeria.length > 0 && (
+        <div className="mt-10 pt-6 border-t-[0.5px] border-border">
+          <h2 className="font-serif text-[18px] text-text-1 mb-4">Galeria</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            {profile.galeria.map((img: { asset: unknown; alt?: string; caption?: string }, idx: number) => (
+              <figure key={idx} className="overflow-hidden rounded-[6px] border-[0.5px] border-border">
+                <img
+                  src={urlFor(img).width(400).height(300).url()}
+                  alt={img.alt || profile.imieNazwisko}
+                  className="w-full h-[200px] object-cover"
+                />
+                {img.caption && (
+                  <figcaption className="text-[10px] text-text-2 px-2 py-1.5 bg-bg-section">
+                    {img.caption}
+                  </figcaption>
+                )}
+              </figure>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

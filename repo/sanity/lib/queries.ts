@@ -76,7 +76,8 @@ export const PROFILE_BY_SLUG_QUERY = `
     _id, imieNazwisko, slug, rola, teatrGlowny, narodowosc,
     dataUrodzenia, dataSmierci, aktywny, polskiArtysta,
     zdjecie { asset, alt },
-    bio, najwazniejszeRole
+    bio, najwazniejszeRole,
+    galeria[] { asset, alt, caption }
   }
 `
 

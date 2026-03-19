@@ -63,8 +63,14 @@ export const sylwetka = defineType({
     defineField({
       name: 'bio',
       type: 'array',
-      of: [{ type: 'block' }],
+      of: [{ type: 'block' }, { type: 'image', options: { hotspot: true }, fields: [{ name: 'alt', type: 'string', title: 'Opis' }, { name: 'caption', type: 'string', title: 'Podpis' }] }],
       title: 'Biografia',
+    }),
+    defineField({
+      name: 'galeria',
+      type: 'array',
+      of: [{ type: 'image', options: { hotspot: true }, fields: [{ name: 'alt', type: 'string', title: 'Opis' }, { name: 'caption', type: 'string', title: 'Podpis' }] }],
+      title: 'Galeria zdjęć',
     }),
     defineField({
       name: 'najwazniejszeRole',
