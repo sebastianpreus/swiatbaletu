@@ -1,85 +1,127 @@
+import Link from 'next/link'
 import SectionHeader from '../ui/SectionHeader'
 import Badge from '../ui/Badge'
-import { getPrzedstawienia } from '../../lib/queries/repertuar'
+import { supabase } from '../../lib/supabase'
 
-function formatDate(dateStr: string) {
-  const d = new Date(dateStr)
-  return d.toLocaleDateString('pl-PL', { day: 'numeric', month: 'short', timeZone: 'Europe/Warsaw' })
+function formatTime(dateStr: string) {
+  return new Date(dateStr).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Warsaw' })
 }
 
-function dostepnoscLabel(d: string) {
+function dostepnoscVariant(d: string): 'red' | 'amber' | 'green' | 'gray' {
   switch (d) {
-    case 'malo_miejsc': return 'Prawie wyprzedane'
-    case 'wyprzedane': return 'Wyprzedane'
-    case 'premiera': return 'Premiera sezonu'
-    default: return 'Bilety dostępne'
-  }
-}
-
-function dostepnoscVariant(d: string): 'red' | 'amber' | 'green' {
-  switch (d) {
-    case 'malo_miejsc': return 'red'
+    case 'malo_miejsc': return 'amber'
     case 'wyprzedane': return 'red'
-    case 'premiera': return 'amber'
+    case 'odwolane': return 'gray'
     default: return 'green'
   }
 }
 
+function dostepnoscLabel(d: string) {
+  switch (d) {
+    case 'malo_miejsc': return 'Ostatnie'
+    case 'wyprzedane': return 'Wyprzedane'
+    case 'odwolane': return 'Odwołane'
+    default: return 'Bilety'
+  }
+}
+
+async function getTodayShows() {
+  const now = new Date()
+  const today = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Warsaw' }))
+  const start = new Date(today.getFullYear(), today.getMonth(), today.getDate()).toISOString()
+  const end = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59).toISOString()
+
+  const { data } = await supabase
+    .from('przedstawienia')
+    .select(`
+      id, data_czas, dostepnosc, link_bilety, link_szczegoly,
+      spektakl:spektakle ( tytul, kompozytor ),
+      teatr:teatry ( nazwa, miasto )
+    `)
+    .gte('data_czas', start)
+    .lte('data_czas', end)
+    .order('data_czas', { ascending: true })
+
+  return data || []
+}
+
+async function getNextShows() {
+  const { data } = await supabase
+    .from('przedstawienia')
+    .select(`
+      id, data_czas, dostepnosc, link_bilety, link_szczegoly,
+      spektakl:spektakle ( tytul, kompozytor ),
+      teatr:teatry ( nazwa, miasto )
+    `)
+    .gte('data_czas', new Date().toISOString())
+    .order('data_czas', { ascending: true })
+    .limit(6)
+
+  return data || []
+}
+
 export default async function RepertoirePreview() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let przedstawienia: any[] = []
+  let shows: any[] = []
+  let isToday = true
 
   try {
-    przedstawienia = (await getPrzedstawienia())?.slice(0, 4) ?? []
+    shows = await getTodayShows()
+    if (shows.length === 0) {
+      shows = await getNextShows()
+      isToday = false
+    }
   } catch {
-    // Supabase not configured yet
+    return null
   }
 
-  if (przedstawienia.length === 0) {
-    return null
+  if (shows.length === 0) return null
+
+  const title = isToday ? 'Dziś na scenach' : 'Najbliższe spektakle'
+
+  // Format date for "nearest" view
+  function formatNearDate(dateStr: string) {
+    const d = new Date(dateStr)
+    return d.toLocaleDateString('pl-PL', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'Europe/Warsaw' })
   }
 
   return (
     <div className="max-w-[1100px] mx-auto px-6">
       <section className="py-7 border-b-[0.5px] border-border">
         <SectionHeader
-          title="Repertuar — najbliższe tygodnie"
+          title={title}
           linkText="Pełny repertuar →"
           linkHref="/repertuar"
         />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-[14px]">
-          {przedstawienia.map((p) => (
-            <div
-              key={p.id}
-              className="bg-bg-card border-[0.5px] border-border rounded-lg px-[18px] py-4 cursor-pointer transition-all hover:border-gold-dim hover:shadow-[var(--shadow-card)] flex gap-4"
-            >
-              {p.spektakl?.zdjecie_url && (
-                <div className="w-[64px] h-[64px] rounded-[6px] overflow-hidden shrink-0 border-[0.5px] border-border">
-                  <img
-                    src={p.spektakl.zdjecie_url}
-                    alt={p.spektakl.tytul}
-                    className="w-full h-full object-cover"
-                  />
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-[10px]">
+          {shows.slice(0, 10).map((p) => {
+            const link = p.link_szczegoly || p.link_bilety || '/repertuar'
+            const isPast = p.dostepnosc === 'wyprzedane' || p.dostepnosc === 'odwolane'
+            return (
+              <Link
+                key={p.id}
+                href={link}
+                target={link.startsWith('http') ? '_blank' : undefined}
+                rel={link.startsWith('http') ? 'noopener noreferrer' : undefined}
+                className={`bg-bg-card border-[0.5px] border-border rounded-md px-3 py-[10px] transition-all hover:border-gold-dim hover:shadow-[var(--shadow-card)] block ${isPast ? 'opacity-60' : ''}`}
+              >
+                <div className="text-[9px] text-gold-dim tracking-[0.08em] uppercase font-medium mb-[4px]">
+                  {isToday ? formatTime(p.data_czas) : formatNearDate(p.data_czas)} · {p.teatr?.miasto}
                 </div>
-              )}
-              <div className="flex-1 min-w-0">
-                <div className="text-[10px] text-gold-dim tracking-[0.08em] uppercase font-medium mb-[6px]">
-                  {formatDate(p.data_czas)} · {p.teatr?.miasto}
-                </div>
-                <div className="font-serif text-[17px] font-normal text-text-1 mb-1">
+                <div className="font-serif text-[14px] leading-[1.2] font-normal text-text-1 mb-[3px] line-clamp-2">
                   {p.spektakl?.tytul}
-                  {p.dostepnosc === 'premiera' && ' ✦ PREMIERA'}
                 </div>
-                <div className="text-[11px] text-text-2">
+                <div className="text-[10px] text-text-2 line-clamp-1 mb-[4px]">
                   {p.teatr?.nazwa}
-                  {p.spektakl?.kompozytor && ` · ${p.spektakl.kompozytor}`}
                 </div>
-                <Badge variant={dostepnoscVariant(p.dostepnosc)}>
-                  {dostepnoscLabel(p.dostepnosc)}
-                </Badge>
-              </div>
-            </div>
-          ))}
+                {p.dostepnosc && (
+                  <Badge variant={dostepnoscVariant(p.dostepnosc)}>
+                    {dostepnoscLabel(p.dostepnosc)}
+                  </Badge>
+                )}
+              </Link>
+            )
+          })}
         </div>
       </section>
     </div>
