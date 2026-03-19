@@ -63,7 +63,7 @@ export default async function HeroSection() {
         </div>
 
         {/* Side articles */}
-        <div className="py-7 pl-0 md:pl-7 flex flex-col justify-between border-t-[0.5px] md:border-t-0 border-border">
+        <div className="py-7 pl-0 md:pl-7 flex flex-col justify-end border-t-[0.5px] md:border-t-0 border-border">
           {sideArticles.length > 0 ? (
             sideArticles.map((article, idx) => (
               <Link
