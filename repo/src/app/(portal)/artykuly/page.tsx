@@ -9,6 +9,8 @@ export const metadata = {
   description: 'Artykuły, recenzje i felietony ze świata baletu i opery.',
 }
 
+export const revalidate = 60
+
 export default async function ArticlesPage() {
   let articles: Artykul[] = []
 
