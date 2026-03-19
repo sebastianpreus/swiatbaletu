@@ -74,9 +74,9 @@ export default async function HeroSection() {
                 }`}
               >
                 {article.zdjecie && (
-                  <div className="w-[100px] self-stretch rounded-[4px] overflow-hidden shrink-0 border-[0.5px] border-border">
+                  <div className="w-[80px] h-[56px] rounded-[4px] overflow-hidden shrink-0 border-[0.5px] border-border">
                     <img
-                      src={urlFor(article.zdjecie).width(200).height(140).url()}
+                      src={urlFor(article.zdjecie).width(160).height(112).url()}
                       alt={article.zdjecie.alt || article.tytul}
                       className="w-full h-full object-cover"
                     />
