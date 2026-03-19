@@ -67,21 +67,39 @@ export async function getPrzedstawienia(filters?: {
 }
 
 export async function getRepertuarMeta() {
-  // Get available months and last update time
-  const { data: months } = await supabase
+  // Get available months
+  const { data: rows } = await supabase
     .from('przedstawienia')
     .select('data_czas')
     .gte('data_czas', new Date().toISOString())
     .order('data_czas', { ascending: true })
 
   const uniqueMonths = new Set<string>()
-  for (const row of months || []) {
+  for (const row of rows || []) {
     const d = new Date(row.data_czas)
     uniqueMonths.add(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`)
   }
 
+  // Get last scrape timestamp from meta table
+  let lastUpdate: string | null = null
+  const { data: metaRow } = await supabase
+    .from('meta')
+    .select('wartosc')
+    .eq('klucz', 'last_scrape')
+    .maybeSingle()
+
+  if (metaRow?.wartosc) {
+    try {
+      const parsed = JSON.parse(metaRow.wartosc)
+      lastUpdate = parsed.timestamp
+    } catch {
+      lastUpdate = metaRow.wartosc // plain ISO string fallback
+    }
+  }
+
   return {
     months: Array.from(uniqueMonths).sort(),
+    lastUpdate,
   }
 }
 

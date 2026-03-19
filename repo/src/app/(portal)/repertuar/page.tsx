@@ -1,6 +1,4 @@
 import Link from 'next/link'
-import { readFileSync } from 'fs'
-import { join } from 'path'
 import { getPrzedstawienia, getRepertuarMeta } from '../../../../lib/queries/repertuar'
 import Badge from '../../../../components/ui/Badge'
 
@@ -75,31 +73,28 @@ export default async function RepertuarPage({
   let months: string[] = []
 
   try {
-    const [data, meta] = await Promise.all([
-      getPrzedstawienia({
-        miasto: miasto === 'Wszystkie' ? undefined : miasto,
-        miesiac: miesiac || undefined,
-        dostepnosc: status || undefined,
-      }),
-      getRepertuarMeta(),
-    ])
-    przedstawienia = data ?? []
-    months = meta.months
+    przedstawienia = (await getPrzedstawienia({
+      miasto: miasto === 'Wszystkie' ? undefined : miasto,
+      miesiac: miesiac || undefined,
+      dostepnosc: status || undefined,
+    })) ?? []
   } catch {
     // Supabase not configured
   }
 
   let lastUpdate = ''
   try {
-    const raw = readFileSync(join(process.cwd(), 'public', 'last-scrape.json'), 'utf-8')
-    const meta = JSON.parse(raw)
-    lastUpdate = new Date(meta.timestamp).toLocaleDateString('pl-PL', {
-      day: 'numeric', month: 'long', year: 'numeric',
-      hour: '2-digit', minute: '2-digit',
-      timeZone: 'Europe/Warsaw',
-    })
+    const meta = await getRepertuarMeta()
+    if (meta.lastUpdate) {
+      lastUpdate = new Date(meta.lastUpdate).toLocaleDateString('pl-PL', {
+        day: 'numeric', month: 'long', year: 'numeric',
+        hour: '2-digit', minute: '2-digit',
+        timeZone: 'Europe/Warsaw',
+      })
+    }
+    months = meta.months
   } catch {
-    // File doesn't exist yet
+    // ignore
   }
 
   // Build filter URL helper

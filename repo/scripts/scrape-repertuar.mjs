@@ -1117,17 +1117,18 @@ async function main() {
   console.log(`\n  RAZEM: ${totalEvents} wydarzeń${DRY_RUN ? '' : `, ${totalAdded} dodanych do bazy`}`)
   console.log()
 
-  // Save last scrape timestamp
+  // Save last scrape timestamp to Supabase meta table
   if (!DRY_RUN) {
-    const fs = await import('fs')
-    const path = await import('path')
-    const tsFile = path.default.join(import.meta.dirname, '..', 'public', 'last-scrape.json')
-    fs.default.writeFileSync(tsFile, JSON.stringify({
-      timestamp: new Date().toISOString(),
-      events: totalEvents,
-      added: totalAdded,
-    }))
-    console.log(`  Zapisano timestamp: ${tsFile}`)
+    const { error: metaErr } = await supabase.from('meta').upsert({
+      klucz: 'last_scrape',
+      wartosc: JSON.stringify({
+        timestamp: new Date().toISOString(),
+        events: totalEvents,
+        added: totalAdded,
+      }),
+    })
+    if (metaErr) console.error(`  ✗ Meta save error: ${metaErr.message}`)
+    else console.log(`  ✓ Zapisano timestamp w bazie`)
   }
 }
 
