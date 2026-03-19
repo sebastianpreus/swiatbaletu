@@ -46,7 +46,7 @@ export default async function HeroSection() {
               <img
                 src={urlFor(hero.zdjecie).width(800).url()}
                 alt={hero.zdjecie.alt || hero.tytul}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover object-top"
               />
             ) : (
               <span className="font-serif text-[62px] italic text-gold opacity-[0.12] select-none">
