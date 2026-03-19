@@ -31,6 +31,7 @@ function dostepnoscLabel(d: string) {
     case 'premiera': return 'Premiera'
     case 'odwolane': return 'Odwołane'
     case 'info': return 'Info'
+    case 'archiwalne': return 'Archiwalne'
     default: return 'Bilety dostępne'
   }
 }
@@ -42,8 +43,15 @@ function dostepnoscVariant(d: string): 'red' | 'amber' | 'green' | 'gray' {
     case 'premiera': return 'amber'
     case 'odwolane': return 'gray'
     case 'info': return 'amber'
+    case 'archiwalne': return 'gray'
     default: return 'green'
   }
+}
+
+function getEffectiveStatus(p: { data_czas: string; dostepnosc: string | null }) {
+  const isPast = new Date(p.data_czas) < new Date()
+  if (isPast) return 'archiwalne'
+  return p.dostepnosc || 'dostepne'
 }
 
 function formatMonthLabel(ym: string) {
@@ -191,38 +199,42 @@ export default async function RepertuarPage({
                   <div className="text-[11px] text-gold-dim italic mt-1">{p.notatka}</div>
                 )}
               </div>
-              <div className="flex items-center gap-2 sm:gap-3 shrink-0 flex-wrap justify-end">
-                {p.cena_od && (
-                  <div className="text-[12px] text-text-2">
-                    od <span className="text-text-1 font-medium">{(p.cena_od / 100).toFixed(0)} zł</span>
+              {(() => {
+                const status = getEffectiveStatus(p)
+                const isArchive = status === 'archiwalne'
+                return (
+                  <div className="flex items-center gap-2 sm:gap-3 shrink-0 flex-wrap justify-end">
+                    {!isArchive && p.cena_od && (
+                      <div className="text-[12px] text-text-2">
+                        od <span className="text-text-1 font-medium">{(p.cena_od / 100).toFixed(0)} zł</span>
+                      </div>
+                    )}
+                    <Badge variant={dostepnoscVariant(status)}>
+                      {dostepnoscLabel(status)}
+                    </Badge>
+                    {!isArchive && status !== 'wyprzedane' && status !== 'odwolane' && p.link_bilety && (
+                      <a
+                        href={p.link_bilety}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[11px] tracking-[0.07em] uppercase bg-gold text-white rounded-[2px] px-3 py-[5px] hover:bg-gold-dim transition-all"
+                      >
+                        {status === 'info' ? 'Info' : 'Kup bilet'}
+                      </a>
+                    )}
+                    {p.link_szczegoly && (
+                      <a
+                        href={p.link_szczegoly}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[11px] tracking-[0.07em] uppercase text-text-2 border-[0.5px] border-border rounded-[2px] px-3 py-[5px] hover:text-gold hover:border-gold transition-all"
+                      >
+                        Czytaj więcej
+                      </a>
+                    )}
                   </div>
-                )}
-                {p.dostepnosc && (
-                  <Badge variant={dostepnoscVariant(p.dostepnosc)}>
-                    {dostepnoscLabel(p.dostepnosc)}
-                  </Badge>
-                )}
-                {p.dostepnosc !== 'wyprzedane' && p.dostepnosc !== 'odwolane' && p.link_bilety && (
-                  <a
-                    href={p.link_bilety}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-[11px] tracking-[0.07em] uppercase bg-gold text-white rounded-[2px] px-3 py-[5px] hover:bg-gold-dim transition-all"
-                  >
-                    {p.dostepnosc === 'info' ? 'Info' : 'Kup bilet'}
-                  </a>
-                )}
-                {p.link_szczegoly && (
-                  <a
-                    href={p.link_szczegoly}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-[11px] tracking-[0.07em] uppercase text-text-2 border-[0.5px] border-border rounded-[2px] px-3 py-[5px] hover:text-gold hover:border-gold transition-all"
-                  >
-                    Czytaj więcej
-                  </a>
-                )}
-              </div>
+                )
+              })()}
             </div>
           ))}
         </div>
