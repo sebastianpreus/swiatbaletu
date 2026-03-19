@@ -56,7 +56,7 @@ export default async function HeroSection() {
                 Świat Baletu
               </span>
             )}
-            <span className="absolute bottom-4 left-4 inline-flex items-center gap-[6px] text-[11px] tracking-[0.07em] uppercase text-white bg-gold/80 backdrop-blur-sm rounded-[2px] px-4 py-2 group-hover:bg-gold transition-all">
+            <span className="absolute bottom-4 left-4 inline-flex items-center gap-[6px] text-[11px] tracking-[0.07em] uppercase text-white/90 bg-black/30 backdrop-blur-md rounded-[2px] px-4 py-2 group-hover:bg-gold/80 group-hover:text-white transition-all">
               Czytaj więcej &rarr;
             </span>
           </Link>
