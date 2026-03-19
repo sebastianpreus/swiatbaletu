@@ -841,102 +841,83 @@ async function scrapeLodz() {
 // ── 7. OPERA KRAKOWSKA ───────────────────────────────────────────────────────
 // Cloudflare protection — requires Puppeteer headless browser
 async function scrapeKrakow() {
-  let browser
-  try {
-    const puppeteer = await import('puppeteer')
-    browser = await puppeteer.default.launch({
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-    })
-    const page = await browser.newPage()
-    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36')
-    await page.setExtraHTTPHeaders({ 'Accept-Language': 'pl-PL,pl;q=0.9' })
+  // tickets.opera.krakow.pl — no Cloudflare, SoftCOM ticket system
+  // Each event is a .card.card-border-left with h2 (title), p.card-text (date/time), a.js-wybierz-termin-btn (buy link + free seats)
+  const events = []
+  const seen = new Set()
 
-    console.log('  [Kraków] Uruchamiam przeglądarkę...')
-    await page.goto('https://opera.krakow.pl/pl/repertuar/kalendarz', {
-      waitUntil: 'networkidle2',
-      timeout: 45000,
-    })
+  for (let m = new Date().getMonth() + 1; m <= 12; m++) {
+    try {
+      const url = `https://tickets.opera.krakow.pl/rezerwacja/termin.html?m=${m}&y=2026&termtoscroll=0`
+      const html = await fetchHTML(url)
+      const $ = cheerio.load(html)
 
-    // Wait for Cloudflare challenge + page render
-    await new Promise(r => setTimeout(r, 8000))
+      let monthCount = 0
+      $('.card.card-border-left, .card.mb-3').each((_, card) => {
+        const $card = $(card)
+        const title = $card.find('h2').text().trim()
+        if (!title || title.length < 2 || title === 'Wybierz datę:' || title === 'Wybierz:') return
 
-    const html = await page.content()
-    const $ = cheerio.load(html)
-    const events = []
+        const dateText = $card.find('p.card-text').text().trim()
+        // Format: "2026-03-19 (czwartek) 18:30"
+        const dateMatch = dateText.match(/(\d{4}-\d{2}-\d{2})\s*\([^)]+\)\s*(\d{1,2}:\d{2})/)
+        if (!dateMatch) return
 
-    // Try CSS selectors first
-    $('[class*="calendar-event"], [class*="event-item"], [class*="calendar__item"], article').each((_, el) => {
-      const $el = $(el)
-      const title = $el.find('h3, h4, [class*="title"]').first().text().trim()
-      const timeText = $el.find('[class*="time"], [class*="hour"]').first().text().trim()
-      const dateAttr = $el.find('time').attr('datetime')
-      const category = $el.find('[class*="category"], [class*="tag"]').first().text().trim()
-      const ticketLink = $el.find('a[href*="bilet"]').first().attr('href') || ''
+        const [dateStr, timeStr] = [dateMatch[1], dateMatch[2]]
+        const [y, mo, d] = dateStr.split('-').map(Number)
+        const [h, min] = timeStr.split(':').map(Number)
+        const dateTime = new Date(y, mo - 1, d, h, min).toISOString()
 
-      if (!title || title.length < 3) return
+        const key = `${dateTime}-${title}`
+        if (seen.has(key)) return
+        seen.add(key)
 
-      let dateTime = null
-      if (dateAttr) {
-        const timeM = timeText.match(/(\d{1,2}):(\d{2})/)
-        const d = new Date(dateAttr)
-        if (timeM) { d.setHours(parseInt(timeM[1]), parseInt(timeM[2])) }
-        dateTime = d.toISOString()
-      }
+        // Category from text between title and date (often "Opera", "Balet", etc.)
+        const catText = $card.find('p.card-text.text-muted').text().trim()
+        const catMatch = catText.match(/(Opera|Balet|Koncert|Edukacja|Musical|Operetka)/i)
 
-      if (dateTime) {
+        // Availability: button with "Wybierz" + "X wolnych" = available, or "Brak Miejsc" / "Powiadom"
+        const buyBtn = $card.find('a.js-wybierz-termin-btn')
+        const cardText = $card.text().toLowerCase()
+        let dostepnosc = null
+        let ticketLink = ''
+
+        if (buyBtn.length > 0) {
+          ticketLink = buyBtn.attr('href') || ''
+          const freeMatch = buyBtn.text().match(/(\d+)\s*wolnych/)
+          if (freeMatch && parseInt(freeMatch[1]) < 20) {
+            dostepnosc = 'malo_miejsc'
+          } else {
+            dostepnosc = 'dostepne'
+          }
+        }
+        if (cardText.includes('brak miejsc') || cardText.includes('niedostępny') || cardText.includes('powiadom')) {
+          dostepnosc = 'wyprzedane'
+          ticketLink = ''
+        }
+
         events.push({
           tytul: title,
-          kategoria: categorize(category || title),
+          kategoria: categorize(catMatch ? catMatch[1] : title),
           data_czas: dateTime,
           link_bilety: ticketLink,
-          zrodlo_url: 'https://opera.krakow.pl/pl/repertuar/kalendarz',
+          dostepnosc,
+          zrodlo_url: `https://tickets.opera.krakow.pl/rezerwacja/termin.html?m=${m}&y=2026`,
         })
+        monthCount++
+      })
+
+      if (monthCount > 0) {
+        console.log(`  [Kraków] ${m}/2026: ${monthCount} wydarzeń`)
+      } else {
+        break // no more events
       }
-    })
-
-    // Fallback: parse page text
-    if (events.length === 0) {
-      const bodyText = await page.evaluate(() => document.body.innerText)
-      console.log('  [Kraków] Fallback: parsing text, length:', bodyText.length)
-
-      // Look for date + event patterns
-      const dateBlocks = bodyText.split(/\n/).filter(l => l.trim().length > 0)
-      let currentDate = null
-
-      for (const line of dateBlocks) {
-        // Date line: "15 marca 2026"
-        const dateM = line.match(/(\d{1,2})\s+(marca|kwietnia|maja|czerwca|lipca|sierpnia|września|października|listopada|grudnia)\s*(\d{4})?/i)
-        if (dateM) {
-          const m = Object.entries(MONTHS).find(([k]) => dateM[2].toLowerCase().includes(k))
-          if (m) currentDate = { day: parseInt(dateM[1]), month: m[1], year: dateM[3] ? parseInt(dateM[3]) : 2026 }
-          continue
-        }
-
-        // Time + event line: "19:00 Turandot"
-        const eventM = line.match(/^(\d{1,2}:\d{2})\s+(.+)/)
-        if (eventM && currentDate) {
-          const [h, min] = eventM[1].split(':').map(Number)
-          const dateTime = new Date(currentDate.year, currentDate.month - 1, currentDate.day, h, min).toISOString()
-          events.push({
-            tytul: eventM[2].trim(),
-            kategoria: categorize(eventM[2]),
-            data_czas: dateTime,
-            link_bilety: '',
-            zrodlo_url: 'https://opera.krakow.pl/pl/repertuar/kalendarz',
-          })
-        }
-      }
+    } catch (err) {
+      console.error(`  [Kraków] Błąd ${m}/2026: ${err.message}`)
     }
-
-    return events
-  } catch (err) {
-    console.error(`  [Kraków] Puppeteer error: ${err.message}`)
-    console.error('  [Kraków] Skipping — Cloudflare protection active')
-    return []
-  } finally {
-    if (browser) await browser.close()
   }
+
+  return events
 }
 
 // ── Theater registry ─────────────────────────────────────────────────────────
