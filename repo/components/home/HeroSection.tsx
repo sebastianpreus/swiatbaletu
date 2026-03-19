@@ -74,9 +74,9 @@ export default async function HeroSection() {
                 }`}
               >
                 {article.zdjecie && (
-                  <div className="w-[80px] h-[56px] rounded-[4px] overflow-hidden shrink-0 border-[0.5px] border-border">
+                  <div className="w-[82px] self-stretch rounded-[4px] overflow-hidden shrink-0 border-[0.5px] border-border">
                     <img
-                      src={urlFor(article.zdjecie).width(160).height(112).url()}
+                      src={urlFor(article.zdjecie).width(164).height(164).url()}
                       alt={article.zdjecie.alt || article.tytul}
                       className="w-full h-full object-cover"
                     />
@@ -86,11 +86,11 @@ export default async function HeroSection() {
                   <div className="text-[10px] tracking-[0.1em] uppercase text-gold mb-[4px] font-medium">
                     {article.kategoria}
                   </div>
-                  <div className="font-serif text-[16px] leading-[1.25] font-normal text-text-1 group-hover:text-gold transition-colors">
+                  <div className="font-serif text-[15px] leading-[1.3] font-normal text-text-1 group-hover:text-gold transition-colors line-clamp-2">
                     {article.tytul}
                   </div>
                   {article.zajawka && (
-                    <div className="text-[11px] text-text-2 leading-[1.5] mt-[3px] line-clamp-2">
+                    <div className="text-[11px] text-text-2 leading-[1.4] mt-[3px] line-clamp-2">
                       {article.zajawka}
                     </div>
                   )}
