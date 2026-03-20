@@ -27,6 +27,7 @@ const THEATER_PHOTOS = {
   'teatr-poznan': 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Budynek_Teatru_Wielkiego_w_Poznaniu.jpg/1280px-Budynek_Teatru_Wielkiego_w_Poznaniu.jpg',
   'teatr-wroclaw': 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Wroc%C5%82awska_opera-front.jpg/1280px-Wroc%C5%82awska_opera-front.jpg',
   'teatr-bydgoszcz': 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/Opera_Nova_-_Pa%C5%84stwowa_Opera_w_Bydgoszczy.jpg/1280px-Opera_Nova_-_Pa%C5%84stwowa_Opera_w_Bydgoszczy.jpg',
+  'teatr-szczecin': 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Zamek_Ksi%C4%85%C5%BC%C4%85t_Pomorskich%2C_Szczecin_-_panoramio.jpg/1280px-Zamek_Ksi%C4%85%C5%BC%C4%85t_Pomorskich%2C_Szczecin_-_panoramio.jpg',
 }
 
 // Updated theater data based on Wikipedia research
@@ -116,6 +117,20 @@ const THEATER_DATA = {
       { _type: 'block', _key: 'wr5', style: 'normal', children: [{ _type: 'span', _key: 'wr5s', text: 'Opera Wrocławska zyskała międzynarodowe uznanie dzięki monumentalnym inscenizacjom plenerowym, w tym pełnemu cyklowi „Pierścienia Nibelunga" Wagnera w Hali Stulecia. Sala główna po renowacji mieści 743 widzów. Budynek zachował XIX-wieczne zdobienia — plafon, żyrandol i lożę cesarską.' }], markDefs: [] },
     ],
   },
+  'teatr-szczecin': {
+    adres: 'ul. Korsarzy 34, 70-540 Szczecin',
+    rokZalozenia: 1956,
+    liczbaMiejsc: 540,
+    stronaWww: 'https://opera.szczecin.pl',
+    linkBilety: 'https://rezerwacja.opera.szczecin.pl',
+    opis: [
+      { _type: 'block', _key: 'sz1', style: 'h2', children: [{ _type: 'span', _key: 'sz1s', text: 'Historia' }], markDefs: [] },
+      { _type: 'block', _key: 'sz2', style: 'normal', children: [{ _type: 'span', _key: 'sz2s', text: 'Opera na Zamku w Szczecinie to jedyna instytucja operowa na Pomorzu Zachodnim. Działa od 1956 roku w historycznych wnętrzach Zamku Książąt Pomorskich — renesansowej rezydencji z XIV wieku, odbudowanej po zniszczeniach II wojny światowej. Pierwszym przedstawieniem była „Halka" Moniuszki.' }], markDefs: [] },
+      { _type: 'block', _key: 'sz3', style: 'normal', children: [{ _type: 'span', _key: 'sz3s', text: 'Zamek Książąt Pomorskich, siedziba opery, to jeden z najcenniejszych zabytków Szczecina. Wzniesiony w XIV wieku, wielokrotnie przebudowywany w stylu renesansowym i barokowym, został niemal całkowicie zniszczony w 1944 roku. Odbudowa trwała do lat 80. XX wieku.' }], markDefs: [] },
+      { _type: 'block', _key: 'sz4', style: 'h2', children: [{ _type: 'span', _key: 'sz4s', text: 'Budynek i działalność' }], markDefs: [] },
+      { _type: 'block', _key: 'sz5', style: 'normal', children: [{ _type: 'span', _key: 'sz5s', text: 'Opera dysponuje Salą Operową na 540 miejsc oraz kameralną Salą Rycerską. W repertuarze znajdują się opery, balety, operetki i koncerty symfoniczne. Instytucja współpracuje z teatrami z Niemiec i Skandynawii, co wynika z transgranicznego położenia Szczecina. Od 2022 roku dyrektorem naczelnym jest Jacek Jekiel.' }], markDefs: [] },
+    ],
+  },
 }
 
 // Opera Nova - new theater
@@ -124,7 +139,7 @@ const OPERA_NOVA = {
   _type: 'teatr',
   nazwa: 'Opera Nova',
   slug: { _type: 'slug', current: 'opera-nova-bydgoszcz' },
-  miasto: 'Inne',
+  miasto: 'Bydgoszcz',
   adres: 'ul. Marszałka Focha 5, 85-070 Bydgoszcz',
   rokZalozenia: 1956,
   liczbaMiejsc: 803,
@@ -139,10 +154,31 @@ const OPERA_NOVA = {
   ],
 }
 
+// Opera na Zamku w Szczecinie - new theater
+const OPERA_SZCZECIN = {
+  _id: 'teatr-szczecin',
+  _type: 'teatr',
+  nazwa: 'Opera na Zamku',
+  slug: { _type: 'slug', current: 'opera-na-zamku-szczecin' },
+  miasto: 'Szczecin',
+  adres: 'ul. Korsarzy 34, 70-540 Szczecin',
+  rokZalozenia: 1956,
+  liczbaMiejsc: 540,
+  stronaWww: 'https://opera.szczecin.pl',
+  linkBilety: 'https://rezerwacja.opera.szczecin.pl',
+  opis: [
+    { _type: 'block', _key: 'sz1', style: 'h2', children: [{ _type: 'span', _key: 'sz1s', text: 'Historia' }], markDefs: [] },
+    { _type: 'block', _key: 'sz2', style: 'normal', children: [{ _type: 'span', _key: 'sz2s', text: 'Opera na Zamku w Szczecinie to jedyna instytucja operowa na Pomorzu Zachodnim. Działa od 1956 roku w historycznych wnętrzach Zamku Książąt Pomorskich — renesansowej rezydencji z XIV wieku, odbudowanej po zniszczeniach II wojny światowej. Pierwszym przedstawieniem była „Halka" Moniuszki.' }], markDefs: [] },
+    { _type: 'block', _key: 'sz3', style: 'normal', children: [{ _type: 'span', _key: 'sz3s', text: 'Zamek Książąt Pomorskich, siedziba opery, to jeden z najcenniejszych zabytków Szczecina. Wzniesiony w XIV wieku, wielokrotnie przebudowywany w stylu renesansowym i barokowym, został niemal całkowicie zniszczony w 1944 roku. Odbudowa trwała do lat 80. XX wieku.' }], markDefs: [] },
+    { _type: 'block', _key: 'sz4', style: 'h2', children: [{ _type: 'span', _key: 'sz4s', text: 'Budynek i działalność' }], markDefs: [] },
+    { _type: 'block', _key: 'sz5', style: 'normal', children: [{ _type: 'span', _key: 'sz5s', text: 'Opera dysponuje Salą Operową na 540 miejsc oraz kameralną Salą Rycerską. W repertuarze znajdują się opery, balety, operetki i koncerty symfoniczne. Instytucja współpracuje z teatrami z Niemiec i Skandynawii, co wynika z transgranicznego położenia Szczecina. Od 2022 roku dyrektorem naczelnym jest Jacek Jekiel.' }], markDefs: [] },
+  ],
+}
+
 async function downloadAndUpload(url, filename) {
   console.log(`  Downloading ${filename}...`)
   const response = await fetch(url, {
-    headers: { 'User-Agent': 'SwiatBaletu/1.0 (educational project)' }
+    headers: { 'User-Agent': 'SwiatBaletuBot/1.0 (https://swiatbaletu.vercel.app; contact: admin@swiatbaletu.pl) educational-project' }
   })
   if (!response.ok) {
     throw new Error(`HTTP ${response.status} for ${url}`)
@@ -157,12 +193,14 @@ async function main() {
   console.log('=== Aktualizacja teatrów w Sanity ===\n')
 
   // 1. Create Opera Nova
-  console.log('1. Tworzenie Opery Nova w Bydgoszczy...')
-  try {
-    await client.createOrReplace(OPERA_NOVA)
-    console.log('   ✓ Opera Nova utworzona')
-  } catch (e) {
-    console.error('   ✗ Błąd:', e.message)
+  console.log('1. Tworzenie nowych teatrów...')
+  for (const theater of [OPERA_NOVA, OPERA_SZCZECIN]) {
+    try {
+      await client.createOrReplace(theater)
+      console.log(`   ✓ ${theater.nazwa} utworzona`)
+    } catch (e) {
+      console.error(`   ✗ ${theater.nazwa}: ${e.message}`)
+    }
   }
 
   // 2. Update existing theaters
@@ -176,10 +214,12 @@ async function main() {
     }
   }
 
-  // 3. Upload real photos
+  // 3. Upload real photos (with delay to avoid Wikimedia rate limiting)
   console.log('\n3. Ładowanie prawdziwych zdjęć z Wikimedia Commons...')
+  const delay = (ms) => new Promise(r => setTimeout(r, ms))
   for (const [id, imageUrl] of Object.entries(THEATER_PHOTOS)) {
     try {
+      await delay(8000) // 8s delay between downloads to avoid Wikimedia 429
       const assetId = await downloadAndUpload(imageUrl, `${id}.jpg`)
       const nazwa = id === 'teatr-bydgoszcz' ? 'Opera Nova' :
         THEATER_DATA[id] ? id : id

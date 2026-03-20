@@ -923,6 +923,113 @@ async function scrapeKrakow() {
   return events
 }
 
+// ── 8. OPERA NA ZAMKU W SZCZECINIE ───────────────────────────────────────────
+// Server-rendered repertoire at /repertuar/YYYYMM
+// Real DOM structure (verified 2026-03):
+//   article.event--teaser
+//     div.event__teaser-small__event   ← date/time live here (DIVs not spans)
+//       div.event__teaser-small__day   "07"
+//       div.event__teaser-small__date  "03 / 2026"
+//       div.event__teaser-small__week  "sobota"
+//       div.event__teaser-small__time  " 19:00"
+//       a[href*="rezerwacja"]          "Kup bilet"
+//     div.event__teaser-small__performance
+//       a[href^="/repertuar/slug"]
+//         article.performance--teaser-small
+//           div.performance__teaser-small__descrition
+//             div > div (composer text, may be absent)
+//             h2 > span (title)
+//             div.performance__category > div.field__item (category)
+async function scrapeSzczecin() {
+  const events = []
+  const seen = new Set()
+  const now = new Date()
+
+  // Scrape current month + next 3 months
+  for (let offset = 0; offset < 4; offset++) {
+    const d = new Date(now.getFullYear(), now.getMonth() + offset, 1)
+    const ym = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}`
+
+    try {
+      const url = `https://www.opera.szczecin.pl/repertuar/${ym}`
+      const html = await fetchHTML(url)
+      const $ = cheerio.load(html)
+
+      let monthCount = 0
+
+      // Iterate over each top-level event article (article.event--teaser)
+      $('article.event--teaser').each((_, el) => {
+        const $article = $(el)
+
+        // ── Date/time: all stored in DIVs inside .event__teaser-small__event ──
+        const dayNum   = $article.find('.event__teaser-small__day').first().text().trim()
+        const monthYear = $article.find('.event__teaser-small__date').first().text().trim()
+        const timeStr  = $article.find('.event__teaser-small__time').first().text().trim()
+
+        if (!dayNum || !monthYear || !timeStr) return
+
+        // monthYear format: "03 / 2026"
+        if (!monthYear.match(/^\d{2}\s*\/\s*\d{4}$/)) return
+        const [mm, yyyy] = monthYear.split('/').map(s => parseInt(s.trim()))
+        const day = parseInt(dayNum)
+        // timeStr may have leading space: " 19:00"
+        const cleanTime = timeStr.trim()
+        if (!cleanTime.match(/^\d{1,2}:\d{2}$/)) return
+        const [hours, minutes] = cleanTime.split(':').map(Number)
+
+        const dateTime = new Date(yyyy, mm - 1, day, hours, minutes).toISOString()
+
+        // ── Performance link & title ──
+        const $perfLink = $article.find('.event__teaser-small__performance a[href^="/repertuar/"]').first()
+        const href = $perfLink.attr('href')
+        if (!href || href.match(/^\/repertuar\/\d{6}$/)) return
+
+        // Title is in h2 > span inside the performance article
+        const title = $perfLink.find('h2').text().trim()
+        if (!title) return
+
+        const key = `${dateTime}-${title}`
+        if (seen.has(key)) return
+        seen.add(key)
+
+        // ── Category: div.performance__category > div.field__item ──
+        const kategoria = $perfLink.find('.performance__category .field__item').first().text().trim() || null
+
+        // ── Composer: first div inside the description wrapper, before h2 ──
+        // The description div contains an optional composer div, then h2, then category
+        const $descr = $perfLink.find('.performance__teaser-small__descrition')
+        let composer = ''
+        $descr.children('div').first().children('div').each((_, s) => {
+          const text = $(s).text().trim()
+          if (text && text !== title && !text.match(/^(Opera|Balet|Koncert|Operetka|Musical|Edukacja|Spektakl)/i) && text.length > 2 && text.length < 120) {
+            composer = text
+          }
+        })
+
+        // ── Ticket link: "Kup bilet" anchor inside the event date column ──
+        const ticketLink = $article.find('.event__teaser-small__event a[href*="rezerwacja"]').first().attr('href') || null
+
+        events.push({
+          tytul: title,
+          kompozytor: composer || null,
+          data_czas: dateTime,
+          link_bilety: ticketLink || null,
+          link_szczegoly: `https://www.opera.szczecin.pl${href}`,
+          dostepnosc: ticketLink ? 'dostepne' : null,
+          kategoria: kategoria || null,
+        })
+        monthCount++
+      })
+
+      console.log(`  [Szczecin] ${ym}: ${monthCount} pozycji`)
+    } catch (err) {
+      console.error(`  [Szczecin] Błąd ${ym}: ${err.message}`)
+    }
+  }
+
+  return events
+}
+
 // ── Theater registry ─────────────────────────────────────────────────────────
 
 const THEATERS = [
@@ -933,6 +1040,7 @@ const THEATERS = [
   { key: 'poznan', name: 'Teatr Wielki w Poznaniu', slug: 'teatr-wielki-poznan', scraper: scrapePoznan },
   { key: 'lodz', name: 'Teatr Wielki w Łodzi', slug: 'teatr-wielki-lodz', scraper: scrapeLodz },
   { key: 'krakow', name: 'Opera Krakowska', slug: 'opera-krakowska', scraper: scrapeKrakow },
+  { key: 'szczecin', name: 'Opera na Zamku', slug: 'opera-na-zamku-szczecin', scraper: scrapeSzczecin },
 ]
 
 // ── Supabase sync ────────────────────────────────────────────────────────────
@@ -980,6 +1088,7 @@ async function syncToSupabase(teatrSlug, teatrName, events) {
     'opera-nova-bydgoszcz': 'Bydgoszcz',
     'teatr-wielki-poznan': 'Poznań',
     'teatr-wielki-lodz': 'Łódź',
+    'opera-na-zamku-szczecin': 'Szczecin',
   }
 
   const teatrId = await ensureTeatr(teatrSlug, teatrName, miastaMap[teatrSlug])

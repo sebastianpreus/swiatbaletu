@@ -23,7 +23,7 @@ export const teatr = defineType({
       type: 'string',
       title: 'Miasto',
       options: {
-        list: ['Warszawa', 'Kraków', 'Wrocław', 'Gdańsk', 'Poznań', 'Łódź', 'Bydgoszcz', 'Inne'],
+        list: ['Warszawa', 'Kraków', 'Wrocław', 'Gdańsk', 'Poznań', 'Łódź', 'Bydgoszcz', 'Szczecin', 'Inne'],
       },
     }),
     defineField({
