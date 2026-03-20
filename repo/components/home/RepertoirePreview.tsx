@@ -113,7 +113,7 @@ export default async function RepertoirePreview() {
           linkHref="/repertuar"
         />
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-[10px]">
-          {shows.slice(0, 10).map((p) => {
+          {shows.slice(0, 16).map((p) => {
             const link = p.link_szczegoly || p.link_bilety || '/repertuar'
             const isPast = p.dostepnosc === 'wyprzedane' || p.dostepnosc === 'odwolane'
             return (
