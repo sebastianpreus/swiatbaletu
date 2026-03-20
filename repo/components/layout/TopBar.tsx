@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import ThemeToggle from '../ui/ThemeToggle'
+import MobileMenuButton from './MobileMenuButton'
 
 export default function TopBar() {
   const now = new Date()
@@ -16,12 +17,13 @@ export default function TopBar() {
         <Link href="/" className="font-serif text-[28px] tracking-[0.08em] text-gold font-normal">
           ŚWIAT<em className="italic font-light"> Baletu</em>
         </Link>
-        <div className="flex items-center gap-5">
+        <div className="flex items-center gap-3 md:gap-5">
           <div className="text-right leading-relaxed hidden md:block">
             <div className="text-[11px] text-gold-dim font-medium capitalize">{dateStr}</div>
             <div className="text-[11px] text-text-2">Sezon 2025/2026</div>
           </div>
           <ThemeToggle />
+          <MobileMenuButton />
         </div>
       </div>
     </div>
