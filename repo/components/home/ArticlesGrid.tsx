@@ -26,7 +26,7 @@ export default async function ArticlesGrid() {
           linkText="Wszystkie artykuły →"
           linkHref="/artykuly"
         />
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-[18px]">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-[12px] sm:gap-[18px]">
           {articles.map((article) => (
             <Link
               key={article._id}
@@ -49,7 +49,7 @@ export default async function ArticlesGrid() {
               <div className="text-[10px] tracking-[0.1em] uppercase text-text-2 mb-[5px] font-medium">
                 {article.kategoria}
               </div>
-              <div className="font-serif text-[17px] leading-[1.25] font-normal text-text-1 mb-[5px] group-hover:text-gold transition-colors">
+              <div className="font-serif text-[14px] sm:text-[17px] leading-[1.25] font-normal text-text-1 mb-[5px] group-hover:text-gold transition-colors line-clamp-3">
                 {article.tytul}
               </div>
               <div className="text-[11px] text-text-2">
