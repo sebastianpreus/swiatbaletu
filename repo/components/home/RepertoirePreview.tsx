@@ -25,11 +25,30 @@ function dostepnoscLabel(d: string) {
   }
 }
 
-async function getTodayShows() {
+function getWarsawDayBoundsUTC() {
+  // Oblicz dzisiejszą datę w Warsaw i zwróć granice dnia w UTC
   const now = new Date()
-  const today = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Warsaw' }))
-  const start = new Date(today.getFullYear(), today.getMonth(), today.getDate()).toISOString()
-  const end = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59).toISOString()
+  const warsawStr = now.toLocaleString('en-US', { timeZone: 'Europe/Warsaw' })
+  const warsawNow = new Date(warsawStr)
+
+  // Offset Warsaw vs UTC w milisekundach
+  const utcMs = now.getTime()
+  const warsawMs = warsawNow.getTime()
+  const offsetMs = utcMs - warsawMs
+
+  // Początek i koniec dnia w Warsaw
+  const startWarsaw = new Date(warsawNow.getFullYear(), warsawNow.getMonth(), warsawNow.getDate(), 0, 0, 0)
+  const endWarsaw = new Date(warsawNow.getFullYear(), warsawNow.getMonth(), warsawNow.getDate(), 23, 59, 59)
+
+  // Przelicz na UTC
+  return {
+    start: new Date(startWarsaw.getTime() + offsetMs).toISOString(),
+    end: new Date(endWarsaw.getTime() + offsetMs).toISOString(),
+  }
+}
+
+async function getTodayShows() {
+  const { start, end } = getWarsawDayBoundsUTC()
 
   const { data } = await supabase
     .from('przedstawienia')
