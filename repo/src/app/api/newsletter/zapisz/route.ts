@@ -79,10 +79,13 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Wyślij maila powitalnego (w tle — nie blokuj odpowiedzi)
-    sendWelcomeEmail(normalizedEmail).catch((err) =>
+    // Wyślij maila powitalnego (await — musi się zakończyć przed zwróceniem odpowiedzi na Vercel)
+    try {
+      await sendWelcomeEmail(normalizedEmail)
+    } catch (err) {
       console.error('Welcome email error:', err)
-    )
+      // Nie blokuj zapisu — mail powitalny to bonus
+    }
 
     return NextResponse.json({
       message: 'Dziękujemy za zapis! Sprawdź swoją skrzynkę — wysłaliśmy maila powitalnego.',
