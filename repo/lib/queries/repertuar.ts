@@ -1,5 +1,23 @@
 import { supabase } from '../supabase'
 
+function getWarsawDayBoundsUTC() {
+  const now = new Date()
+  const warsawStr = now.toLocaleString('en-US', { timeZone: 'Europe/Warsaw' })
+  const warsawNow = new Date(warsawStr)
+
+  const utcMs = now.getTime()
+  const warsawMs = warsawNow.getTime()
+  const offsetMs = utcMs - warsawMs
+
+  const startWarsaw = new Date(warsawNow.getFullYear(), warsawNow.getMonth(), warsawNow.getDate(), 0, 0, 0)
+  const endWarsaw = new Date(warsawNow.getFullYear(), warsawNow.getMonth(), warsawNow.getDate(), 23, 59, 59)
+
+  return {
+    start: new Date(startWarsaw.getTime() + offsetMs).toISOString(),
+    end: new Date(endWarsaw.getTime() + offsetMs).toISOString(),
+  }
+}
+
 export async function getPrzedstawienia(filters?: {
   miasto?: string
   miesiac?: string  // format: "2026-03"
@@ -35,16 +53,18 @@ export async function getPrzedstawienia(filters?: {
     .order('data_czas', { ascending: true })
 
   // Month filter or default to today onwards
+  const { start: todayStart } = getWarsawDayBoundsUTC()
+
   if (filters?.miesiac) {
     const [y, m] = filters.miesiac.split('-').map(Number)
-    const now = new Date()
-    // Current month? Start from today. Future month? From 1st.
-    const isCurrentMonth = y === now.getFullYear() && m === now.getMonth() + 1
-    const start = isCurrentMonth ? now.toISOString() : new Date(y, m - 1, 1).toISOString()
+    // Current month? Start from today (beginning of day). Future month? From 1st.
+    const warsawNow = new Date(new Date().toLocaleString('en-US', { timeZone: 'Europe/Warsaw' }))
+    const isCurrentMonth = y === warsawNow.getFullYear() && m === warsawNow.getMonth() + 1
+    const start = isCurrentMonth ? todayStart : new Date(y, m - 1, 1).toISOString()
     const end = new Date(y, m, 0, 23, 59, 59).toISOString()
     query = query.gte('data_czas', start).lte('data_czas', end)
   } else {
-    query = query.gte('data_czas', new Date().toISOString())
+    query = query.gte('data_czas', todayStart)
   }
 
   if (miasto) {
@@ -71,10 +91,11 @@ export async function getPrzedstawienia(filters?: {
 
 export async function getRepertuarMeta() {
   // Get available months
+  const { start: todayStart } = getWarsawDayBoundsUTC()
   const { data: rows } = await supabase
     .from('przedstawienia')
     .select('data_czas')
-    .gte('data_czas', new Date().toISOString())
+    .gte('data_czas', todayStart)
     .order('data_czas', { ascending: true })
 
   const uniqueMonths = new Set<string>()
