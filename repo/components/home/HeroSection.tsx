@@ -21,14 +21,14 @@ export default async function HeroSection() {
 
   return (
     <div className="max-w-[1100px] mx-auto px-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 border-b-[0.5px] border-border">
+      <div className="grid grid-cols-1 lg:grid-cols-2 border-b-[0.5px] border-border">
         {/* Main hero - Featured article */}
-        <div className="py-7 pr-0 md:pr-7 md:border-r-[0.5px] md:border-border">
+        <div className="py-7 pr-0 lg:pr-7 lg:border-r-[0.5px] lg:border-border">
           <div className="text-[10px] tracking-[0.11em] uppercase text-gold mb-[10px] flex items-center gap-2 font-medium">
             <span className="block w-[18px] h-[0.5px] bg-gold" />
             Artykuł wyróżniony
           </div>
-          <h1 className="font-serif text-[28px] md:text-[36px] leading-[1.1] font-normal text-text-1 mb-3">
+          <h1 className="font-serif text-[28px] lg:text-[36px] leading-[1.1] font-normal text-text-1 mb-3">
             {hero.tytul}
           </h1>
           {hero.autor && (
@@ -63,7 +63,7 @@ export default async function HeroSection() {
         </div>
 
         {/* Side articles */}
-        <div className="py-7 pl-0 md:pl-7 flex flex-col justify-between border-t-[0.5px] md:border-t-0 border-border">
+        <div className="py-7 pl-0 lg:pl-7 flex flex-col justify-between border-t-[0.5px] lg:border-t-0 border-border">
           {sideArticles.length > 0 ? (
             sideArticles.map((article, idx) => (
               <Link

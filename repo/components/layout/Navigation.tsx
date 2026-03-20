@@ -17,7 +17,7 @@ export default function Navigation() {
 
   return (
     <div className="max-w-[1100px] mx-auto px-6">
-      <nav className="flex border-b-[0.5px] border-border overflow-x-auto scrollbar-none">
+      <nav className="flex border-b-[0.5px] border-border overflow-x-auto scrollbar-none -mx-6 px-6 md:mx-0 md:px-0">
         {navItems.map((item) => {
           const isActive =
             item.href === '/'

@@ -20,26 +20,28 @@ export default function ThemeToggle() {
   }
 
   return (
-    <div className="flex rounded-[20px] border-[0.5px] border-border-mid bg-bg-section p-[3px] gap-[2px]">
+    <div className="flex rounded-[20px] border-[0.5px] border-border-mid bg-bg-section p-[3px] gap-[2px] shrink-0">
       <button
         onClick={() => toggle('light')}
-        className={`text-[10px] tracking-[0.06em] uppercase px-[13px] py-[5px] rounded-[16px] border-none cursor-pointer font-sans font-medium transition-all duration-200 ${
+        className={`text-[10px] tracking-[0.06em] uppercase px-[10px] md:px-[13px] py-[5px] rounded-[16px] border-none cursor-pointer font-sans font-medium transition-all duration-200 ${
           theme === 'light'
             ? 'bg-gold text-white'
             : 'bg-transparent text-text-2'
         }`}
       >
-        &#9788; Jasny
+        <span className="hidden sm:inline">&#9788; Jasny</span>
+        <span className="sm:hidden">&#9788;</span>
       </button>
       <button
         onClick={() => toggle('dark')}
-        className={`text-[10px] tracking-[0.06em] uppercase px-[13px] py-[5px] rounded-[16px] border-none cursor-pointer font-sans font-medium transition-all duration-200 ${
+        className={`text-[10px] tracking-[0.06em] uppercase px-[10px] md:px-[13px] py-[5px] rounded-[16px] border-none cursor-pointer font-sans font-medium transition-all duration-200 ${
           theme === 'dark'
             ? 'bg-gold text-white'
             : 'bg-transparent text-text-2'
         }`}
       >
-        &#9790; Ciemny
+        <span className="hidden sm:inline">&#9790; Ciemny</span>
+        <span className="sm:hidden">&#9790;</span>
       </button>
     </div>
   )

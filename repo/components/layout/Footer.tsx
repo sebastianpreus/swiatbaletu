@@ -6,7 +6,7 @@ export default function Footer() {
     <div className="max-w-[1100px] mx-auto px-6">
       {/* Newsletter section */}
       <div className="py-8 border-t-[0.5px] border-border">
-        <div className="max-w-[420px]">
+        <div className="max-w-full sm:max-w-[420px]">
           <NewsletterForm />
         </div>
       </div>
