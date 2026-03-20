@@ -4,5 +4,6 @@ import { wywiad } from './wywiad'
 import { teatr } from './teatr'
 import { ticker } from './ticker'
 import { promocja } from './promocja'
+import { newsletter } from './newsletter'
 
-export const schemaTypes = [artykul, sylwetka, wywiad, teatr, ticker, promocja]
+export const schemaTypes = [artykul, sylwetka, wywiad, teatr, ticker, promocja, newsletter]

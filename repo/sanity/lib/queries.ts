@@ -128,6 +128,21 @@ export const ALL_TEATRY_SANITY_QUERY = `
   }
 `
 
+// Newsletter po ID
+export const NEWSLETTER_BY_ID_QUERY = `
+  *[_type == "newsletter" && _id == $id][0] {
+    _id, tytul, preheader, wstep, tresc, ctaText, ctaLink, status,
+    polecaneArtykuly[]->{ tytul, slug, zajawka, kategoria }
+  }
+`
+
+// Wszystkie newslettery
+export const ALL_NEWSLETTERS_QUERY = `
+  *[_type == "newsletter"] | order(_createdAt desc) {
+    _id, tytul, status, dataWyslania, liczbaOdbiorcow
+  }
+`
+
 // Pojedynczy teatr po slug z Sanity
 export const TEATR_BY_SLUG_QUERY = `
   *[_type == "teatr" && slug.current == $slug] [0] {
