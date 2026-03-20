@@ -1014,7 +1014,7 @@ async function scrapeSzczecin() {
           kompozytor: composer || null,
           data_czas: dateTime,
           link_bilety: ticketLink || null,
-          link_szczegoly: `https://www.opera.szczecin.pl${href}`,
+          zrodlo_url: `https://www.opera.szczecin.pl${href}`,
           dostepnosc: ticketLink ? 'dostepne' : null,
           kategoria: kategoria || null,
         })
@@ -1166,7 +1166,7 @@ async function syncToSupabase(teatrSlug, teatrName, events) {
       if (event.zrodlo_url) updateData.link_szczegoly = event.zrodlo_url
 
       const { data: existing } = await supabase.from('przedstawienia')
-        .select('id, dostepnosc, link_bilety')
+        .select('id, dostepnosc, link_bilety, link_szczegoly')
         .eq('spektakl_id', spektaklId)
         .eq('teatr_id', teatrId)
         .eq('data_czas', event.data_czas)
@@ -1174,7 +1174,8 @@ async function syncToSupabase(teatrSlug, teatrName, events) {
 
       if (existing) {
         const changed = existing.dostepnosc !== updateData.dostepnosc ||
-                         existing.link_bilety !== updateData.link_bilety
+                         existing.link_bilety !== updateData.link_bilety ||
+                         (updateData.link_szczegoly && existing.link_szczegoly !== updateData.link_szczegoly)
         if (changed) {
           const { error } = await supabase.from('przedstawienia')
             .update(updateData)
