@@ -10,7 +10,6 @@ const navItems = [
   { label: 'Sylwetki', href: '/sylwetki' },
   { label: 'Wywiady', href: '/wywiady' },
   { label: 'Teatry', href: '/teatry' },
-  { label: 'Promocje', href: '/promocje' },
 ]
 
 export default function MobileMenuButton() {
