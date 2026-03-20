@@ -136,6 +136,14 @@ export const NEWSLETTER_BY_ID_QUERY = `
   }
 `
 
+// Email powitalny (newsletter o slugId "email-powitalny")
+export const WELCOME_EMAIL_QUERY = `
+  *[_type == "newsletter" && slugId.current == "email-powitalny"][0] {
+    _id, tytul, preheader, wstep, tresc, ctaText, ctaLink,
+    polecaneArtykuly[]->{ tytul, slug, zajawka, kategoria }
+  }
+`
+
 // Wszystkie newslettery
 export const ALL_NEWSLETTERS_QUERY = `
   *[_type == "newsletter"] | order(_createdAt desc) {

@@ -1,10 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { createClient as createSanityClient } from 'next-sanity'
+import { renderNewsletterHtml } from '@/lib/newsletter-template'
+import { portableTextToHtml } from '@/lib/portable-to-html'
+import { sendEmail } from '@/lib/brevo'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
+
+const sanity = createSanityClient({
+  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!,
+  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || 'production',
+  apiVersion: '2024-01-01',
+  useCdn: false,
+  token: process.env.SANITY_API_TOKEN,
+})
+
+const WELCOME_EMAIL_QUERY = `
+  *[_type == "newsletter" && slugId.current == "email-powitalny"][0] {
+    _id, tytul, preheader, wstep, tresc, ctaText, ctaLink,
+    polecaneArtykuly[]->{ tytul, slug, zajawka, kategoria }
+  }
+`
 
 export async function POST(req: NextRequest) {
   try {
@@ -60,8 +79,13 @@ export async function POST(req: NextRequest) {
       )
     }
 
+    // Wyślij maila powitalnego (w tle — nie blokuj odpowiedzi)
+    sendWelcomeEmail(normalizedEmail).catch((err) =>
+      console.error('Welcome email error:', err)
+    )
+
     return NextResponse.json({
-      message: 'Dziękujemy za zapis! Wkrótce otrzymasz pierwszy newsletter.',
+      message: 'Dziękujemy za zapis! Sprawdź swoją skrzynkę — wysłaliśmy maila powitalnego.',
     })
   } catch (error) {
     console.error('Newsletter signup error:', error)
@@ -70,4 +94,40 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     )
   }
+}
+
+async function sendWelcomeEmail(email: string) {
+  // Pobierz treść maila powitalnego z Sanity
+  const welcome = await sanity.fetch(WELCOME_EMAIL_QUERY)
+
+  if (!welcome) {
+    console.warn('Brak maila powitalnego w Sanity (slugId: "email-powitalny"). Pomijam wysyłkę.')
+    return
+  }
+
+  const trescHtml = portableTextToHtml(welcome.tresc)
+
+  const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://swiatbaletu.vercel.app'
+  const unsubscribeUrl = `${SITE_URL}/api/newsletter/wypisz?email=${encodeURIComponent(email)}&token=${encodeURIComponent(Buffer.from(email).toString('base64'))}`
+
+  let html = renderNewsletterHtml({
+    tytul: welcome.tytul,
+    preheader: welcome.preheader,
+    wstep: welcome.wstep,
+    trescHtml,
+    polecaneArtykuly: welcome.polecaneArtykuly?.map((a: { tytul: string; slug: { current: string }; zajawka?: string; kategoria?: string }) => ({
+      ...a,
+      slug: a.slug?.current || '',
+    })),
+    ctaText: welcome.ctaText,
+    ctaLink: welcome.ctaLink,
+  })
+
+  html = html.replace('{{UNSUBSCRIBE_URL}}', unsubscribeUrl)
+
+  await sendEmail({
+    to: [{ email }],
+    subject: welcome.tytul,
+    htmlContent: html,
+  })
 }

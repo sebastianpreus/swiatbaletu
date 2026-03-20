@@ -12,6 +12,13 @@ export const newsletter = defineType({
       validation: (Rule) => Rule.required().max(100),
     }),
     defineField({
+      name: 'slugId',
+      type: 'slug',
+      title: 'Identyfikator',
+      description: 'Unikalny identyfikator. Dla maila powitalnego ustaw: "email-powitalny"',
+      options: { source: 'tytul' },
+    }),
+    defineField({
       name: 'preheader',
       type: 'string',
       title: 'Preheader',
