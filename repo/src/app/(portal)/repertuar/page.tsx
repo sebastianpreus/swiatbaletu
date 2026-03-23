@@ -48,9 +48,21 @@ function dostepnoscVariant(d: string): 'red' | 'amber' | 'green' | 'gray' {
   }
 }
 
+function getWarsawTodayStartUTC() {
+  const now = new Date()
+  const warsawStr = now.toLocaleString('en-US', { timeZone: 'Europe/Warsaw' })
+  const warsawNow = new Date(warsawStr)
+  const offsetMs = now.getTime() - warsawNow.getTime()
+  const startWarsaw = new Date(warsawNow.getFullYear(), warsawNow.getMonth(), warsawNow.getDate(), 0, 0, 0)
+  return new Date(startWarsaw.getTime() + offsetMs)
+}
+
 function getEffectiveStatus(p: { data_czas: string; dostepnosc: string | null }) {
-  const isPast = new Date(p.data_czas) < new Date()
-  if (isPast) return 'archiwalne'
+  // Only mark as 'archiwalne' if the event is from before today (Warsaw time)
+  // Today's past events keep their original status
+  const todayStart = getWarsawTodayStartUTC()
+  const eventDate = new Date(p.data_czas)
+  if (eventDate < todayStart) return 'archiwalne'
   return p.dostepnosc || 'dostepne'
 }
 
