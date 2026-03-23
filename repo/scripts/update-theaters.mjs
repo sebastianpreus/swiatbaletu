@@ -26,7 +26,7 @@ const THEATER_PHOTOS = {
   'teatr-lodz': 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/%C5%81%C3%B3d%C5%BA_-_Teatr_Wielki.JPG/1280px-%C5%81%C3%B3d%C5%BA_-_Teatr_Wielki.JPG',
   'teatr-poznan': 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Budynek_Teatru_Wielkiego_w_Poznaniu.jpg/1280px-Budynek_Teatru_Wielkiego_w_Poznaniu.jpg',
   'teatr-wroclaw': 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Wroc%C5%82awska_opera-front.jpg/1280px-Wroc%C5%82awska_opera-front.jpg',
-  'teatr-bydgoszcz': 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/Opera_Nova_-_Pa%C5%84stwowa_Opera_w_Bydgoszczy.jpg/1280px-Opera_Nova_-_Pa%C5%84stwowa_Opera_w_Bydgoszczy.jpg',
+  'teatr-bydgoszcz': 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/Bydgoszcz%2C_Opera_Nova.jpg/1280px-Bydgoszcz%2C_Opera_Nova.jpg',
   'teatr-szczecin': 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Zamek_Ksi%C4%85%C5%BC%C4%85t_Pomorskich%2C_Szczecin_-_panoramio.jpg/1280px-Zamek_Ksi%C4%85%C5%BC%C4%85t_Pomorskich%2C_Szczecin_-_panoramio.jpg',
 }
 
@@ -196,8 +196,11 @@ async function main() {
   console.log('1. Tworzenie nowych teatrów...')
   for (const theater of [OPERA_NOVA, OPERA_SZCZECIN]) {
     try {
-      await client.createOrReplace(theater)
-      console.log(`   ✓ ${theater.nazwa} utworzona`)
+      await client.createIfNotExists(theater)
+      // Update data without overwriting zdjecie
+      const { _id, _type, ...data } = theater
+      await client.patch(_id).set(data).commit()
+      console.log(`   ✓ ${theater.nazwa} utworzona/zaktualizowana`)
     } catch (e) {
       console.error(`   ✗ ${theater.nazwa}: ${e.message}`)
     }
