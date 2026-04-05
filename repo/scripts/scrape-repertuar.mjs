@@ -34,6 +34,31 @@ const TEATR_FILTER = (() => {
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
+/**
+ * Convert Warsaw local time components to a proper ISO timestamp.
+ * All scraped times are Polish local times (CET/CEST).
+ * We construct the ISO string directly with the correct UTC offset
+ * so that stored timestamps are accurate regardless of server timezone.
+ */
+function warsawDateToISO(year, month, day, hour, minute) {
+  // Determine if the date falls in CET (+01:00) or CEST (+02:00)
+  // CEST: last Sunday of March 02:00 → last Sunday of October 03:00
+  const lastSundayOfMonth = (y, m) => {
+    const last = new Date(Date.UTC(y, m, 0)) // last day of month
+    return last.getUTCDate() - last.getUTCDay()
+  }
+  const cestStart = new Date(Date.UTC(year, 2, lastSundayOfMonth(year, 3), 1, 0, 0)) // March last Sun at 01:00 UTC
+  const cestEnd = new Date(Date.UTC(year, 9, lastSundayOfMonth(year, 10), 1, 0, 0))  // October last Sun at 01:00 UTC
+
+  // Build a preliminary UTC date assuming CET (+1), then check if it's actually CEST
+  const utcAsCET = Date.UTC(year, month - 1, day, hour - 1, minute)
+  const isCEST = utcAsCET >= cestStart.getTime() && utcAsCET < cestEnd.getTime()
+  const offsetHours = isCEST ? 2 : 1
+
+  const pad = (n) => String(n).padStart(2, '0')
+  return `${year}-${pad(month)}-${pad(day)}T${pad(hour)}:${pad(minute)}:00+${pad(offsetHours)}:00`
+}
+
 async function fetchHTML(url) {
   const res = await fetch(url, {
     headers: {
@@ -85,7 +110,7 @@ async function scrapeWarszawa() {
     for (const e of dayEvents) {
       const [y, m, d] = date.split('-').map(Number)
       const [h, min] = (e.godzinaTerminu || '19:00').split(':').map(Number)
-      const dateTime = new Date(y, m - 1, d, h, min).toISOString()
+      const dateTime = warsawDateToISO(y, m, d, h, min)
 
       const key = `${dateTime}-${e.tytul}`
       if (seen.has(key)) continue
@@ -155,9 +180,8 @@ function parseGdanskHTML(html) {
     if (yearMatch) year = parseInt(yearMatch[1])
     if (!month) continue
 
-    const dateTime = new Date(year, month - 1, parseInt(day),
-      ...((time.match(/(\d+):(\d+)/) || [, 19, 0]).slice(1).map(Number))
-    ).toISOString()
+    const [, hStr, mStr] = time.match(/(\d+):(\d+)/) || [, '19', '0']
+    const dateTime = warsawDateToISO(year, month, parseInt(day), parseInt(hStr), parseInt(mStr))
 
     const $item = $(`#desc-repertoire-title-${i}`).closest('.repertoire-list-item__content')
     const label = $item.find('.repertoire-list-item__label').text().trim()
@@ -337,10 +361,10 @@ async function scrapeGdansk() {
         if (!month) continue
 
         const timeMatch = ev.time?.match(/(\d+):(\d+)/)
-        const dateTime = new Date(year, month - 1, parseInt(ev.day),
+        const dateTime = warsawDateToISO(year, month, parseInt(ev.day),
           timeMatch ? parseInt(timeMatch[1]) : 19,
           timeMatch ? parseInt(timeMatch[2]) : 0
-        ).toISOString()
+        )
 
         const key = `${dateTime}-${ev.title}`
         if (!seen.has(key)) {
@@ -381,9 +405,9 @@ async function scrapeGdansk() {
           if (yearMatch) year = parseInt(yearMatch[1])
           if (!month) continue
           const timeMatch = ev.time?.match(/(\d+):(\d+)/)
-          const dateTime = new Date(year, month - 1, parseInt(ev.day),
+          const dateTime = warsawDateToISO(year, month, parseInt(ev.day),
             timeMatch ? parseInt(timeMatch[1]) : 19, timeMatch ? parseInt(timeMatch[2]) : 0
-          ).toISOString()
+          )
           const key = `${dateTime}-${ev.title}`
           if (!seen.has(key)) {
             seen.add(key)
@@ -440,10 +464,10 @@ async function scrapeWroclaw() {
     let dateTime = null
     if (dateString && dateString.length === 8) {
       const y = parseInt(dateString.substring(0, 4))
-      const m = parseInt(dateString.substring(4, 6)) - 1
+      const m = parseInt(dateString.substring(4, 6))
       const d = parseInt(dateString.substring(6, 8))
       const [h, min] = time ? time.split(':').map(Number) : [19, 0]
-      dateTime = new Date(y, m, d, h, min).toISOString()
+      dateTime = warsawDateToISO(y, m, d, h, min)
     }
 
     // Detail page link: spektakl.php?_id=... (btn-grey in list view)
@@ -528,9 +552,8 @@ async function scrapeBydgoszcz() {
       ? (detailHref.startsWith('http') ? detailHref : `https://www.opera.bydgoszcz.pl${detailHref.startsWith('/') ? '' : '/'}${detailHref}`)
       : ''
 
-    const dateTime = new Date(year, currentMonth - 1, day,
-      ...(timeMatch ? timeMatch[1].split(':').map(Number) : [19, 0])
-    ).toISOString()
+    const timeParts = timeMatch ? timeMatch[1].split(':').map(Number) : [19, 0]
+    const dateTime = warsawDateToISO(year, currentMonth, day, timeParts[0], timeParts[1] || 0)
 
     const key = `${dateTime}-${title}`
     if (seen.has(key)) return
@@ -644,10 +667,11 @@ async function scrapePoznan() {
     if (!dateMatch) return
 
     const timeMatch = timeInfo.match(/(\d{1,2}:\d{2})/)
-    const dateTime = new Date(
-      parseInt(dateMatch[3]), parseInt(dateMatch[2]) - 1, parseInt(dateMatch[1]),
-      ...(timeMatch ? timeMatch[1].split(':').map(Number) : [19, 0])
-    ).toISOString()
+    const timeParts = timeMatch ? timeMatch[1].split(':').map(Number) : [19, 0]
+    const dateTime = warsawDateToISO(
+      parseInt(dateMatch[3]), parseInt(dateMatch[2]), parseInt(dateMatch[1]),
+      timeParts[0], timeParts[1] || 0
+    )
 
     // Deduplicate
     const key = `${dateTime}-${titleFull}`
@@ -717,10 +741,11 @@ async function scrapePoznan() {
       if (!dateMatch) return
 
       const timeMatch = timeInfo.match(/(\d{1,2}:\d{2})/)
-      const dateTime = new Date(
-        parseInt(dateMatch[3]), parseInt(dateMatch[2]) - 1, parseInt(dateMatch[1]),
-        ...(timeMatch ? timeMatch[1].split(':').map(Number) : [19, 0])
-      ).toISOString()
+      const timeParts = timeMatch ? timeMatch[1].split(':').map(Number) : [19, 0]
+      const dateTime = warsawDateToISO(
+        parseInt(dateMatch[3]), parseInt(dateMatch[2]), parseInt(dateMatch[1]),
+        timeParts[0], timeParts[1] || 0
+      )
 
       const key = `${dateTime}-${titleFull}`
       if (seen.has(key)) return
@@ -800,7 +825,7 @@ async function scrapeLodz() {
 
           const [y, m, dd] = dateStr.split('-').map(Number)
           const [h, min] = timeStr.split(':').map(Number)
-          const dateTime = new Date(y, m - 1, dd, h, min).toISOString()
+          const dateTime = warsawDateToISO(y, m, dd, h, min)
 
           const key = `${dateTime}-${title}`
           if (seen.has(key)) return
@@ -869,7 +894,7 @@ async function scrapeKrakow() {
         const [dateStr, timeStr] = [dateMatch[1], dateMatch[2]]
         const [y, mo, d] = dateStr.split('-').map(Number)
         const [h, min] = timeStr.split(':').map(Number)
-        const dateTime = new Date(y, mo - 1, d, h, min).toISOString()
+        const dateTime = warsawDateToISO(y, mo, d, h, min)
 
         const key = `${dateTime}-${title}`
         if (seen.has(key)) return
@@ -977,7 +1002,7 @@ async function scrapeSzczecin() {
         if (!cleanTime.match(/^\d{1,2}:\d{2}$/)) return
         const [hours, minutes] = cleanTime.split(':').map(Number)
 
-        const dateTime = new Date(yyyy, mm - 1, day, hours, minutes).toISOString()
+        const dateTime = warsawDateToISO(yyyy, mm, day, hours, minutes)
 
         // ── Performance link & title ──
         const $perfLink = $article.find('.event__teaser-small__performance a[href^="/repertuar/"]').first()
