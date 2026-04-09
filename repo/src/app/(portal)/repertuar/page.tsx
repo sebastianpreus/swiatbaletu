@@ -72,7 +72,7 @@ function formatMonthLabel(ym: string) {
   return d.toLocaleDateString('pl-PL', { month: 'long', year: 'numeric' })
 }
 
-const MIASTA = ['Wszystkie', 'Warszawa', 'Kraków', 'Wrocław', 'Gdańsk', 'Poznań', 'Łódź', 'Bydgoszcz', 'Szczecin']
+const MIASTA = ['Wszystkie', 'Warszawa', 'Kraków', 'Wrocław', 'Gdańsk', 'Poznań', 'Łódź', 'Bydgoszcz', 'Szczecin', 'Bytom']
 
 const DOSTEPNOSCI = [
   { value: '', label: 'Wszystkie' },

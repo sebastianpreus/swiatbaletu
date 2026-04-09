@@ -157,6 +157,7 @@ const THEATER_COORDS: Record<string, [number, number]> = {
   'teatr-wroclaw': [51.1033, 17.0284],
   'teatr-bydgoszcz': [53.1235, 18.0084],
   'teatr-szczecin': [53.4285, 14.5528],
+  'teatr-bytom': [50.3484, 18.9156],
 }
 
 function getMarker(id: string): string {

@@ -1055,6 +1055,91 @@ async function scrapeSzczecin() {
   return events
 }
 
+// ── 9. OPERA ŚLĄSKA W BYTOMIU ────────────────────────────────────────────────
+// URL: /repertuar/category/0/Wszystkie/month/YYYY-MM — server-rendered HTML
+async function scrapeBytom() {
+  const events = []
+  const seen = new Set()
+  const now = new Date()
+
+  const POLISH_MONTHS = {
+    'stycznia': 1, 'lutego': 2, 'marca': 3, 'kwietnia': 4,
+    'maja': 5, 'czerwca': 6, 'lipca': 7, 'sierpnia': 8,
+    'września': 9, 'października': 10, 'listopada': 11, 'grudnia': 12,
+  }
+
+  for (let offset = 0; offset < 4; offset++) {
+    const d = new Date(now.getFullYear(), now.getMonth() + offset, 1)
+    const ym = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+
+    try {
+      const url = `https://opera-slaska.pl/repertuar/category/0/Wszystkie/month/${ym}`
+      const html = await fetchHTML(url)
+      const $ = cheerio.load(html)
+
+      let monthCount = 0
+
+      $('.repertoire_item').each((_, el) => {
+        const $item = $(el)
+
+        // Date: "10 kwietnia 2026, Piątek"
+        const dateText = $item.find('.nr').first().text().trim()
+        const dateMatch = dateText.match(/(\d{1,2})\s+(\w+)\s+(\d{4})/)
+        if (!dateMatch) return
+
+        const day = parseInt(dateMatch[1])
+        const monthName = dateMatch[2].toLowerCase()
+        const year = parseInt(dateMatch[3])
+        const month = POLISH_MONTHS[monthName]
+        if (!month) return
+
+        // Time: "Godzina: 18:00"
+        const timeText = $item.find('.repertoire_hour .highlight').first().text().trim()
+        const timeMatch = timeText.match(/(\d{1,2}):(\d{2})/)
+        const hours = timeMatch ? parseInt(timeMatch[1]) : 19
+        const minutes = timeMatch ? parseInt(timeMatch[2]) : 0
+
+        const dateTime = warsawDateToISO(year, month, day, hours, minutes)
+
+        // Title
+        const title = $item.find('.repertoire_title').first().text().trim()
+        if (!title) return
+
+        const key = `${dateTime}-${title}`
+        if (seen.has(key)) return
+        seen.add(key)
+
+        // Detail link
+        const detailHref = $item.find('.repertoire_title').attr('href') || ''
+        const detailUrl = detailHref ? `https://opera-slaska.pl${detailHref}` : null
+
+        // Ticket link
+        const ticketLink = $item.find('.repertoire_btn1 a[href*="bilety"]').attr('href') || null
+
+        // Category from title/detail link
+        const kategoria = categorize(title + ' ' + detailHref)
+
+        events.push({
+          tytul: title,
+          kompozytor: null,
+          data_czas: dateTime,
+          link_bilety: ticketLink,
+          zrodlo_url: detailUrl,
+          dostepnosc: ticketLink ? 'dostepne' : null,
+          kategoria,
+        })
+        monthCount++
+      })
+
+      console.log(`  [Bytom] ${ym}: ${monthCount} pozycji`)
+    } catch (err) {
+      console.error(`  [Bytom] Błąd ${ym}: ${err.message}`)
+    }
+  }
+
+  return events
+}
+
 // ── Theater registry ─────────────────────────────────────────────────────────
 
 const THEATERS = [
@@ -1066,6 +1151,7 @@ const THEATERS = [
   { key: 'lodz', name: 'Teatr Wielki w Łodzi', slug: 'teatr-wielki-lodz', scraper: scrapeLodz },
   { key: 'krakow', name: 'Opera Krakowska', slug: 'opera-krakowska', scraper: scrapeKrakow },
   { key: 'szczecin', name: 'Opera na Zamku', slug: 'opera-na-zamku-szczecin', scraper: scrapeSzczecin },
+  { key: 'bytom', name: 'Opera Śląska', slug: 'opera-slaska-bytom', scraper: scrapeBytom },
 ]
 
 // ── Supabase sync ────────────────────────────────────────────────────────────
@@ -1114,6 +1200,7 @@ async function syncToSupabase(teatrSlug, teatrName, events) {
     'teatr-wielki-poznan': 'Poznań',
     'teatr-wielki-lodz': 'Łódź',
     'opera-na-zamku-szczecin': 'Szczecin',
+    'opera-slaska-bytom': 'Bytom',
   }
 
   const teatrId = await ensureTeatr(teatrSlug, teatrName, miastaMap[teatrSlug])

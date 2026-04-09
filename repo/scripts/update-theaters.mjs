@@ -28,6 +28,7 @@ const THEATER_PHOTOS = {
   'teatr-wroclaw': 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Wroc%C5%82awska_opera-front.jpg/1280px-Wroc%C5%82awska_opera-front.jpg',
   'teatr-bydgoszcz': 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/Bydgoszcz%2C_Opera_Nova.jpg/1280px-Bydgoszcz%2C_Opera_Nova.jpg',
   'teatr-szczecin': 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Zamek_Ksi%C4%85%C5%BC%C4%85t_Pomorskich%2C_Szczecin_-_panoramio.jpg/1280px-Zamek_Ksi%C4%85%C5%BC%C4%85t_Pomorskich%2C_Szczecin_-_panoramio.jpg',
+  'teatr-bytom': null, // will be fetched via Wikimedia API
 }
 
 // Updated theater data based on Wikipedia research
@@ -117,6 +118,20 @@ const THEATER_DATA = {
       { _type: 'block', _key: 'wr5', style: 'normal', children: [{ _type: 'span', _key: 'wr5s', text: 'Opera Wrocławska zyskała międzynarodowe uznanie dzięki monumentalnym inscenizacjom plenerowym, w tym pełnemu cyklowi „Pierścienia Nibelunga" Wagnera w Hali Stulecia. Sala główna po renowacji mieści 743 widzów. Budynek zachował XIX-wieczne zdobienia — plafon, żyrandol i lożę cesarską.' }], markDefs: [] },
     ],
   },
+  'teatr-bytom': {
+    adres: 'ul. Moniuszki 21-23, 41-902 Bytom',
+    rokZalozenia: 1945,
+    liczbaMiejsc: 636,
+    stronaWww: 'https://opera-slaska.pl',
+    linkBilety: 'https://bilety.opera-slaska.pl',
+    opis: [
+      { _type: 'block', _key: 'by1', style: 'h2', children: [{ _type: 'span', _key: 'by1s', text: 'Historia' }], markDefs: [] },
+      { _type: 'block', _key: 'by2', style: 'normal', children: [{ _type: 'span', _key: 'by2s', text: 'Opera Śląska w Bytomiu to najstarsza opera na Górnym Śląsku i jedna z najważniejszych scen operowych w Polsce. Została powołana 16 czerwca 1945 roku — zaledwie kilka tygodni po zakończeniu II wojny światowej — jako pierwsza instytucja operowa w powojennej historii Śląska. Inauguracja odbyła się 30 czerwca 1945 roku premierą „Halki" Moniuszki.' }], markDefs: [] },
+      { _type: 'block', _key: 'by3', style: 'normal', children: [{ _type: 'span', _key: 'by3s', text: 'Gmach opery przy ul. Moniuszki został wzniesiony w 1901 roku jako niemiecki Oberschlesisches Landestheater. Po wojnie przejęty przez polską administrację, stał się siedzibą nowej instytucji. W 2004 roku Opera została wpisana do rejestru zabytków województwa śląskiego.' }], markDefs: [] },
+      { _type: 'block', _key: 'by4', style: 'h2', children: [{ _type: 'span', _key: 'by4s', text: 'Budynek i działalność' }], markDefs: [] },
+      { _type: 'block', _key: 'by5', style: 'normal', children: [{ _type: 'span', _key: 'by5s', text: 'Opera dysponuje Dużą Sceną na 636 miejsc oraz kameralną Sceną im. Adama Didura. W repertuarze znajdują się opery, balety, operetki, musicale i koncerty. Zespół Baletu Opery Śląskiej to jeden z najstarszych i najbardziej uznanych zespołów baletowych w kraju. Instytucja organizuje festiwal „Horyzonty — Międzypokoleniowe Spotkania Baletowe" oraz coroczny Sylwester Operowy.' }], markDefs: [] },
+    ],
+  },
   'teatr-szczecin': {
     adres: 'ul. Korsarzy 34, 70-540 Szczecin',
     rokZalozenia: 1956,
@@ -175,6 +190,27 @@ const OPERA_SZCZECIN = {
   ],
 }
 
+// Opera Śląska w Bytomiu - new theater
+const OPERA_SLASKA = {
+  _id: 'teatr-bytom',
+  _type: 'teatr',
+  nazwa: 'Opera Śląska',
+  slug: { _type: 'slug', current: 'opera-slaska-bytom' },
+  miasto: 'Bytom',
+  adres: 'ul. Moniuszki 21-23, 41-902 Bytom',
+  rokZalozenia: 1945,
+  liczbaMiejsc: 636,
+  stronaWww: 'https://opera-slaska.pl',
+  linkBilety: 'https://bilety.opera-slaska.pl',
+  opis: [
+    { _type: 'block', _key: 'by1', style: 'h2', children: [{ _type: 'span', _key: 'by1s', text: 'Historia' }], markDefs: [] },
+    { _type: 'block', _key: 'by2', style: 'normal', children: [{ _type: 'span', _key: 'by2s', text: 'Opera Śląska w Bytomiu to najstarsza opera na Górnym Śląsku i jedna z najważniejszych scen operowych w Polsce. Została powołana 16 czerwca 1945 roku — zaledwie kilka tygodni po zakończeniu II wojny światowej — jako pierwsza instytucja operowa w powojennej historii Śląska. Inauguracja odbyła się 30 czerwca 1945 roku premierą „Halki" Moniuszki.' }], markDefs: [] },
+    { _type: 'block', _key: 'by3', style: 'normal', children: [{ _type: 'span', _key: 'by3s', text: 'Gmach opery przy ul. Moniuszki został wzniesiony w 1901 roku jako niemiecki Oberschlesisches Landestheater. Po wojnie przejęty przez polską administrację, stał się siedzibą nowej instytucji. W 2004 roku Opera została wpisana do rejestru zabytków województwa śląskiego.' }], markDefs: [] },
+    { _type: 'block', _key: 'by4', style: 'h2', children: [{ _type: 'span', _key: 'by4s', text: 'Budynek i działalność' }], markDefs: [] },
+    { _type: 'block', _key: 'by5', style: 'normal', children: [{ _type: 'span', _key: 'by5s', text: 'Opera dysponuje Dużą Sceną na 636 miejsc oraz kameralną Sceną im. Adama Didura. W repertuarze znajdują się opery, balety, operetki, musicale i koncerty. Zespół Baletu Opery Śląskiej to jeden z najstarszych i najbardziej uznanych zespołów baletowych w kraju. Instytucja organizuje festiwal „Horyzonty — Międzypokoleniowe Spotkania Baletowe" oraz coroczny Sylwester Operowy.' }], markDefs: [] },
+  ],
+}
+
 async function downloadAndUpload(url, filename) {
   console.log(`  Downloading ${filename}...`)
   const response = await fetch(url, {
@@ -194,7 +230,7 @@ async function main() {
 
   // 1. Create Opera Nova
   console.log('1. Tworzenie nowych teatrów...')
-  for (const theater of [OPERA_NOVA, OPERA_SZCZECIN]) {
+  for (const theater of [OPERA_NOVA, OPERA_SZCZECIN, OPERA_SLASKA]) {
     try {
       await client.createIfNotExists(theater)
       // Update data without overwriting zdjecie
