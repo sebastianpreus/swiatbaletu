@@ -23,7 +23,7 @@ export default async function HeroSection() {
     <div className="max-w-[1100px] mx-auto px-6">
       <div className="grid grid-cols-1 lg:grid-cols-2 border-b-[0.5px] border-border">
         {/* Main hero - Featured article */}
-        <div className="py-7 pr-0 lg:pr-7 lg:border-r-[0.5px] lg:border-border">
+        <div className="py-7 pr-0 lg:pr-7 lg:border-r-[0.5px] lg:border-border flex flex-col">
           <div className="text-[10px] tracking-[0.11em] uppercase text-gold mb-[10px] flex items-center gap-2 font-medium">
             <span className="block w-[18px] h-[0.5px] bg-gold" />
             Artykuł wyróżniony
@@ -37,10 +37,11 @@ export default async function HeroSection() {
             </div>
           )}
           {hero.zajawka && (
-            <p className="text-[13px] text-text-2 leading-[1.8] mb-[22px]">
+            <p className="text-[13px] text-text-2 leading-[1.8]">
               {hero.zajawka}
             </p>
           )}
+          <div className="flex-1" />
           <Link
             href={`/artykuly/${hero.slug.current}`}
             className="block w-full rounded-lg border-[0.5px] border-border relative overflow-hidden bg-gradient-to-br from-[#f0ece0] via-[#e8dfc8] to-[#f0ece0] dark:from-[#0a0803] dark:via-[#1c1408] dark:to-[#0d0c06] group"
