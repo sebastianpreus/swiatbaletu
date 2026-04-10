@@ -18,9 +18,9 @@ export default function Footer() {
         </div>
         <div className="flex gap-5">
           {[
-            { label: 'O nas', href: '#' },
-            { label: 'Kontakt', href: '#' },
-            { label: 'Reklama', href: '#' },
+            { label: 'O nas', href: '/o-nas' },
+            { label: 'Kontakt', href: '/o-nas#kontakt' },
+            { label: 'Reklama', href: '/o-nas#kontakt' },
           ].map(({ label, href }) => (
             <Link
               key={label}
