@@ -874,6 +874,24 @@ async function scrapeKrakow() {
   const events = []
   const seen = new Set()
 
+  // Build title → detail URL map from opera.krakow.pl/spektakle
+  const detailMap = new Map()
+  try {
+    const specHtml = await fetchHTML('https://opera.krakow.pl/spektakle')
+    const $spec = cheerio.load(specHtml)
+    const hrefs = [...new Set(specHtml.match(/href="(\/spektakle\/[^"]+)"/g) || [])]
+    for (const h of hrefs) {
+      const path = h.match(/href="(\/spektakle\/[^"]+)"/)?.[1]
+      if (!path || path === '/spektakle') continue
+      // Extract readable name from slug: /spektakle/nabucco → nabucco
+      const slug = path.split('/').pop().replace(/^\d+-/, '')
+      detailMap.set(slug, `https://opera.krakow.pl${path}`)
+    }
+    console.log(`  [Kraków] Załadowano ${detailMap.size} stron spektakli`)
+  } catch (e) {
+    console.error(`  [Kraków] Nie udało się pobrać mapy spektakli: ${e.message}`)
+  }
+
   for (let m = new Date().getMonth() + 1; m <= 12; m++) {
     try {
       const url = `https://tickets.opera.krakow.pl/rezerwacja/termin.html?m=${m}&y=2026&termtoscroll=0`
@@ -924,13 +942,32 @@ async function scrapeKrakow() {
           ticketLink = ''
         }
 
+        // Match title to detail page URL
+        const titleSlug = title.toLowerCase()
+          .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+          .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+        let detailUrl = detailMap.get(titleSlug) || null
+        // Try partial match if exact fails — prefer shortest matching slug (most specific)
+        if (!detailUrl) {
+          let bestSlug = null
+          for (const [slug, url] of detailMap) {
+            // Match: slug starts with titleSlug, or titleSlug starts with slug, or either contains the other
+            if (slug.startsWith(titleSlug) || titleSlug.startsWith(slug) || slug.includes(titleSlug) || titleSlug.includes(slug)) {
+              if (!bestSlug || slug.length < bestSlug.length) {
+                bestSlug = slug
+                detailUrl = url
+              }
+            }
+          }
+        }
+
         events.push({
           tytul: title,
           kategoria: categorize(catMatch ? catMatch[1] : title),
           data_czas: dateTime,
           link_bilety: ticketLink,
           dostepnosc,
-          zrodlo_url: `https://tickets.opera.krakow.pl/rezerwacja/termin.html?m=${m}&y=2026`,
+          zrodlo_url: detailUrl,
         })
         monthCount++
       })
