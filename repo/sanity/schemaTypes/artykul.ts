@@ -64,7 +64,7 @@ export const artykul = defineType({
     defineField({
       name: 'featured',
       type: 'boolean',
-      title: 'Na stronie głównej?',
+      title: 'Artykuł wyróżniony',
       initialValue: false,
     }),
     defineField({
