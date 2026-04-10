@@ -20,7 +20,8 @@ export default function ONasPage() {
             <img
               src="/iza-sokolowska.jpg"
               alt="Izabela Sokołowska-Boulton"
-              className="w-full h-full object-cover object-top"
+              className="w-full h-full object-cover"
+              style={{ objectPosition: 'center 15%' }}
             />
           </div>
           <h2 className="font-serif text-[22px] text-text-1 mb-1">Izabela Sokołowska-Boulton</h2>
@@ -52,7 +53,7 @@ export default function ONasPage() {
           </div>
           <h2 className="font-serif text-[22px] text-text-1 mb-1">Sebastian Preus</h2>
           <div className="text-[11px] tracking-[0.08em] uppercase text-gold mb-4 font-medium">
-            Dyrektor techniczny · Fotograf
+            Redaktor · Fotograf · Dział techniczny
           </div>
           <p className="text-[13px] text-text-2 leading-[1.8] max-w-[400px]">
             Pasjonat baletu i fotografii artystycznej, specjalizujący się w fotografii
