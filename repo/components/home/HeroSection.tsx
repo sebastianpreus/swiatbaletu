@@ -17,7 +17,7 @@ export default async function HeroSection() {
 
   // First featured article is the hero, rest go in sidebar
   const hero = allArticles[0]
-  const sideArticles = allArticles.slice(1)
+  const sideArticles = allArticles.slice(1, 5)
 
   return (
     <div className="max-w-[1100px] mx-auto px-6">
