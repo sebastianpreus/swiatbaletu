@@ -885,22 +885,19 @@ async function scrapeKrakow() {
   const events = []
   const seen = new Set()
 
-  // Build title → detail URL map from opera.krakow.pl/spektakle
-  const detailMap = new Map()
+  // Build slug → full URL map from opera.krakow.pl/spektakle
+  // We collect all actual URLs so we can verify our generated slugs exist
+  const validSlugs = new Set()
   try {
     const specHtml = await fetchHTML('https://opera.krakow.pl/spektakle')
-    const $spec = cheerio.load(specHtml)
     const hrefs = [...new Set(specHtml.match(/href="(\/spektakle\/[^"]+)"/g) || [])]
     for (const h of hrefs) {
       const path = h.match(/href="(\/spektakle\/[^"]+)"/)?.[1]
-      if (!path || path === '/spektakle') continue
-      // Extract readable name from slug: /spektakle/nabucco → nabucco
-      const slug = path.split('/').pop().replace(/^\d+-/, '')
-      detailMap.set(slug, `https://opera.krakow.pl${path}`)
+      if (path && path !== '/spektakle') validSlugs.add(path)
     }
-    console.log(`  [Kraków] Załadowano ${detailMap.size} stron spektakli`)
+    console.log(`  [Kraków] Załadowano ${validSlugs.size} stron spektakli`)
   } catch (e) {
-    console.error(`  [Kraków] Nie udało się pobrać mapy spektakli: ${e.message}`)
+    console.error(`  [Kraków] Nie udało się pobrać listy spektakli: ${e.message}`)
   }
 
   for (let m = new Date().getMonth() + 1; m <= 12; m++) {
@@ -953,24 +950,22 @@ async function scrapeKrakow() {
           ticketLink = ''
         }
 
-        // Match title to detail page URL
+        // Build detail page URL from title slug
         const titleSlug = title.toLowerCase()
-          .replace(/ł/g, 'l').replace(/Ł/g, 'L')
+          .replace(/ł/g, 'l')
           .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
           .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
-        let detailUrl = detailMap.get(titleSlug) || null
-        // Try partial match if exact fails — prefer longest matching slug (most specific)
-        if (!detailUrl) {
-          let bestSlug = null
-          for (const [slug, url] of detailMap) {
-            if (slug.startsWith(titleSlug) || titleSlug.startsWith(slug) || slug.includes(titleSlug) || titleSlug.includes(slug)) {
-              if (!bestSlug || slug.length > bestSlug.length) {
-                bestSlug = slug
-                detailUrl = url
-              }
-            }
+        // Check if exact path exists on opera.krakow.pl, try with and without numeric prefix
+        let detailUrl = null
+        for (const path of validSlugs) {
+          const slug = path.split('/').pop()
+          if (slug === titleSlug || slug.replace(/^\d+-/, '') === titleSlug) {
+            detailUrl = `https://opera.krakow.pl${path}`
+            break
           }
         }
+        // Fallback: construct URL directly (may 404 but better than wrong page)
+        if (!detailUrl) detailUrl = `https://opera.krakow.pl/spektakle/${titleSlug}`
 
         events.push({
           tytul: title,
