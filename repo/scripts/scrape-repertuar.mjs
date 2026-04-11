@@ -949,6 +949,10 @@ async function scrapeKrakow() {
           dostepnosc = 'wyprzedane'
           ticketLink = ''
         }
+        // No buy button and no recognized status = sold out
+        if (!dostepnosc && buyBtn.length === 0) {
+          dostepnosc = 'wyprzedane'
+        }
 
         // Build detail page URL from title slug
         const titleSlug = title.toLowerCase()
