@@ -954,21 +954,34 @@ async function scrapeKrakow() {
           dostepnosc = 'wyprzedane'
         }
 
-        // Build detail page URL from title slug
+        // Find detail page URL by matching title slug against actual paths on opera.krakow.pl
         const titleSlug = title.toLowerCase()
           .replace(/ł/g, 'l')
           .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
           .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
-        // Check if exact path exists on opera.krakow.pl, try with and without numeric prefix
+        // 1. Exact match, 2. slug starts with titleSlug (handles tosca → tosca-2),
+        // 3. titleSlug starts with slug (handles igraszki-milosne-carmen → carmen)
+        // Among matches, prefer the one whose slug is closest in length to titleSlug
         let detailUrl = null
+        let bestDiff = Infinity
         for (const path of validSlugs) {
-          const slug = path.split('/').pop()
-          if (slug === titleSlug || slug.replace(/^\d+-/, '') === titleSlug) {
+          const slug = path.split('/').pop().replace(/^\d+-/, '')
+          let matched = false
+          if (slug === titleSlug) {
             detailUrl = `https://opera.krakow.pl${path}`
-            break
+            break // exact match, done
+          }
+          if (slug.startsWith(titleSlug) || titleSlug.startsWith(slug)) {
+            matched = true
+          }
+          if (matched) {
+            const diff = Math.abs(slug.length - titleSlug.length)
+            if (diff < bestDiff) {
+              bestDiff = diff
+              detailUrl = `https://opera.krakow.pl${path}`
+            }
           }
         }
-        // Fallback: construct URL directly (may 404 but better than wrong page)
         if (!detailUrl) detailUrl = `https://opera.krakow.pl/spektakle/${titleSlug}`
 
         events.push({
