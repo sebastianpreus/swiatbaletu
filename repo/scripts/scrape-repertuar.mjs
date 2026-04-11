@@ -938,8 +938,8 @@ async function scrapeKrakow() {
 
         if (buyBtn.length > 0) {
           ticketLink = buyBtn.attr('href') || ''
-          const freeMatch = buyBtn.text().match(/(\d+)\s*wolnych/)
-          if (freeMatch && parseInt(freeMatch[1]) < 20) {
+          const freeMatch = buyBtn.text().match(/(\d+)\s*woln/)
+          if (freeMatch && parseInt(freeMatch[1]) < 50) {
             dostepnosc = 'malo_miejsc'
           } else {
             dostepnosc = 'dostepne'
