@@ -824,7 +824,18 @@ async function scrapeLodz() {
           if (!title || !dateStr) return
 
           const [y, m, dd] = dateStr.split('-').map(Number)
-          const [h, min] = timeStr.split(':').map(Number)
+          let [h, min] = timeStr.split(':').map(Number)
+          // bilety24 returns times in CET (UTC+1) year-round, not CEST
+          // Add 1h during CEST period (late March - late October) to get correct local time
+          const isCEST = (() => {
+            const lastSunMar = new Date(Date.UTC(y, 2, 31))
+            lastSunMar.setUTCDate(lastSunMar.getUTCDate() - lastSunMar.getUTCDay())
+            const lastSunOct = new Date(Date.UTC(y, 9, 31))
+            lastSunOct.setUTCDate(lastSunOct.getUTCDate() - lastSunOct.getUTCDay())
+            const eventDate = new Date(Date.UTC(y, m - 1, dd))
+            return eventDate >= lastSunMar && eventDate < lastSunOct
+          })()
+          if (isCEST) h += 1
           const dateTime = warsawDateToISO(y, m, dd, h, min)
 
           const key = `${dateTime}-${title}`
