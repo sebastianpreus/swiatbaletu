@@ -955,16 +955,16 @@ async function scrapeKrakow() {
 
         // Match title to detail page URL
         const titleSlug = title.toLowerCase()
+          .replace(/ł/g, 'l').replace(/Ł/g, 'L')
           .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
           .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
         let detailUrl = detailMap.get(titleSlug) || null
-        // Try partial match if exact fails — prefer shortest matching slug (most specific)
+        // Try partial match if exact fails — prefer longest matching slug (most specific)
         if (!detailUrl) {
           let bestSlug = null
           for (const [slug, url] of detailMap) {
-            // Match: slug starts with titleSlug, or titleSlug starts with slug, or either contains the other
             if (slug.startsWith(titleSlug) || titleSlug.startsWith(slug) || slug.includes(titleSlug) || titleSlug.includes(slug)) {
-              if (!bestSlug || slug.length < bestSlug.length) {
+              if (!bestSlug || slug.length > bestSlug.length) {
                 bestSlug = slug
                 detailUrl = url
               }
