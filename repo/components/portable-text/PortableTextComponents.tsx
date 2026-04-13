@@ -10,10 +10,10 @@ export const portableTextComponents: PortableTextComponents = {
       <h3 className="font-serif text-[22px] font-normal text-text-1 mt-6 mb-3">{children}</h3>
     ),
     normal: ({ children }) => (
-      <p className="text-[14px] text-text-2 leading-[1.85] mb-4">{children}</p>
+      <p className="text-[16px] text-text-2 leading-[1.9] mb-4">{children}</p>
     ),
     blockquote: ({ children }) => (
-      <blockquote className="border-l-[3px] border-gold pl-5 my-6 italic text-[14px] text-text-2 leading-[1.8]">
+      <blockquote className="border-l-[3px] border-gold pl-5 my-6 italic text-[16px] text-text-2 leading-[1.9]">
         {children}
       </blockquote>
     ),
@@ -53,10 +53,10 @@ export const portableTextComponents: PortableTextComponents = {
   },
   list: {
     bullet: ({ children }) => (
-      <ul className="list-disc pl-6 mb-4 space-y-1 text-[14px] text-text-2 leading-[1.8]">{children}</ul>
+      <ul className="list-disc pl-6 mb-4 space-y-1 text-[16px] text-text-2 leading-[1.9]">{children}</ul>
     ),
     number: ({ children }) => (
-      <ol className="list-decimal pl-6 mb-4 space-y-1 text-[14px] text-text-2 leading-[1.8]">{children}</ol>
+      <ol className="list-decimal pl-6 mb-4 space-y-1 text-[16px] text-text-2 leading-[1.9]">{children}</ol>
     ),
   },
 }
