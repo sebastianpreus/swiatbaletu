@@ -2,6 +2,7 @@ import TopBar from '../../../components/layout/TopBar'
 import Navigation from '../../../components/layout/Navigation'
 import Ticker from '../../../components/layout/Ticker'
 import Footer from '../../../components/layout/Footer'
+import NewsletterPopup from '../../../components/layout/NewsletterPopup'
 
 export default function PortalLayout({
   children,
@@ -15,6 +16,7 @@ export default function PortalLayout({
       <Ticker />
       <main>{children}</main>
       <Footer />
+      <NewsletterPopup />
     </>
   )
 }
