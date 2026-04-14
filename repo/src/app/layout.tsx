@@ -14,7 +14,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pl">
-      <body>{children}</body>
+      <body>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{var t=localStorage.getItem('theme');if(t)document.body.setAttribute('data-theme',t)}catch(e){}`,
+          }}
+        />
+        {children}
+      </body>
     </html>
   )
 }
