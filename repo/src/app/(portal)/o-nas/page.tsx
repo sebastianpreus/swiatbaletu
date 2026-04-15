@@ -16,11 +16,11 @@ function OsobaBlock({ value }: { value: any }) {
   return (
     <div className="flex flex-col items-center text-center mb-10">
       {value.zdjecie && (
-        <div className="w-[180px] h-[180px] rounded-full overflow-hidden border-[0.5px] border-border mb-5">
+        <div className="w-[220px] h-[220px] rounded-full overflow-hidden border-[0.5px] border-border mb-5">
           <img
-            src={urlFor(value.zdjecie).width(360).height(360).url()}
+            src={urlFor(value.zdjecie).width(440).height(440).url()}
             alt={value.imie}
-            className="w-full h-full object-cover object-top"
+            className="w-full h-full object-cover object-[center_20%]"
           />
         </div>
       )}
