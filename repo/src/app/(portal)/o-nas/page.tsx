@@ -18,9 +18,9 @@ function OsobaBlock({ value }: { value: any }) {
       {value.zdjecie && (
         <div className="w-[220px] h-[220px] rounded-full overflow-hidden border-[0.5px] border-border mb-5">
           <img
-            src={urlFor(value.zdjecie).width(440).height(440).url()}
+            src={urlFor(value.zdjecie).width(440).url()}
             alt={value.imie}
-            className="w-full h-full object-cover object-[center_20%]"
+            className="w-full h-full object-cover object-top"
           />
         </div>
       )}
