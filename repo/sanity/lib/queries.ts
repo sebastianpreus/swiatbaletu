@@ -161,3 +161,10 @@ export const TEATR_BY_SLUG_QUERY = `
     opis
   }
 `
+
+// Strona techniczna po slug
+export const STRONA_BY_SLUG_QUERY = `
+  *[_type == "strona" && slug.current == $slug] [0] {
+    _id, tytul, slug, opis, tresc
+  }
+`
