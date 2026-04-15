@@ -10,6 +10,7 @@ const navItems = [
   { label: 'Sylwetki', href: '/sylwetki' },
   { label: 'Wywiady', href: '/wywiady' },
   { label: 'Teatry', href: '/teatry' },
+  { label: 'O nas', href: '/o-nas' },
 ]
 
 export default function Navigation() {
