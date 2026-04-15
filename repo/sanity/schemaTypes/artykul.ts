@@ -49,7 +49,20 @@ export const artykul = defineType({
       name: 'trescGlowna',
       type: 'array',
       title: 'Treść',
-      of: [{ type: 'block' }, { type: 'image' }],
+      of: [
+        { type: 'block' },
+        {
+          type: 'image',
+          options: { hotspot: true },
+          fields: [
+            {
+              name: 'alt',
+              type: 'string',
+              title: 'Podpis / opis alternatywny',
+            },
+          ],
+        },
+      ],
     }),
     defineField({
       name: 'autor',
