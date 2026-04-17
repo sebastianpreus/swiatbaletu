@@ -87,7 +87,18 @@ export default async function RepertuarPage({
   searchParams: Promise<{ miasto?: string; miesiac?: string; status?: string }>
 }) {
   const params = await searchParams
-  const { miasto, miesiac, status } = params
+  const { miasto, status } = params
+  // Default to current Warsaw month if not specified;
+  // use 'wszystkie' to explicitly show all months
+  let miesiac: string | undefined = params.miesiac
+  if (miesiac === undefined) {
+    const now = new Date()
+    const warsawStr = now.toLocaleString('en-US', { timeZone: 'Europe/Warsaw' })
+    const warsawNow = new Date(warsawStr)
+    miesiac = `${warsawNow.getFullYear()}-${String(warsawNow.getMonth() + 1).padStart(2, '0')}`
+  } else if (miesiac === 'wszystkie' || miesiac === '') {
+    miesiac = undefined
+  }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let przedstawienia: any[] = []
   let months: string[] = []
@@ -161,10 +172,10 @@ export default async function RepertuarPage({
         <FilterSelect
           label="Miesiąc"
           paramName="miesiac"
-          currentValue={miesiac || ''}
+          currentValue={miesiac || (params.miesiac === 'wszystkie' ? 'wszystkie' : '')}
           baseParams={{ miasto, status }}
           options={[
-            { value: '', label: 'Wszystkie' },
+            { value: 'wszystkie', label: 'Wszystkie' },
             ...months.map((ym) => ({ value: ym, label: formatMonthLabel(ym) })),
           ]}
         />
