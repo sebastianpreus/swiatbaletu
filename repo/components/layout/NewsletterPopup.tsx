@@ -2,16 +2,26 @@
 
 import { useState, useEffect } from 'react'
 
+const ONE_DAY_MS = 24 * 60 * 60 * 1000
+
 export default function NewsletterPopup() {
   const [visible, setVisible] = useState(false)
   const [email, setEmail] = useState('')
+  const [dontShow, setDontShow] = useState(false)
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [errorMsg, setErrorMsg] = useState('')
 
   useEffect(() => {
-    // Don't show if already dismissed or subscribed
+    // Permanently dismissed (checkbox or subscribed)
+    const permanent = localStorage.getItem('newsletter-popup-permanent')
+    if (permanent) return
+
+    // Temporarily dismissed — check if 24h passed
     const dismissed = localStorage.getItem('newsletter-popup-dismissed')
-    if (dismissed) return
+    if (dismissed) {
+      const elapsed = Date.now() - parseInt(dismissed)
+      if (elapsed < ONE_DAY_MS) return
+    }
 
     // Show after 3 seconds
     const timer = setTimeout(() => setVisible(true), 3000)
@@ -20,7 +30,11 @@ export default function NewsletterPopup() {
 
   function dismiss() {
     setVisible(false)
-    localStorage.setItem('newsletter-popup-dismissed', Date.now().toString())
+    if (dontShow) {
+      localStorage.setItem('newsletter-popup-permanent', '1')
+    } else {
+      localStorage.setItem('newsletter-popup-dismissed', Date.now().toString())
+    }
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -37,7 +51,7 @@ export default function NewsletterPopup() {
       const data = await res.json()
       if (res.ok) {
         setStatus('success')
-        localStorage.setItem('newsletter-popup-dismissed', Date.now().toString())
+        localStorage.setItem('newsletter-popup-permanent', '1')
         setTimeout(() => setVisible(false), 3000)
       } else {
         setErrorMsg(data.error || 'Wystąpił błąd')
@@ -118,9 +132,15 @@ export default function NewsletterPopup() {
             </form>
           )}
 
-          <p className="text-[10px] text-[#a09880] mt-3 leading-[1.5]">
-            Możesz wypisać się w dowolnym momencie.
-          </p>
+          <label className="flex items-center gap-2 mt-3 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={dontShow}
+              onChange={(e) => setDontShow(e.target.checked)}
+              className="w-[14px] h-[14px] accent-[#A8832A] cursor-pointer"
+            />
+            <span className="text-[11px] text-[#a09880]">Nie pokazuj więcej</span>
+          </label>
         </div>
       </div>
     </div>
