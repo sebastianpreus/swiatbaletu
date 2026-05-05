@@ -1200,6 +1200,91 @@ async function scrapeBytom() {
   return events
 }
 
+// ── 10. OPERA LUBELSKA ───────────────────────────────────────────────────────
+// URL: https://operalubelska.pl/kalendarium?month=MM-YYYY
+// Events: div.spektakle-el, date from p.spektakl-date, tickets via bilety24
+
+async function scrapeLublin() {
+  const events = []
+  const seen = new Set()
+  const now = new Date()
+
+  for (let offset = 0; offset < 4; offset++) {
+    const d = new Date(now.getFullYear(), now.getMonth() + offset, 1)
+    const monthParam = `${String(d.getMonth() + 1).padStart(2, '0')}-${d.getFullYear()}`
+
+    try {
+      const url = `https://operalubelska.pl/kalendarium?month=${monthParam}`
+      const html = await fetchHTML(url)
+      const $ = cheerio.load(html)
+
+      // Empty month
+      if ($('p.no-items').length > 0) {
+        console.log(`  [Lublin] ${monthParam}: brak spektakli`)
+        break
+      }
+
+      let monthCount = 0
+
+      $('div.spektakle-el').each((_, el) => {
+        const $el = $(el)
+
+        // Full date: "9 maja 2026 (sobota) godz. 18:00"
+        const dateText = $el.find('p.spektakl-date').text().trim()
+        const match = dateText.match(/(\d{1,2})\s+(\w+)\s+(\d{4}).*godz\.\s*(\d{1,2}):(\d{2})/)
+        if (!match) return
+
+        const day   = parseInt(match[1])
+        const month = MONTHS[match[2].toLowerCase()]
+        const year  = parseInt(match[3])
+        const hour  = parseInt(match[4])
+        const min   = parseInt(match[5])
+        if (!month) return
+
+        const dateTime = warsawDateToISO(year, month, day, hour, min)
+
+        // Title + detail URL
+        const $titleLink = $el.find('h3.spektakl-title a')
+        const title = $titleLink.text().trim()
+        if (!title) return
+
+        const key = `${dateTime}-${title}`
+        if (seen.has(key)) return
+        seen.add(key)
+
+        const detailUrl = $titleLink.attr('href') || null
+
+        // Availability
+        const soldOutText = $el.find('p.spektakl-terminy-informacja').text().trim()
+        const soldOut = soldOutText.includes('BRAK MIEJSC')
+        const ticketLink = $el.find('p.spektakl-terminy-kup a').attr('href') || null
+        const dostepnosc = soldOut ? 'wyprzedane' : (ticketLink ? 'dostepne' : null)
+
+        // Categorize using genre field ("Balet — ...", "Musical — ...", etc.)
+        const gatunekText = $el.find('p.gatunek-director').text().trim()
+        const kategoria = categorize(gatunekText + ' ' + title)
+
+        events.push({
+          tytul: title,
+          kompozytor: null,
+          data_czas: dateTime,
+          link_bilety: ticketLink,
+          zrodlo_url: detailUrl,
+          dostepnosc,
+          kategoria,
+        })
+        monthCount++
+      })
+
+      console.log(`  [Lublin] ${monthParam}: ${monthCount} pozycji`)
+    } catch (err) {
+      console.error(`  [Lublin] Błąd ${monthParam}: ${err.message}`)
+    }
+  }
+
+  return events
+}
+
 // ── Theater registry ─────────────────────────────────────────────────────────
 
 const THEATERS = [
@@ -1212,6 +1297,7 @@ const THEATERS = [
   { key: 'krakow', name: 'Opera Krakowska', slug: 'opera-krakowska', scraper: scrapeKrakow },
   { key: 'szczecin', name: 'Opera na Zamku', slug: 'opera-na-zamku-szczecin', scraper: scrapeSzczecin },
   { key: 'bytom', name: 'Opera Śląska', slug: 'opera-slaska-bytom', scraper: scrapeBytom },
+  { key: 'lublin', name: 'Opera Lubelska', slug: 'opera-lubelska', scraper: scrapeLublin },
 ]
 
 // ── Supabase sync ────────────────────────────────────────────────────────────
@@ -1261,6 +1347,7 @@ async function syncToSupabase(teatrSlug, teatrName, events) {
     'teatr-wielki-lodz': 'Łódź',
     'opera-na-zamku-szczecin': 'Szczecin',
     'opera-slaska-bytom': 'Bytom',
+    'opera-lubelska': 'Lublin',
   }
 
   const teatrId = await ensureTeatr(teatrSlug, teatrName, miastaMap[teatrSlug])
