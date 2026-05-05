@@ -3,6 +3,8 @@ import { client } from '../../../../sanity/lib/client'
 import { ALL_TEATRY_SANITY_QUERY } from '../../../../sanity/lib/queries'
 import { urlFor } from '../../../../sanity/lib/image'
 
+export const revalidate = 60
+
 export const metadata = {
   title: 'Teatry — Świat Baletu',
   description: 'Polskie teatry operowe i baletowe — informacje, repertuar, bilety.',

@@ -130,7 +130,7 @@ export default async function TeatrPage({ params }: { params: Promise<{ slug: st
               style={{ border: 0 }}
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
-              src={`https://www.openstreetmap.org/export/embed.html?bbox=${encodeURIComponent(getBBox(teatr._id))}&layer=mapnik&marker=${encodeURIComponent(getMarker(teatr._id))}`}
+              src={`https://www.openstreetmap.org/export/embed.html?bbox=${encodeURIComponent(getBBox(teatr.slug.current))}&layer=mapnik&marker=${encodeURIComponent(getMarker(teatr.slug.current))}`}
             />
           </div>
           <a
@@ -147,18 +147,18 @@ export default async function TeatrPage({ params }: { params: Promise<{ slug: st
   )
 }
 
-// Coordinates for theater locations (lat, lon)
+// Coordinates for theater locations (lat, lon) — keyed by Sanity slug
 const THEATER_COORDS: Record<string, [number, number]> = {
-  'teatr-warszawa': [52.2437, 21.0092],
-  'teatr-krakow': [50.0680, 19.9520],
-  'teatr-gdansk': [54.3795, 18.6130],
-  'teatr-lodz': [51.7569, 19.4538],
-  'teatr-poznan': [52.4082, 16.9206],
-  'teatr-wroclaw': [51.1033, 17.0284],
-  'teatr-bydgoszcz': [53.1235, 18.0084],
-  'teatr-szczecin': [53.4285, 14.5528],
-  'teatr-bytom': [50.3484, 18.9156],
-  'teatr-lublin': [51.2473, 22.5586],
+  'teatr-wielki-warszawa': [52.2437, 21.0092],
+  'opera-krakowska': [50.0680, 19.9520],
+  'opera-baltycka': [54.3795, 18.6130],
+  'teatr-wielki-lodz': [51.7569, 19.4538],
+  'teatr-wielki-poznan': [52.4082, 16.9206],
+  'opera-wroclawska': [51.1033, 17.0284],
+  'opera-nova-bydgoszcz': [53.1235, 18.0084],
+  'opera-na-zamku-szczecin': [53.4285, 14.5528],
+  'opera-slaska-bytom': [50.3484, 18.9156],
+  'opera-lubelska': [51.2473, 22.5586],
 }
 
 function getMarker(id: string): string {
