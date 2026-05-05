@@ -509,6 +509,32 @@ async function scrapeWroclaw() {
 // ── 4. OPERA NOVA BYDGOSZCZ ─────────────────────────────────────────────────
 // /repertuar.html — all months in one HTML (slick carousel), mobile view (.d-lg-none .text-center.p-1)
 // Month changes detected by day number decreasing (e.g. 29 → 01 = next month)
+
+/** Normalize Polish title for fuzzy matching: uppercase, strip diacritics, non-alpha → space */
+function normalizeForMatch(t) {
+  return (t || '').toUpperCase()
+    .replace(/Ł/g, 'L').replace(/Ą/g, 'A').replace(/Ę/g, 'E')
+    .replace(/Ó/g, 'O').replace(/Ś/g, 'S').replace(/Ź/g, 'Z')
+    .replace(/Ż/g, 'Z').replace(/Ć/g, 'C').replace(/Ń/g, 'N')
+    .normalize('NFD').replace(/[̀-ͯ]/g, '') // strip remaining combining marks
+    .replace(/[^A-Z0-9]+/g, ' ').replace(/\s+/g, ' ').trim()
+}
+
+/** Word-based fuzzy title match — handles "LAC (Jezioro łabędzie)" ↔ "LAC-Jezioro łabędzie-XXXII BFO" */
+function titlesMatch(t1, t2) {
+  const n1 = normalizeForMatch(t1)
+  const n2 = normalizeForMatch(t2)
+  const words1 = n1.split(' ').filter(w => w.length >= 3)
+  const words2 = n2.split(' ').filter(w => w.length >= 3)
+  if (!words1.length || !words2.length) return false
+  const set2 = new Set(words2)
+  const common = words1.filter(w => set2.has(w))
+  // Match requires: at least one significant word in common AND first word of shorter title matches
+  if (common.length === 0) return false
+  const shorter = words1.length <= words2.length ? words1 : words2
+  return common.includes(shorter[0]) && common.length >= Math.ceil(Math.min(words1.length, words2.length) * 0.5)
+}
+
 async function scrapeBydgoszcz() {
   const html = await fetchHTML('https://www.opera.bydgoszcz.pl/repertuar.html')
   const $ = cheerio.load(html)
@@ -571,8 +597,10 @@ async function scrapeBydgoszcz() {
   })
 
   // Fetch real availability from bilety.operanova.bydgoszcz.pl
+  // availMap: "day|month" → [{cardTitle, sold, href}]  — avoids key-encoding issues with titles
   const monthsToCheck = [...new Set(events.map(e => e._month))]
-  const availMap = new Map() // "day-month-HH:MM-TITLE_NORM" => { sold, href }
+  const availMap = new Map()
+  const availSeen = new Set() // deduplicate (bilety page renders desktop+mobile duplicates)
 
   for (const m of monthsToCheck) {
     const ym = `${year}-${String(m).padStart(2, '0')}`
@@ -581,18 +609,28 @@ async function scrapeBydgoszcz() {
       const $b = cheerio.load(biletHtml)
 
       $b('.movies-movie__single').each((_, card) => {
-        const cardTitle = $b(card).find('h2').text().trim().toUpperCase()
+        const cardTitle = $b(card).find('h2').text().trim()
 
         $b(card).find('.movies-movie__single__options del.disabled, .movies-movie__single__options a.js-link-popup').each((_, dateEl) => {
           const text = $b(dateEl).text().trim().replace(/\s+/g, ' ')
           const isSold = dateEl.tagName === 'del'
           const href = $b(dateEl).attr('href') || ''
-          // text like "19 mar 19:00" or "27 mar 19:00"
+          // text like "05 maj 19:00"
           const dm = text.match(/(\d+)\s+\w+\s+(\d+:\d+)/)
-          if (dm) {
-            const key = `${dm[1]}-${m}-${dm[2]}-${cardTitle}`
-            availMap.set(key, { sold: isSold, href: isSold ? '' : `https://bilety.operanova.bydgoszcz.pl${href}` })
-          }
+          if (!dm) return
+
+          const dayNum = parseInt(dm[1]) // strip leading zeros ("05" → 5)
+          const dedupKey = `${dayNum}|${m}|${dm[2]}|${cardTitle}|${isSold}`
+          if (availSeen.has(dedupKey)) return
+          availSeen.add(dedupKey)
+
+          const dayMonthKey = `${dayNum}|${m}`
+          if (!availMap.has(dayMonthKey)) availMap.set(dayMonthKey, [])
+          availMap.get(dayMonthKey).push({
+            cardTitle,
+            sold: isSold,
+            href: isSold ? '' : `https://bilety.operanova.bydgoszcz.pl${href}`,
+          })
         })
       })
     } catch (err) {
@@ -600,21 +638,15 @@ async function scrapeBydgoszcz() {
     }
   }
 
-  // Match availability back to events
+  // Match availability back to events using fuzzy title matching
   for (const ev of events) {
-    const timeMatch = ev.data_czas.match(/T(\d+):(\d+)/)
-    const h = timeMatch ? parseInt(timeMatch[1]) + 1 : 19 // UTC→CET
-    const mm = timeMatch ? timeMatch[2] : '00'
-    const titleNorm = ev.tytul.toUpperCase()
+    const dayMonthKey = `${ev._day}|${ev._month}`
+    const candidates = availMap.get(dayMonthKey) || []
 
-    // Try matching with title normalization (bilety may add "- balet", double spaces etc.)
-    for (const [key, val] of availMap) {
-      const parts = key.split('-')
-      const day = parts[0], month = parts[1]
-      const cardTitle = parts.slice(3).join('-').replace(/\s+/g, ' ')
-      if (parseInt(day) === ev._day && parseInt(month) === ev._month && (cardTitle.includes(titleNorm.substring(0, 5)) || titleNorm.includes(cardTitle.substring(0, 5)))) {
-        ev.dostepnosc = val.sold ? 'wyprzedane' : 'dostepne'
-        if (val.href && !val.sold) ev.link_bilety = val.href
+    for (const cand of candidates) {
+      if (titlesMatch(ev.tytul, cand.cardTitle)) {
+        ev.dostepnosc = cand.sold ? 'wyprzedane' : 'dostepne'
+        if (cand.href && !cand.sold) ev.link_bilety = cand.href
         break
       }
     }
