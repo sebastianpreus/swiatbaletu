@@ -90,9 +90,24 @@ body {
   transition: background 0.3s, color 0.3s;
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
+@layer base {
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+}
+
+/* ── Prose article links ────────────────── */
+.prose-swiat a {
+  color: var(--gold);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--gold) 40%, transparent);
+  text-underline-offset: 3px;
+  transition: color 0.2s, text-decoration-color 0.2s;
+}
+.prose-swiat a:hover {
+  color: var(--gold-light);
+  text-decoration-color: var(--gold-light);
 }
 
 /* ── Ticker animation ───────────────────── */
