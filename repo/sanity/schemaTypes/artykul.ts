@@ -62,6 +62,25 @@ export const artykul = defineType({
             },
           ],
         },
+        {
+          type: 'object',
+          name: 'youtubeEmbed',
+          title: 'Osadzony film YouTube',
+          fields: [
+            {
+              name: 'url',
+              type: 'url',
+              title: 'URL YouTube',
+            },
+          ],
+          preview: {
+            select: { url: 'url' },
+            prepare: ({ url }: { url?: string }) => ({
+              title: 'Film YouTube',
+              subtitle: url,
+            }),
+          },
+        },
       ],
     }),
     defineField({

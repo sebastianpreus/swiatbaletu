@@ -50,6 +50,24 @@ export const portableTextComponents: PortableTextComponents = {
         </figure>
       )
     },
+    youtubeEmbed: ({ value }) => {
+      if (!value?.url) return null
+      const videoId = (value.url as string).match(
+        /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/
+      )?.[1]
+      if (!videoId) return null
+      return (
+        <div className="my-8 rounded-lg overflow-hidden" style={{ position: 'relative', paddingBottom: '56.25%', height: 0 }}>
+          <iframe
+            src={`https://www.youtube.com/embed/${videoId}`}
+            title="YouTube video"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 0 }}
+          />
+        </div>
+      )
+    },
   },
   list: {
     bullet: ({ children }) => (
