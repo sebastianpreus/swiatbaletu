@@ -26,7 +26,7 @@ export const portableTextComponents: PortableTextComponents = {
         href={value?.href}
         target="_blank"
         rel="noopener noreferrer"
-        className="text-gold hover:underline"
+        style={{ color: 'var(--gold)', fontWeight: 600, textDecoration: 'underline' }}
       >
         {children}
       </a>

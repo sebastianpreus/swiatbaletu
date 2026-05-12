@@ -99,14 +99,15 @@ body {
 
 /* ── Prose article links ────────────────── */
 .prose-swiat a {
-  color: var(--gold);
+  color: var(--gold) !important;
+  font-weight: 600;
   text-decoration: underline;
   text-decoration-color: color-mix(in srgb, var(--gold) 40%, transparent);
   text-underline-offset: 3px;
   transition: color 0.2s, text-decoration-color 0.2s;
 }
 .prose-swiat a:hover {
-  color: var(--gold-light);
+  color: var(--gold-light) !important;
   text-decoration-color: var(--gold-light);
 }
 
