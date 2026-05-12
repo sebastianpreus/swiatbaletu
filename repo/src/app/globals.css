@@ -100,7 +100,7 @@ body {
 /* ── Prose article links ────────────────── */
 .prose-swiat a {
   color: var(--gold) !important;
-  font-weight: 600;
+  font-weight: 600 !important;
   text-decoration: underline;
   text-decoration-color: color-mix(in srgb, var(--gold) 40%, transparent);
   text-underline-offset: 3px;
