@@ -64,6 +64,34 @@ export const artykul = defineType({
         },
         {
           type: 'object',
+          name: 'gallery',
+          title: 'Galeria zdjęć',
+          fields: [
+            {
+              name: 'images',
+              type: 'array',
+              title: 'Zdjęcia',
+              of: [
+                {
+                  type: 'image',
+                  options: { hotspot: true },
+                  fields: [
+                    { name: 'alt', type: 'string', title: 'Opis alternatywny' },
+                    { name: 'caption', type: 'string', title: 'Podpis pod zdjęciem' },
+                  ],
+                },
+              ],
+            },
+          ],
+          preview: {
+            select: { images: 'images' },
+            prepare: ({ images }: { images?: unknown[] }) => ({
+              title: `Galeria (${images?.length ?? 0} zdjęć)`,
+            }),
+          },
+        },
+        {
+          type: 'object',
           name: 'youtubeEmbed',
           title: 'Osadzony film YouTube',
           fields: [

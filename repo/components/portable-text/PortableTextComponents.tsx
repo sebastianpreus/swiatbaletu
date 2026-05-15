@@ -1,5 +1,6 @@
 import { PortableTextComponents } from '@portabletext/react'
 import { urlFor } from '../../sanity/lib/image'
+import GalleryWithLightbox from '../ui/GalleryWithLightbox'
 
 export const portableTextComponents: PortableTextComponents = {
   block: {
@@ -49,6 +50,16 @@ export const portableTextComponents: PortableTextComponents = {
           )}
         </figure>
       )
+    },
+    gallery: ({ value }) => {
+      if (!value?.images?.length) return null
+      const images = value.images.map((img: { asset?: object; alt?: string; caption?: string }) => ({
+        src: urlFor(img).width(400).height(300).url(),
+        srcFull: urlFor(img).width(1400).url(),
+        alt: img.alt || '',
+        caption: img.caption,
+      }))
+      return <GalleryWithLightbox images={images} />
     },
     youtubeEmbed: ({ value }) => {
       if (!value?.url) return null
