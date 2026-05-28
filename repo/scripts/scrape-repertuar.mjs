@@ -129,7 +129,7 @@ async function scrapeWarszawa() {
         dostepnosc = 'wyprzedane'
         ticketLink = ''
       } else if (label.includes('niedostępny')) {
-        dostepnosc = 'info'
+        dostepnosc = null  // 'info' nie jest dozwolone przez DB CHECK constraint
         ticketLink = ''
       } else if (wolne > 0 && wolne < 20) {
         dostepnosc = 'malo_miejsc'
@@ -141,7 +141,7 @@ async function scrapeWarszawa() {
       const opisLower = (e.opis || '').toLowerCase()
 
       events.push({
-        tytul: e.tytul || '',
+        tytul: (e.tytul || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim(),
         kompozytor: e.autor || '',
         kategoria: categorize(opisLower.includes('balet') ? 'Balet' : opisLower.includes('opera') ? 'Opera' : opisLower.includes('koncert') ? 'Koncert' : e.tytul),
         data_czas: dateTime,
@@ -439,68 +439,79 @@ async function scrapeGdansk() {
 })()}
 
 // ── 3. OPERA WROCŁAWSKA ──────────────────────────────────────────────────────
-// /1/repertuar.php — .rep-single blocks with .title, .feat-cat, .rep-date, .rep-time, .date-string
-// Ticket links: a[href*="bilety.opera.wroclaw.pl"] (Kup bilet)
-// Detail links: a[href*="spektakl.php"] (Szczegóły)
-// Sold out: text "Brak miejsc" or btn-disabled class
+// Nowa strona (2026): /repertuar — .performance-item blocks
+// Tytuł + URL szczegółów: h2.performance-item__title a (URL zawiera ?date=YYYY-MM-DDTHH:MM)
+// Bilety: a.btn[href*="bilety.opera.wroclaw.pl"]
+// Dostępność: .performance-item__infos span (tekst o wolnych miejscach)
+// Jedna strona zwraca WSZYSTKIE nadchodzące wydarzenia (do ~14 mies. w przód)
 async function scrapeWroclaw() {
-  const html = await fetchHTML('https://www.opera.wroclaw.pl/1/repertuar.php')
+  const html = await fetchHTML('https://www.opera.wroclaw.pl/repertuar')
   const $ = cheerio.load(html)
   const events = []
+  const seen = new Set()
 
-  // Use LIST VIEW (.rep-single.list) — grid view has stale availability data
-  $('.rep-single.list').each((_, el) => {
+  $('.performance-item').each((_, el) => {
     const $el = $(el)
-    // Title is in h3.rep-list-title, may contain <br> with subtitle/composer
-    const titleEl = $el.find('.rep-list-title')
-    const titleHtml = titleEl.html() || ''
-    const title = (titleHtml.split(/<br\s*\/?>/i)[0] || '').replace(/<[^>]*>/g, '').trim()
-    if (!title) return
 
-    const category = $el.find('.feat-cat .feat-value').text().trim()
-    const time = $el.find('.rep-list-time').text().trim()
-    const dateString = $el.find('.date-string').text().trim() // "20260321"
+    // Tytuł i URL szczegółów — z linku w h2
+    const $titleLink = $el.find('h2.performance-item__title a').first()
+    const titleFull = $titleLink.text().trim()
+    if (!titleFull) return
 
-    let dateTime = null
-    if (dateString && dateString.length === 8) {
-      const y = parseInt(dateString.substring(0, 4))
-      const m = parseInt(dateString.substring(4, 6))
-      const d = parseInt(dateString.substring(6, 8))
-      const [h, min] = time ? time.split(':').map(Number) : [19, 0]
-      dateTime = warsawDateToISO(y, m, d, h, min)
-    }
+    // URL zawiera datę: ?date=2026-05-28T18:00
+    const detailHref = $titleLink.attr('href') || ''
+    const dateMatch = detailHref.match(/[?&]date=(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/)
+    if (!dateMatch) return
 
-    // Detail page link: spektakl.php?_id=... (btn-grey in list view)
-    const detailsHref = $el.find('a[href*="spektakl.php"]').first().attr('href') || ''
-    const detailsLink = detailsHref
-      ? (detailsHref.startsWith('http') ? detailsHref : `https://www.opera.wroclaw.pl/1/${detailsHref.replace(/^\.\//, '')}`)
-      : ''
+    const y = parseInt(dateMatch[1])
+    const m = parseInt(dateMatch[2])
+    const d = parseInt(dateMatch[3])
+    const h = parseInt(dateMatch[4])
+    const min = parseInt(dateMatch[5])
+    const dateTime = warsawDateToISO(y, m, d, h, min)
 
-    // Availability from list view (accurate, unlike grid)
-    const hasBrakMiejsc = $el.find('.btn-disabled').length > 0 ||
-      $el.find('a, button').filter((_, a) => $(a).text().trim().toLowerCase().includes('brak miejsc')).length > 0
+    // Tytuł i kompozytor — "Tytuł - Kompozytor" lub "Tytuł"
+    const dashIdx = titleFull.indexOf(' - ')
+    const title = dashIdx > 0 ? titleFull.substring(0, dashIdx).trim() : titleFull
+    const kompozytor = dashIdx > 0 ? titleFull.substring(dashIdx + 3).trim() : ''
 
-    const buyBtn = $el.find('a.btn-red[href*="bilety.opera.wroclaw.pl"]').first()
+    const key = `${dateTime}-${title}`
+    if (seen.has(key)) return
+    seen.add(key)
 
-    let ticketLink = ''
+    // Kategoria
+    const category = $el.find('.performance-item__label').text().trim()
+
+    // Link do biletów
+    const ticketLink = $el.find('a.btn[href*="bilety.opera.wroclaw.pl"]').first().attr('href') || ''
+
+    // Dostępność — na podstawie tekstu i przycisku biletów
+    const infoText = $el.find('.performance-item__infos').text().toLowerCase()
     let dostepnosc = null
-    if (hasBrakMiejsc) {
+    if (infoText.includes('brak') || infoText.includes('sold')) {
       dostepnosc = 'wyprzedane'
-    } else if (buyBtn.length > 0) {
-      ticketLink = buyBtn.attr('href') || ''
+    } else if (infoText.match(/zostały?\s+\d+/) || infoText.includes('tylko')) {
+      dostepnosc = ticketLink ? 'malo_miejsc' : 'wyprzedane'
+    } else if (ticketLink) {
       dostepnosc = 'dostepne'
+    } else if (infoText.includes('wkrótce') || infoText.includes('wkrótce')) {
+      dostepnosc = null  // 'info' nie jest dozwolone przez DB CHECK constraint
     }
 
-    if (dateTime) {
-      events.push({
-        tytul: title,
-        kategoria: categorize(category || title),
-        data_czas: dateTime,
-        link_bilety: ticketLink,
-        dostepnosc,
-        zrodlo_url: detailsLink || 'https://www.opera.wroclaw.pl/1/repertuar.php',
-      })
-    }
+    // URL szczegółów — konkretna strona spektaklu z datą
+    const detailLink = detailHref.startsWith('http')
+      ? detailHref
+      : `https://www.opera.wroclaw.pl${detailHref.startsWith('/') ? '' : '/'}${detailHref}`
+
+    events.push({
+      tytul: title,
+      kompozytor: kompozytor || null,
+      kategoria: categorize(category || title),
+      data_czas: dateTime,
+      link_bilety: ticketLink,
+      dostepnosc,
+      zrodlo_url: detailLink,
+    })
   })
 
   return events
@@ -814,7 +825,7 @@ async function scrapeLodz() {
   const now = new Date()
 
   // Use bilety24 shop — has months from March to June, accurate availability
-  for (let offset = 0; offset < 5; offset++) {
+  for (let offset = 0; offset < 14; offset++) {
     const d = new Date(now.getFullYear(), now.getMonth() + offset, 1)
     const ym = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
 
@@ -841,7 +852,7 @@ async function scrapeLodz() {
 
           // Title from btn title attribute: "Kup bilet - Opera: NAPÓJ MIŁOSNY - 2026-03-20 17:30 - 18:30 - Łódź"
           const btnTitle = $btn.attr('title') || ''
-          const titleMatch = btnTitle.match(/(?:Opera|Balet|Koncert|Edukacja|Musical|Wydarzenie)[:\s]+(.+?)\s*-\s*(\d{4}-\d{2}-\d{2})\s+(\d{2}:\d{2})/)
+          const titleMatch = btnTitle.match(/(?:Opera|Balet|Koncert|Edukacja|Musical|Wydarzenie|Spektakl)[:\s]+(.+?)\s*-\s*(\d{4}-\d{2}-\d{2})\s+(\d{2}:\d{2})/)
 
           let title = '', dateStr = '', timeStr = '', category = ''
           if (titleMatch) {
@@ -884,7 +895,8 @@ async function scrapeLodz() {
           } else if (btnLower.includes('odwołane') || btnLower.includes('cancelled')) {
             dostepnosc = 'odwolane'
           } else if (btnLower.includes('info')) {
-            dostepnosc = 'info'
+            // 'info' nie jest dozwolone przez DB CHECK constraint — zapisujemy null
+            dostepnosc = null
             ticketLink = btnHref // link to event page for details
           }
 
@@ -1366,6 +1378,10 @@ async function ensureSpektakl(tytul, kompozytor, teatrId) {
   return newSpektakl.id
 }
 
+// Wartości dostepnosc dozwolone przez DB CHECK constraint
+const VALID_DOSTEPNOSC = new Set(['dostepne', 'malo_miejsc', 'wyprzedane', 'premiera', 'odwolane'])
+const sanitizeDostepnosc = (v) => (v && VALID_DOSTEPNOSC.has(v)) ? v : null
+
 async function syncToSupabase(teatrSlug, teatrName, events) {
   if (events.length === 0) return { added: 0, updated: 0, unchanged: 0 }
 
@@ -1386,11 +1402,11 @@ async function syncToSupabase(teatrSlug, teatrName, events) {
 
   // Clean future events before reimport (preserves history)
   if (CLEAN_FUTURE) {
-    const today = new Date().toISOString().split('T')[0] + 'T00:00:00'
+    const nowISO = new Date().toISOString() // pełny ISO z Z — unika niejednoznaczności strefy czasowej
     const { error } = await supabase.from('przedstawienia')
       .delete()
       .eq('teatr_id', teatrId)
-      .gte('data_czas', today)
+      .gte('data_czas', nowISO)
     if (error) console.error(`  ✗ Clean future error: ${error.message}`)
     else console.log(`  ♻ Wyczyszczono przyszłe przedstawienia`)
   }
@@ -1415,7 +1431,7 @@ async function syncToSupabase(teatrSlug, teatrName, events) {
         teatr_id: teatrId,
         data_czas: event.data_czas,
         link_bilety: event.link_bilety || null,
-        dostepnosc: event.dostepnosc || null,
+        dostepnosc: sanitizeDostepnosc(event.dostepnosc),
         notatka: event.kategoria || null,
       }
       if (event.zrodlo_url) row.link_szczegoly = event.zrodlo_url
@@ -1423,16 +1439,16 @@ async function syncToSupabase(teatrSlug, teatrName, events) {
     })
 
     // Filter only future events for insert (past ones were not deleted)
-    const now = new Date().toISOString().split('T')[0] + 'T00:00:00'
-    const futureRows = rows.filter(r => r.data_czas >= now)
-    const pastRows = rows.filter(r => r.data_czas < now)
+    const nowISO = new Date().toISOString()
+    const futureRows = rows.filter(r => new Date(r.data_czas) >= new Date(nowISO))
+    const pastRows = rows.filter(r => new Date(r.data_czas) < new Date(nowISO))
 
     // Batch insert future in chunks of 100
     for (let i = 0; i < futureRows.length; i += 100) {
       const chunk = futureRows.slice(i, i + 100)
       const { error } = await supabase.from('przedstawienia').insert(chunk)
       if (error) {
-        console.error(`  ✗ Batch insert error: ${error.message}`)
+        console.error(`  ✗ Batch insert error (chunk ${i}-${i + chunk.length}): ${error.message}`)
       } else {
         added += chunk.length
       }
@@ -1451,7 +1467,7 @@ async function syncToSupabase(teatrSlug, teatrName, events) {
 
       const updateData = {
         link_bilety: event.link_bilety || null,
-        dostepnosc: event.dostepnosc || null,
+        dostepnosc: sanitizeDostepnosc(event.dostepnosc),
         notatka: event.kategoria || null,
       }
       if (event.zrodlo_url) updateData.link_szczegoly = event.zrodlo_url
