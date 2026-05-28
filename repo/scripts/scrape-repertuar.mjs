@@ -1244,8 +1244,10 @@ async function scrapeLublin() {
   const events = []
   const seen = new Set()
   const now = new Date()
+  let emptyStreak = 0
 
-  for (let offset = 0; offset < 4; offset++) {
+  // Iteruj 12 miesięcy — Lublin czasem ma pojedyncze spektakle w odległych miesiącach
+  for (let offset = 0; offset < 12; offset++) {
     const d = new Date(now.getFullYear(), now.getMonth() + offset, 1)
     const monthParam = `${String(d.getMonth() + 1).padStart(2, '0')}-${d.getFullYear()}`
 
@@ -1254,11 +1256,14 @@ async function scrapeLublin() {
       const html = await fetchHTML(url)
       const $ = cheerio.load(html)
 
-      // Empty month
+      // Pusty miesiąc — kontynuuj, ale licz puste z rzędu
       if ($('p.no-items').length > 0) {
         console.log(`  [Lublin] ${monthParam}: brak spektakli`)
-        break
+        emptyStreak++
+        if (emptyStreak >= 6) break // 6 pustych z rzędu = koniec sezonu
+        continue
       }
+      emptyStreak = 0
 
       let monthCount = 0
 
@@ -1266,8 +1271,9 @@ async function scrapeLublin() {
         const $el = $(el)
 
         // Full date: "9 maja 2026 (sobota) godz. 18:00"
+        // \S+ zamiast \w+ — polskie miesiące mają znaki diakrytyczne (października, września)
         const dateText = $el.find('p.spektakl-date').text().trim()
-        const match = dateText.match(/(\d{1,2})\s+(\w+)\s+(\d{4}).*godz\.\s*(\d{1,2}):(\d{2})/)
+        const match = dateText.match(/(\d{1,2})\s+(\S+)\s+(\d{4}).*godz\.\s*(\d{1,2}):(\d{2})/)
         if (!match) return
 
         const day   = parseInt(match[1])
