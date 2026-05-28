@@ -547,118 +547,150 @@ function titlesMatch(t1, t2) {
 }
 
 async function scrapeBydgoszcz() {
-  // Podejście: bilety.operanova.bydgoszcz.pl jako GŁÓWNE źródło dat i dostępności.
-  // Poprzednia metoda (detekcja miesiąca po spadku numeru dnia w repertuar.html)
-  // nie działa gdy miesiąc jest pusty — algorytm przestawia się o 1 zamiast 2+.
-  // bilety.operanova ma URL ?date=YYYY-MM więc każdy miesiąc jest pewny.
+  // Podejście (v3): repertuar.html jako główne źródło LISTY spektakli (z poprawnymi miesiącami),
+  // bilety.operanova jako źródło dostępności i linków do biletów.
+  //
+  // Struktura HTML: .slick-mobile.overflow-hidden > div (jeden div = jeden miesiąc)
+  //   każdy div zawiera h3.text-warning.text-center z nazwą miesiąca
+  //   i bloki .text-center.p-1 z wydarzeniami
+  //
+  // To eliminuje problem: poprzedni algorytm (dzień < prevDzień → miesiąc++) gubił
+  // miesiące bez spektakli. Teraz miesiąc pochodzi wprost z nagłówka h3.
 
   const events = []
   const seen = new Set()
   const now = new Date()
 
-  // Skrócone nazwy miesięcy używane przez bilety.operanova ("05 lis 19:00")
+  const FULL_MONTHS = {
+    'styczeń': 1, 'luty': 2, 'marzec': 3, 'kwiecień': 4, 'maj': 5, 'czerwiec': 6,
+    'lipiec': 7, 'sierpień': 8, 'wrzesień': 9, 'październik': 10, 'listopad': 11, 'grudzień': 12,
+  }
   const SHORT_MONTHS = {
     'sty': 1, 'lut': 2, 'mar': 3, 'kwi': 4, 'maj': 5, 'cze': 6,
     'lip': 7, 'sie': 8, 'wrz': 9, 'paź': 10, 'paz': 10, 'lis': 11, 'gru': 12,
   }
 
-  // Pobierz detailLinki raz z repertuar.html (klucz: tytuł → URL spektaklu)
-  const detailLinkMap = new Map()
-  try {
-    const repHtml = await fetchHTML('https://www.opera.bydgoszcz.pl/repertuar.html')
-    const $rep = cheerio.load(repHtml)
-    $rep('.d-lg-none .text-center.p-1').each((_, block) => {
-      const $block = $rep(block)
+  // 1. Pobierz repertuar.html — źródło listy spektakli z poprawnymi miesiącami
+  const html = await fetchHTML('https://www.opera.bydgoszcz.pl/repertuar.html')
+  const $ = cheerio.load(html)
+
+  // Każdy kontener miesiąca w .slick-mobile
+  const monthContainers = $('.slick-mobile.overflow-hidden > div')
+  console.log(`  [Bydgoszcz] Kontenerów miesięcy w HTML: ${monthContainers.length}`)
+
+  // Ustal rok startowy: wykryj miesiąc pierwszego kontenera
+  let currentYear = now.getFullYear()
+  let prevMonthNum = 0
+
+  const monthEvents = [] // tymczasowa lista z info o miesiącu do późniejszego dopasowania bilety
+
+  monthContainers.each((_, container) => {
+    const $c = $(container)
+    const monthName = $c.find('h3.text-warning.text-center').first().text().trim().toLowerCase()
+    const monthNum = FULL_MONTHS[monthName]
+    if (!monthNum) return
+
+    // Wykryj przekroczenie roku (gdy miesiąc spada, np. grudzień → styczeń)
+    if (prevMonthNum > 0 && monthNum < prevMonthNum) currentYear++
+    prevMonthNum = monthNum
+
+    let monthCount = 0
+    $c.find('.text-center.p-1').each((_, block) => {
+      const $block = $(block)
+      const dayText = $block.find('h2.text-black').first().text().trim()
+      const day = parseInt(dayText)
+      if (isNaN(day) || day < 1 || day > 31) return
+
       const $titleLink = $block.find('h5.text-warning a').first()
       const title = $titleLink.text().trim()
-      const href = $titleLink.attr('href') || ''
+      if (!title) return
+
       const category = $block.find('h5 small, small.text-dark').text().trim()
-      if (title && href) {
-        const url = href.startsWith('http') ? href : `https://www.opera.bydgoszcz.pl${href.startsWith('/') ? '' : '/'}${href}`
-        if (!detailLinkMap.has(title)) detailLinkMap.set(title, { url, category })
-      }
+      const detailHref = $titleLink.attr('href') || ''
+      const detailLink = detailHref
+        ? (detailHref.startsWith('http') ? detailHref : `https://www.opera.bydgoszcz.pl${detailHref.startsWith('/') ? '' : '/'}${detailHref}`)
+        : ''
+
+      const blockText = $block.text()
+      const timeMatch = blockText.match(/(\d{1,2}:\d{2})/)
+      const timeParts = timeMatch ? timeMatch[1].split(':').map(Number) : [19, 0]
+
+      const dateTime = warsawDateToISO(currentYear, monthNum, day, timeParts[0], timeParts[1] || 0)
+
+      const key = `${dateTime}-${title}`
+      if (seen.has(key)) return
+      seen.add(key)
+
+      events.push({
+        tytul: title,
+        kategoria: categorize(category || title),
+        data_czas: dateTime,
+        link_bilety: null,       // uzupełniane z bilety.operanova
+        dostepnosc: null,        // uzupełniane z bilety.operanova
+        zrodlo_url: detailLink || 'https://www.opera.bydgoszcz.pl/repertuar.html',
+        _month: monthNum, _year: currentYear, _day: day,
+      })
+      monthCount++
     })
-    console.log(`  [Bydgoszcz] Linki szczegółów z repertuar.html: ${detailLinkMap.size}`)
-  } catch (e) {
-    console.error(`  [Bydgoszcz] Błąd repertuar.html: ${e.message}`)
-  }
+    console.log(`  [Bydgoszcz] ${monthName} ${currentYear}: ${monthCount} wydarzeń`)
+  })
 
-  // Iteruj 8 miesięcy do przodu — bilety.operanova jako pewne źródło dat
-  for (let offset = 0; offset < 8; offset++) {
-    const d = new Date(now.getFullYear(), now.getMonth() + offset, 1)
-    const ym = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
-    const monthNum = d.getMonth() + 1
-    const yearNum = d.getFullYear()
+  // 2. Uzupełnij dostępność z bilety.operanova
+  const monthsToCheck = [...new Set(events.map(e => `${e._year}-${String(e._month).padStart(2,'0')}`))]
+  const availMap = new Map() // "day|month|year" → {sold, href}[]
+  const availSeen = new Set()
 
+  for (const ym of monthsToCheck) {
+    const [ymYear, ymMonth] = ym.split('-').map(Number)
     try {
       const biletHtml = await fetchHTML(`https://bilety.operanova.bydgoszcz.pl/MSI/mvc/pl?sort=Name&date=${ym}&datestart=0`)
       const $b = cheerio.load(biletHtml)
-      let monthCount = 0
-      const dedupThisMonth = new Set()
 
       $b('.movies-movie__single').each((_, card) => {
-        const rawTitle = $b(card).find('h2').text().trim()
-        if (!rawTitle) return
-        const title = rawTitle.replace(/\s+/g, ' ').trim()
+        const cardTitle = $b(card).find('h2').text().trim().replace(/\s+/g, ' ')
 
         $b(card).find('.movies-movie__single__options del.disabled, .movies-movie__single__options a.js-link-popup').each((_, dateEl) => {
           const text = $b(dateEl).text().trim().replace(/\s+/g, ' ')
           const isSold = dateEl.tagName === 'del'
           const href = $b(dateEl).attr('href') || ''
 
-          // Format: "05 lis 19:00" — DD mmm HH:MM
           const dm = text.match(/^(\d{1,2})\s+(\S+)\s+(\d{1,2}:\d{2})/)
           if (!dm) return
 
           const dayNum = parseInt(dm[1])
-          const monthAbbr = dm[2].toLowerCase()
-          const parsedMonth = SHORT_MONTHS[monthAbbr]
+          const parsedMonth = SHORT_MONTHS[dm[2].toLowerCase()]
+          if (!parsedMonth || parsedMonth !== ymMonth) return
 
-          // Strona bilety dla danego miesiąca może zawierać też sąsiednie miesiące — filtruj
-          if (!parsedMonth || parsedMonth !== monthNum) return
+          const dedupKey = `${dayNum}|${ymMonth}|${ymYear}|${dm[3]}|${cardTitle}|${isSold}`
+          if (availSeen.has(dedupKey)) return
+          availSeen.add(dedupKey)
 
-          const timeParts = dm[3].split(':').map(Number)
-          const dateTime = warsawDateToISO(yearNum, monthNum, dayNum, timeParts[0], timeParts[1] || 0)
-
-          const globalKey = `${dateTime}-${title}`
-          if (seen.has(globalKey)) return
-          seen.add(globalKey)
-
-          const ticketLink = isSold ? '' : (href ? `https://bilety.operanova.bydgoszcz.pl${href}` : '')
-          const dostepnosc = isSold ? 'wyprzedane' : (ticketLink ? 'dostepne' : null)
-
-          // Szukaj detailLink — wpierw exact match, potem fuzzy
-          let detailLink = ''
-          let category = ''
-          if (detailLinkMap.has(title)) {
-            detailLink = detailLinkMap.get(title).url
-            category = detailLinkMap.get(title).category
-          } else {
-            for (const [mapTitle, mapData] of detailLinkMap.entries()) {
-              if (titlesMatch(title, mapTitle)) {
-                detailLink = mapData.url
-                category = mapData.category
-                break
-              }
-            }
-          }
-
-          events.push({
-            tytul: title,
-            kategoria: categorize(category || title),
-            data_czas: dateTime,
-            link_bilety: ticketLink || null,
-            dostepnosc,
-            zrodlo_url: detailLink || 'https://www.opera.bydgoszcz.pl/repertuar.html',
+          const mapKey = `${dayNum}|${ymMonth}|${ymYear}`
+          if (!availMap.has(mapKey)) availMap.set(mapKey, [])
+          availMap.get(mapKey).push({
+            cardTitle,
+            sold: isSold,
+            href: isSold ? '' : (href ? `https://bilety.operanova.bydgoszcz.pl${href}` : ''),
           })
-          monthCount++
         })
       })
-
-      console.log(`  [Bydgoszcz] ${ym}: ${monthCount} wydarzeń`)
     } catch (err) {
-      console.error(`  [Bydgoszcz] Błąd ${ym}: ${err.message}`)
+      console.error(`  [Bydgoszcz] Błąd bilety ${ym}: ${err.message}`)
     }
+  }
+
+  // 3. Dopasuj dostępność do wydarzeń (fuzzy match tytułów)
+  for (const ev of events) {
+    const mapKey = `${ev._day}|${ev._month}|${ev._year}`
+    const candidates = availMap.get(mapKey) || []
+    for (const cand of candidates) {
+      if (titlesMatch(ev.tytul, cand.cardTitle)) {
+        ev.dostepnosc = cand.sold ? 'wyprzedane' : 'dostepne'
+        if (cand.href && !cand.sold) ev.link_bilety = cand.href
+        break
+      }
+    }
+    delete ev._month; delete ev._year; delete ev._day
   }
 
   return events
