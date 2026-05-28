@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Scraper repertuarów polskich teatrów operowych i baletowych.
  *
  * Pobiera aktualne repertuary ze stron 7 teatrów i zapisuje do Supabase.
@@ -949,130 +949,93 @@ async function scrapeLodz() {
 }
 
 // ── 7. OPERA KRAKOWSKA ───────────────────────────────────────────────────────
-// Cloudflare protection — requires Puppeteer headless browser
+// Używa JSON API: /ajax/repertuar?month=MM&year=YYYY
+// Zwraca {performances: [{title, composer, type, place, slug, ticketUrl, 0:{date,time,freeSeatsInSale,isPremiere,isCanceled,isTicketSoon}}]}
+// Odpowiedź jest poprzedzona <script>window.location.reload(true);</script> — strip przed parse.
 async function scrapeKrakow() {
-  // tickets.opera.krakow.pl — no Cloudflare, SoftCOM ticket system
-  // Each event is a .card.card-border-left with h2 (title), p.card-text (date/time), a.js-wybierz-termin-btn (buy link + free seats)
   const events = []
   const seen = new Set()
-
-  // Build slug → full URL map from opera.krakow.pl/spektakle
-  // We collect all actual URLs so we can verify our generated slugs exist
-  const validSlugs = new Set()
-  try {
-    const specHtml = await fetchHTML('https://opera.krakow.pl/spektakle')
-    const hrefs = [...new Set(specHtml.match(/href="(\/spektakle\/[^"]+)"/g) || [])]
-    for (const h of hrefs) {
-      const path = h.match(/href="(\/spektakle\/[^"]+)"/)?.[1]
-      if (path && path !== '/spektakle') validSlugs.add(path)
-    }
-    console.log(`  [Kraków] Załadowano ${validSlugs.size} stron spektakli`)
-  } catch (e) {
-    console.error(`  [Kraków] Nie udało się pobrać listy spektakli: ${e.message}`)
-  }
-
-  // Iteruj 10 miesięcy do przodu — bez hardkodowanego roku 2026
   const now = new Date()
-  for (let offset = 0; offset < 10; offset++) {
+  let emptyStreak = 0
+
+  for (let offset = 0; offset < 12; offset++) {
     const d = new Date(now.getFullYear(), now.getMonth() + offset, 1)
     const monthNum = d.getMonth() + 1
     const yearNum = d.getFullYear()
+
     try {
-      const url = `https://tickets.opera.krakow.pl/rezerwacja/termin.html?m=${monthNum}&y=${yearNum}&termtoscroll=0`
-      const html = await fetchHTML(url)
-      const $ = cheerio.load(html)
+      const resp = await fetch(`https://opera.krakow.pl/ajax/repertuar?month=${monthNum}&year=${yearNum}`, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+          'X-Requested-With': 'XMLHttpRequest',
+          'Accept': 'application/json, text/html',
+        },
+      })
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`)
+      const raw = await resp.text()
+      const jsonStr = raw.replace(/^<script>[^<]*<\/script>/, '').trim()
+      const data = JSON.parse(jsonStr)
+      const perfs = data.performances || []
 
       let monthCount = 0
-      $('.card.card-border-left, .card.mb-3').each((_, card) => {
-        const $card = $(card)
-        const title = $card.find('h2').text().trim()
-        if (!title || title.length < 2 || title === 'Wybierz datę:' || title === 'Wybierz:') return
+      for (const p of perfs) {
+        const e = p['0']
+        if (!e || !e.date || !e.time) continue
 
-        const dateText = $card.find('p.card-text').text().trim()
-        // Format: "2026-03-19 (czwartek) 18:30"
-        const dateMatch = dateText.match(/(\d{4}-\d{2}-\d{2})\s*\([^)]+\)\s*(\d{1,2}:\d{2})/)
-        if (!dateMatch) return
-
-        const [dateStr, timeStr] = [dateMatch[1], dateMatch[2]]
-        const [y, mo, dd] = dateStr.split('-').map(Number)
+        const [y, m, dd] = e.date.date.substring(0, 10).split('-').map(Number)
+        const timeStr = e.time.date.substring(11, 16)
         const [h, min] = timeStr.split(':').map(Number)
-        const dateTime = warsawDateToISO(y, mo, dd, h, min)
+        const dateTime = warsawDateToISO(y, m, dd, h, min)
+
+        const title = (p.title || '').trim()
+        if (!title) continue
 
         const key = `${dateTime}-${title}`
-        if (seen.has(key)) return
+        if (seen.has(key)) continue
         seen.add(key)
 
-        // Category from text between title and date (often "Opera", "Balet", etc.)
-        const catText = $card.find('p.card-text.text-muted').text().trim()
-        const catMatch = catText.match(/(Opera|Balet|Koncert|Edukacja|Musical|Operetka)/i)
-
-        // Availability: button with "Wybierz" + "X wolnych" = available, or "Brak Miejsc" / "Powiadom"
-        const buyBtn = $card.find('a.js-wybierz-termin-btn')
-        const cardText = $card.text().toLowerCase()
         let dostepnosc = null
         let ticketLink = ''
-
-        if (buyBtn.length > 0) {
-          ticketLink = buyBtn.attr('href') || ''
-          const freeMatch = buyBtn.text().match(/(\d+)\s*woln/)
-          if (freeMatch && parseInt(freeMatch[1]) < 50) {
+        if (e.isCanceled) {
+          dostepnosc = 'odwolane'
+        } else if (e.isTicketSoon) {
+          dostepnosc = null
+        } else {
+          ticketLink = p.ticketUrl || e.ticketUrl || ''
+          const free = e.freeSeatsInSale ?? 0
+          const total = e.totalSeatsInSale ?? 0
+          if (e.isPremiere) {
+            dostepnosc = 'premiera'
+          } else if (free === 0 && total > 0) {
+            dostepnosc = 'wyprzedane'
+            ticketLink = ''
+          } else if (free > 0 && free < 50) {
             dostepnosc = 'malo_miejsc'
-          } else {
+          } else if (free > 0) {
             dostepnosc = 'dostepne'
           }
         }
-        if (cardText.includes('brak miejsc') || cardText.includes('niedostępny') || cardText.includes('powiadom')) {
-          dostepnosc = 'wyprzedane'
-          ticketLink = ''
-        }
-        // No buy button and no recognized status = sold out
-        if (!dostepnosc && buyBtn.length === 0) {
-          dostepnosc = 'wyprzedane'
-        }
 
-        // Find detail page URL by matching title slug against actual paths on opera.krakow.pl
-        const titleSlug = title.toLowerCase()
-          .replace(/ł/g, 'l')
-          .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-          .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
-        // 1. Exact match, 2. slug starts with titleSlug (handles tosca → tosca-2),
-        // 3. titleSlug starts with slug (handles igraszki-milosne-carmen → carmen)
-        // Among matches, prefer the one whose slug is closest in length to titleSlug
-        let detailUrl = null
-        let bestDiff = Infinity
-        for (const path of validSlugs) {
-          const slug = path.split('/').pop().replace(/^\d+-/, '')
-          let matched = false
-          if (slug === titleSlug) {
-            detailUrl = `https://opera.krakow.pl${path}`
-            break // exact match, done
-          }
-          if (slug.startsWith(titleSlug) || titleSlug.startsWith(slug)) {
-            matched = true
-          }
-          if (matched) {
-            const diff = Math.abs(slug.length - titleSlug.length)
-            if (diff < bestDiff) {
-              bestDiff = diff
-              detailUrl = `https://opera.krakow.pl${path}`
-            }
-          }
-        }
-        if (!detailUrl) detailUrl = `https://opera.krakow.pl/spektakle/${titleSlug}`
+        const detailUrl = p.slug
+          ? `https://opera.krakow.pl/spektakle/${p.slug}`
+          : 'https://opera.krakow.pl/repertuar'
 
         events.push({
           tytul: title,
-          kategoria: categorize(catMatch ? catMatch[1] : title),
+          kompozytor: p.composer || null,
+          kategoria: categorize(p.type || title),
           data_czas: dateTime,
-          link_bilety: ticketLink,
+          link_bilety: ticketLink || null,
           dostepnosc,
           zrodlo_url: detailUrl,
         })
         monthCount++
-      })
+      }
 
       console.log(`  [Kraków] ${String(monthNum).padStart(2,'0')}/${yearNum}: ${monthCount} wydarzeń`)
-      if (monthCount === 0 && offset >= 3) break // puste miesiące na końcu — stop
+      if (monthCount === 0) emptyStreak++
+      else emptyStreak = 0
+      if (emptyStreak >= 3) break
     } catch (err) {
       console.error(`  [Kraków] Błąd ${monthNum}/${yearNum}: ${err.message}`)
     }
