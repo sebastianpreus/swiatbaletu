@@ -939,9 +939,14 @@ async function scrapeKrakow() {
     console.error(`  [Kraków] Nie udało się pobrać listy spektakli: ${e.message}`)
   }
 
-  for (let m = new Date().getMonth() + 1; m <= 12; m++) {
+  // Iteruj 10 miesięcy do przodu — bez hardkodowanego roku 2026
+  const now = new Date()
+  for (let offset = 0; offset < 10; offset++) {
+    const d = new Date(now.getFullYear(), now.getMonth() + offset, 1)
+    const monthNum = d.getMonth() + 1
+    const yearNum = d.getFullYear()
     try {
-      const url = `https://tickets.opera.krakow.pl/rezerwacja/termin.html?m=${m}&y=2026&termtoscroll=0`
+      const url = `https://tickets.opera.krakow.pl/rezerwacja/termin.html?m=${monthNum}&y=${yearNum}&termtoscroll=0`
       const html = await fetchHTML(url)
       const $ = cheerio.load(html)
 
@@ -957,9 +962,9 @@ async function scrapeKrakow() {
         if (!dateMatch) return
 
         const [dateStr, timeStr] = [dateMatch[1], dateMatch[2]]
-        const [y, mo, d] = dateStr.split('-').map(Number)
+        const [y, mo, dd] = dateStr.split('-').map(Number)
         const [h, min] = timeStr.split(':').map(Number)
-        const dateTime = warsawDateToISO(y, mo, d, h, min)
+        const dateTime = warsawDateToISO(y, mo, dd, h, min)
 
         const key = `${dateTime}-${title}`
         if (seen.has(key)) return
@@ -1034,13 +1039,10 @@ async function scrapeKrakow() {
         monthCount++
       })
 
-      if (monthCount > 0) {
-        console.log(`  [Kraków] ${m}/2026: ${monthCount} wydarzeń`)
-      } else {
-        break // no more events
-      }
+      console.log(`  [Kraków] ${String(monthNum).padStart(2,'0')}/${yearNum}: ${monthCount} wydarzeń`)
+      if (monthCount === 0 && offset >= 3) break // puste miesiące na końcu — stop
     } catch (err) {
-      console.error(`  [Kraków] Błąd ${m}/2026: ${err.message}`)
+      console.error(`  [Kraków] Błąd ${monthNum}/${yearNum}: ${err.message}`)
     }
   }
 
