@@ -225,8 +225,9 @@ async function scrapeGdansk() {
   const allEvents = []
   const seen = new Set()
   const now = new Date()
+  let emptyStreak = 0
 
-  for (let offset = 0; offset < 5; offset++) {
+  for (let offset = 0; offset < 12; offset++) {
     const d = new Date(now.getFullYear(), now.getMonth() + offset, 1)
     const ym = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
 
@@ -244,6 +245,9 @@ async function scrapeGdansk() {
         }
       }
       console.log(`  [Gdańsk] ${ym}: ${events.length} pozycji, +${newCount} nowych`)
+      if (events.length === 0) emptyStreak++
+      else emptyStreak = 0
+      if (emptyStreak >= 6) break
     } catch (err) {
       console.error(`  [Gdańsk] Błąd ${ym}: ${err.message}`)
     }
@@ -1065,9 +1069,10 @@ async function scrapeSzczecin() {
   const events = []
   const seen = new Set()
   const now = new Date()
+  let emptyStreak = 0
 
-  // Scrape current month + next 3 months
-  for (let offset = 0; offset < 4; offset++) {
+  // Iteruj 12 miesięcy z licznikiem pustych z rzędu (max 6 = koniec sezonu)
+  for (let offset = 0; offset < 12; offset++) {
     const d = new Date(now.getFullYear(), now.getMonth() + offset, 1)
     const ym = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}`
 
@@ -1143,6 +1148,9 @@ async function scrapeSzczecin() {
       })
 
       console.log(`  [Szczecin] ${ym}: ${monthCount} pozycji`)
+      if (monthCount === 0) emptyStreak++
+      else emptyStreak = 0
+      if (emptyStreak >= 6) break // 6 pustych miesięcy z rzędu = koniec sezonu
     } catch (err) {
       console.error(`  [Szczecin] Błąd ${ym}: ${err.message}`)
     }
@@ -1157,6 +1165,7 @@ async function scrapeBytom() {
   const events = []
   const seen = new Set()
   const now = new Date()
+  let emptyStreak = 0
 
   const POLISH_MONTHS = {
     'stycznia': 1, 'lutego': 2, 'marca': 3, 'kwietnia': 4,
@@ -1164,7 +1173,7 @@ async function scrapeBytom() {
     'września': 9, 'października': 10, 'listopada': 11, 'grudnia': 12,
   }
 
-  for (let offset = 0; offset < 4; offset++) {
+  for (let offset = 0; offset < 12; offset++) {
     const d = new Date(now.getFullYear(), now.getMonth() + offset, 1)
     const ym = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
 
@@ -1228,6 +1237,9 @@ async function scrapeBytom() {
       })
 
       console.log(`  [Bytom] ${ym}: ${monthCount} pozycji`)
+      if (monthCount === 0) emptyStreak++
+      else emptyStreak = 0
+      if (emptyStreak >= 6) break
     } catch (err) {
       console.error(`  [Bytom] Błąd ${ym}: ${err.message}`)
     }
