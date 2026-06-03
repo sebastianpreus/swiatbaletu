@@ -90,18 +90,25 @@ export async function getPrzedstawienia(filters?: {
 }
 
 export async function getRepertuarMeta() {
-  // Get available months
+  // Get available months — pobierz wszystkie, paginując po 1000 (Supabase default limit)
   const { start: todayStart } = getWarsawDayBoundsUTC()
-  const { data: rows } = await supabase
-    .from('przedstawienia')
-    .select('data_czas')
-    .gte('data_czas', todayStart)
-    .order('data_czas', { ascending: true })
-
   const uniqueMonths = new Set<string>()
-  for (const row of rows || []) {
-    const d = new Date(row.data_czas)
-    uniqueMonths.add(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`)
+  const PAGE = 1000
+  let offset = 0
+  while (true) {
+    const { data: rows, error } = await supabase
+      .from('przedstawienia')
+      .select('data_czas')
+      .gte('data_czas', todayStart)
+      .order('data_czas', { ascending: true })
+      .range(offset, offset + PAGE - 1)
+    if (error || !rows?.length) break
+    for (const row of rows) {
+      const d = new Date(row.data_czas)
+      uniqueMonths.add(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`)
+    }
+    if (rows.length < PAGE) break
+    offset += PAGE
   }
 
   // Get last scrape timestamp from meta table

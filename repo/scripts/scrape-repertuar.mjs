@@ -227,7 +227,7 @@ async function scrapeGdansk() {
   const now = new Date()
   let emptyStreak = 0
 
-  for (let offset = 0; offset < 12; offset++) {
+  for (let offset = 0; offset < 14; offset++) {
     const d = new Date(now.getFullYear(), now.getMonth() + offset, 1)
     const ym = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
 
@@ -962,7 +962,7 @@ async function scrapeKrakow() {
   const now = new Date()
   let emptyStreak = 0
 
-  for (let offset = 0; offset < 12; offset++) {
+  for (let offset = 0; offset < 14; offset++) {
     const d = new Date(now.getFullYear(), now.getMonth() + offset, 1)
     const monthNum = d.getMonth() + 1
     const yearNum = d.getFullYear()
@@ -1072,7 +1072,7 @@ async function scrapeSzczecin() {
   let emptyStreak = 0
 
   // Iteruj 12 miesięcy z licznikiem pustych z rzędu (max 6 = koniec sezonu)
-  for (let offset = 0; offset < 12; offset++) {
+  for (let offset = 0; offset < 14; offset++) {
     const d = new Date(now.getFullYear(), now.getMonth() + offset, 1)
     const ym = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}`
 
@@ -1173,7 +1173,7 @@ async function scrapeBytom() {
     'września': 9, 'października': 10, 'listopada': 11, 'grudnia': 12,
   }
 
-  for (let offset = 0; offset < 12; offset++) {
+  for (let offset = 0; offset < 14; offset++) {
     const d = new Date(now.getFullYear(), now.getMonth() + offset, 1)
     const ym = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
 
@@ -1259,7 +1259,7 @@ async function scrapeLublin() {
   let emptyStreak = 0
 
   // Iteruj 12 miesięcy — Lublin czasem ma pojedyncze spektakle w odległych miesiącach
-  for (let offset = 0; offset < 12; offset++) {
+  for (let offset = 0; offset < 14; offset++) {
     const d = new Date(now.getFullYear(), now.getMonth() + offset, 1)
     const monthParam = `${String(d.getMonth() + 1).padStart(2, '0')}-${d.getFullYear()}`
 
