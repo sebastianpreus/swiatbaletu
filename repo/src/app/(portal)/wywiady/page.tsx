@@ -35,10 +35,10 @@ export default async function InterviewsPage() {
               href={`/artykuly/${interview.slug.current}`}
               className="flex flex-col sm:flex-row gap-5 group py-5 border-b-[0.5px] border-border"
             >
-              <div className="w-full sm:w-[240px] shrink-0 aspect-[3/2] rounded-lg overflow-hidden border-[0.5px] border-border flex items-center justify-center transition-all group-hover:border-gold-dim">
+              <div className="w-full sm:w-[300px] shrink-0 aspect-video rounded-lg overflow-hidden border-[0.5px] border-border flex items-center justify-center transition-all group-hover:border-gold-dim">
                 {interview.zdjecie ? (
                   <img
-                    src={urlFor(interview.zdjecie).width(480).url()}
+                    src={urlFor(interview.zdjecie).width(600).url()}
                     alt={interview.zdjecie.alt || interview.tytul}
                     className="w-full h-full object-cover"
                   />
