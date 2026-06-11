@@ -23,6 +23,10 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
 
   if (!article) notFound()
 
+  const isWywiad = article.kategoria === 'Wywiad'
+  // Okładka artykułu (duże zdjęcie na górze). Jeśli brak — fallback na miniaturkę.
+  const coverImage = article.zdjecieArtykul?.asset ? article.zdjecieArtykul : article.zdjecie
+
   const date = article.dataPublikacji
     ? new Date(article.dataPublikacji).toLocaleDateString('pl-PL', {
         day: 'numeric', month: 'long', year: 'numeric',
@@ -31,8 +35,8 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
 
   return (
     <div className="max-w-[720px] mx-auto px-6 py-10">
-      <Link href="/artykuly" className="text-[11px] tracking-[0.07em] uppercase text-gold-dim hover:text-gold transition-colors mb-6 inline-block">
-        &larr; Wszystkie artykuły
+      <Link href={isWywiad ? '/wywiady' : '/artykuly'} className="text-[11px] tracking-[0.07em] uppercase text-gold-dim hover:text-gold transition-colors mb-6 inline-block">
+        &larr; {isWywiad ? 'Wszystkie wywiady' : 'Wszystkie artykuły'}
       </Link>
 
       {article.kategoria && (
@@ -57,14 +61,14 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
         {article.czasCzytania && <span>· {article.czasCzytania} min czytania</span>}
       </div>
 
-      {article.zdjecie && (
-        <div className="w-full aspect-video rounded-lg overflow-hidden mb-8 border-[0.5px] border-border">
+      {coverImage?.asset && (
+        <figure className="mb-8 flex justify-center">
           <img
-            src={urlFor(article.zdjecie).width(800).url()}
-            alt={article.zdjecie.alt || article.tytul}
-            className="w-full h-full object-cover"
+            src={urlFor(coverImage).width(1000).url()}
+            alt={coverImage.alt || article.tytul}
+            className="rounded-lg border-[0.5px] border-border max-h-[660px] w-auto max-w-full object-contain"
           />
-        </div>
+        </figure>
       )}
 
       {article.trescGlowna && (

@@ -15,6 +15,7 @@ export interface Artykul {
   kategoria: string
   zajawka: string
   zdjecie: SanityImage
+  zdjecieArtykul?: SanityImage
   trescGlowna: PortableTextBlock[]
   autor: string
   dataPublikacji: string

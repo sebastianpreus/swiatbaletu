@@ -35,7 +35,22 @@ export const artykul = defineType({
     defineField({
       name: 'zdjecie',
       type: 'image',
-      title: 'Zdjęcie główne',
+      title: 'Zdjęcie główne (miniaturka)',
+      description: 'Używane jako miniaturka na stronie głównej i listach. Jeśli nie ustawisz „Okładki artykułu", pojawi się też na górze artykułu.',
+      options: { hotspot: true },
+      fields: [
+        defineField({
+          name: 'alt',
+          type: 'string',
+          title: 'Opis alternatywny',
+        }),
+      ],
+    }),
+    defineField({
+      name: 'zdjecieArtykul',
+      type: 'image',
+      title: 'Okładka artykułu (opcjonalnie)',
+      description: 'Duże zdjęcie na górze strony artykułu. Pozwala pokazać w artykule inne zdjęcie niż miniaturka na stronie głównej. Jeśli puste — użyte zostanie zdjęcie główne.',
       options: { hotspot: true },
       fields: [
         defineField({

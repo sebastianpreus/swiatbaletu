@@ -64,6 +64,7 @@ export const ARTICLE_BY_SLUG_QUERY = `
   *[_type == "artykul" && slug.current == $slug] [0] {
     _id, tytul, slug, kategoria, zajawka, czasCzytania,
     zdjecie { asset, alt },
+    zdjecieArtykul { asset, alt },
     trescGlowna,
     dataPublikacji, autor, tagi
   }
@@ -88,12 +89,22 @@ export const PROFILE_BY_SLUG_QUERY = `
   }
 `
 
-// Wszystkie wywiady
+// Wszystkie wywiady (stary typ `wywiad` — zachowane dla kompatybilności)
 export const ALL_INTERVIEWS_QUERY = `
   *[_type == "wywiad"] | order(dataPublikacji desc) {
     _id, tytul, slug, zajawka, dataPublikacji, wywiadTygodnia,
     zdjecie { asset, alt },
     rozmowca->{ imieNazwisko, rola, teatrGlowny }
+  }
+`
+
+// Wywiady = artykuły z kategorią "Wywiad".
+// Wywiad to zwykły artykuł — pojawia się na stronie głównej i w /artykuly,
+// a zakładka /wywiady jest dodatkowym, filtrowanym widokiem tych samych treści.
+export const INTERVIEW_ARTICLES_QUERY = `
+  *[_type == "artykul" && kategoria == "Wywiad"] | order(featured desc, dataPublikacji desc) {
+    _id, tytul, slug, zajawka, dataPublikacji, autor, czasCzytania, featured,
+    zdjecie { asset, alt }
   }
 `
 

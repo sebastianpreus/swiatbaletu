@@ -1,19 +1,21 @@
 import Link from 'next/link'
 import { client } from '../../../../sanity/lib/client'
-import { ALL_INTERVIEWS_QUERY } from '../../../../sanity/lib/queries'
+import { INTERVIEW_ARTICLES_QUERY } from '../../../../sanity/lib/queries'
 import { urlFor } from '../../../../sanity/lib/image'
-import type { Wywiad } from '../../../../types'
+import type { Artykul } from '../../../../types'
 
 export const metadata = {
   title: 'Wywiady — Świat Baletu',
   description: 'Rozmowy z artystami, choreografami i dyrygentami ze świata baletu.',
 }
 
+export const revalidate = 60
+
 export default async function InterviewsPage() {
-  let interviews: Wywiad[] = []
+  let interviews: Artykul[] = []
 
   try {
-    interviews = await client.fetch(ALL_INTERVIEWS_QUERY)
+    interviews = await client.fetch(INTERVIEW_ARTICLES_QUERY)
   } catch {
     // Sanity not configured
   }
@@ -30,14 +32,14 @@ export default async function InterviewsPage() {
           {interviews.map((interview) => (
             <Link
               key={interview._id}
-              href={`/wywiady/${interview.slug.current}`}
+              href={`/artykuly/${interview.slug.current}`}
               className="flex flex-col sm:flex-row gap-5 group py-5 border-b-[0.5px] border-border"
             >
               <div className="w-full sm:w-[240px] shrink-0 aspect-[3/2] rounded-lg overflow-hidden border-[0.5px] border-border flex items-center justify-center transition-all group-hover:border-gold-dim">
                 {interview.zdjecie ? (
                   <img
                     src={urlFor(interview.zdjecie).width(480).url()}
-                    alt={interview.tytul}
+                    alt={interview.zdjecie.alt || interview.tytul}
                     className="w-full h-full object-cover"
                   />
                 ) : (
@@ -45,7 +47,7 @@ export default async function InterviewsPage() {
                 )}
               </div>
               <div className="flex-1">
-                {interview.wywiadTygodnia && (
+                {interview.featured && (
                   <div className="text-[10px] tracking-[0.1em] uppercase text-gold mb-2 font-medium">
                     Wywiad tygodnia
                   </div>
@@ -53,9 +55,10 @@ export default async function InterviewsPage() {
                 <div className="font-serif text-[22px] leading-[1.2] text-text-1 mb-2 group-hover:text-gold transition-colors">
                   {interview.tytul}
                 </div>
-                {interview.rozmowca && (
+                {interview.autor && (
                   <div className="text-[12px] text-text-2 mb-2">
-                    {interview.rozmowca.imieNazwisko} — {interview.rozmowca.rola} · {interview.rozmowca.teatrGlowny}
+                    {interview.autor}
+                    {interview.czasCzytania ? ` · ${interview.czasCzytania} min czytania` : ''}
                   </div>
                 )}
                 {interview.zajawka && (
