@@ -92,13 +92,13 @@ const role = [
 ]
 
 const tresc = [
-  block('W rozmowie dla Świata Baletu Karolina zdradza kulisy pracy nad najważniejszymi rolami — Mariną w „Greku Zorbie", tytułową „Giselle" czy Julią w „Romeo i Julii" w choreografii Saszy Waltz, którą tańczyła także w Berlinie i Barcelonie. Mówi szczerze o presji i tremie, kontuzjach, o katharsis na scenie podczas „Carminy Burany", a także o życiu poza baletem i studiach, które wybrała wbrew utartym schematom.'),
+  block('W rozmowie dla Świata Baletu Karolina zdradza kulisy pracy nad najważniejszymi rolami — Mariną w „Greku Zorbie", tytułową „Giselle" czy Julią w „Romeo i Julii" w choreografii Sashy Waltz, którą tańczyła także w Berlinie i Barcelonie. Mówi szczerze o presji i tremie, kontuzjach, o katharsis na scenie podczas „Carminy Burany", a także o życiu poza baletem i studiach, które wybrała wbrew utartym schematom.'),
 
   h2('W odcinku m.in.'),
   bullet('jak zaczęła się jej przygoda z tańcem (Poznań → Warszawa → Łódź)'),
   bullet('pierwsza wielka rola — Marina w „Greku Zorbie"'),
   bullet('dramaturgia i emocje w „Giselle"'),
-  bullet('taniec na pochyłej scenie u Saszy Waltz'),
+  bullet('taniec na pochyłej scenie u Sashy Waltz'),
   bullet('co czuje na scenie w finale „Carminy Burany"'),
   bullet('czy myślała o emigracji i co planuje „po tańcu"'),
 
@@ -157,7 +157,7 @@ async function main() {
     tytul: 'Karolina Urbaniak — od „Dziadka do orzechów" po solistkę Teatru Wielkiego',
     slug: { _type: 'slug', current: SLUG },
     kategoria: 'Wywiad',
-    zajawka: 'Karolina Urbaniak — solistka baletu Teatru Wielkiego w Łodzi — opowiada o swojej drodze do zawodu: od dziecięcego marzenia, które zrodziło się na widowni „Dziadka do orzechów", przez jedną z najtrudniejszych szkół baletowych w Warszawie, aż po scenę w Łodzi, z którą związała się na ponad dekadę.',
+    zajawka: 'Karolina Urbaniak — solistka baletu Teatru Wielkiego w Łodzi — opowiada o swojej drodze do zawodu: od dziecięcego marzenia, które narodziło się, gdy jako mały aniołek wystąpiła w „Dziadku do orzechów" w Poznaniu, przez jedną z najtrudniejszych szkół baletowych w Warszawie, aż po scenę w Łodzi, z którą związała się na ponad dekadę.',
     zdjecie: {
       _type: 'image',
       asset: { _type: 'reference', _ref: asset._id },
