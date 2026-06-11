@@ -3,9 +3,18 @@ import { Analytics } from '@vercel/analytics/react'
 import './globals.css'
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://swiatbaletu.pl'),
   title: 'Świat Baletu — Portal o balecie i operze',
   description:
     'Artykuły, wywiady, repertuar teatrów, sylwetki artystów. Wszystko o balecie i operze w Polsce.',
+  openGraph: {
+    type: 'website',
+    locale: 'pl_PL',
+    siteName: 'Świat Baletu',
+    title: 'Świat Baletu — Portal o balecie i operze',
+    description:
+      'Artykuły, wywiady, repertuar teatrów, sylwetki artystów. Wszystko o balecie i operze w Polsce.',
+  },
 }
 
 export default function RootLayout({

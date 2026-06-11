@@ -11,9 +11,33 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params
   const article: Artykul | null = await client.fetch(ARTICLE_BY_SLUG_QUERY, { slug })
   if (!article) return { title: 'Artykuł nie znaleziony' }
+
+  const title = `${article.tytul} — Świat Baletu`
+  // og:image = zdjęcie główne (baner/miniaturka), nie okładka artykułu.
+  // Pełny baner 16:9 (1200×675) — całe zdjęcie, bez przycięcia.
+  const ogImage = article.zdjecie?.asset
+    ? urlFor(article.zdjecie).width(1200).height(675).fit('crop').url()
+    : undefined
+
   return {
-    title: `${article.tytul} — Świat Baletu`,
+    title,
     description: article.zajawka,
+    openGraph: {
+      title,
+      description: article.zajawka,
+      type: 'article',
+      url: `/artykuly/${slug}`,
+      siteName: 'Świat Baletu',
+      images: ogImage
+        ? [{ url: ogImage, width: 1200, height: 675, alt: article.zdjecie?.alt || article.tytul }]
+        : undefined,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description: article.zajawka,
+      images: ogImage ? [ogImage] : undefined,
+    },
   }
 }
 
