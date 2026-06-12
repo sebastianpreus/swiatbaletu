@@ -139,6 +139,13 @@ export default async function RepertuarPage({
     return `/repertuar${qs ? `?${qs}` : ''}`
   }
 
+  // "Przerwa wakacyjna" zamiast pustej listy — tylko w oknie letnim (czerwiec–sierpień)
+  // i bez filtra dostępności (żeby pusty wynik z filtra nie udawał wakacji).
+  const selectedMonthNum = miesiac ? parseInt(miesiac.split('-')[1], 10) : null
+  const isSummerWindow = selectedMonthNum !== null && [6, 7, 8].includes(selectedMonthNum)
+  const showWakacje = przedstawienia.length === 0 && isSummerWindow && !status
+  const cityLabel = miasto && miasto !== 'Wszystkie' ? miasto : null
+
   return (
     <div className="max-w-[1100px] mx-auto px-6 py-10">
       <h1 className="font-serif text-[36px] font-normal text-text-1 mb-2">Repertuar</h1>
@@ -189,7 +196,19 @@ export default async function RepertuarPage({
       </div>
 
       {przedstawienia.length === 0 ? (
-        <p className="text-[14px] text-text-2 italic">Brak spektakli do wyświetlenia.</p>
+        showWakacje ? (
+          <div className="text-center py-16 px-6 border-[0.5px] border-border rounded-lg bg-bg-section">
+            <div className="text-[26px] mb-3" aria-hidden>🌙</div>
+            <div className="font-serif text-[30px] sm:text-[34px] text-gold mb-3">Przerwa wakacyjna</div>
+            <p className="text-[14px] text-text-2 leading-relaxed max-w-[440px] mx-auto">
+              {cityLabel
+                ? `${cityLabel} wróci na scenę wraz z nowym sezonem.`
+                : 'Teatry mają letnią przerwę — repertuar wróci wraz z nowym sezonem.'}
+            </p>
+          </div>
+        ) : (
+          <p className="text-[14px] text-text-2 italic">Brak spektakli do wyświetlenia.</p>
+        )
       ) : (
         <div className="space-y-3">
           {przedstawienia.map((p) => (
