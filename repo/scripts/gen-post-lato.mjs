@@ -19,22 +19,22 @@ const svg = `
 <svg width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <linearGradient id="shade" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0.45" stop-color="#140e08" stop-opacity="0"/>
-      <stop offset="0.75" stop-color="#140e08" stop-opacity="0.62"/>
-      <stop offset="1" stop-color="#140e08" stop-opacity="0.94"/>
+      <stop offset="0.22" stop-color="#140e08" stop-opacity="0"/>
+      <stop offset="0.52" stop-color="#140e08" stop-opacity="0.68"/>
+      <stop offset="1" stop-color="#140e08" stop-opacity="0.96"/>
     </linearGradient>
   </defs>
   <rect width="${W}" height="${H}" fill="url(#shade)"/>
 
   <!-- złota linia + nadtytuł -->
-  <rect x="76" y="1268" width="50" height="3" fill="#C9A84C"/>
-  <text x="144" y="1278" font-family="Georgia, serif" font-size="26"
-        letter-spacing="6" fill="#C9A84C" font-weight="bold">ŚWIAT BALETU</text>
+  <rect x="78" y="812" width="56" height="4" fill="#C9A84C"/>
+  <text x="152" y="824" font-family="Georgia, serif" font-size="32"
+        letter-spacing="8" fill="#C9A84C" font-weight="bold">ŚWIAT BALETU</text>
 
-  <!-- tytuł -->
-  <text x="72" y="1382" font-family="Georgia, serif" font-size="86"
+  <!-- tytuł — duży, wyżej (post na IG, nic nie zasłania) -->
+  <text x="72" y="972" font-family="Georgia, serif" font-size="132"
         fill="#FAF6EC">Dlaczego latem</text>
-  <text x="72" y="1478" font-family="Georgia, serif" font-size="86"
+  <text x="72" y="1120" font-family="Georgia, serif" font-size="132"
         fill="#C9A84C">teatry milkną?</text>
 </svg>
 `
