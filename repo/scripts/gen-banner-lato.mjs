@@ -21,22 +21,22 @@ const svg = `
 <svg width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <linearGradient id="shade" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0.35" stop-color="#140e08" stop-opacity="0"/>
-      <stop offset="0.72" stop-color="#140e08" stop-opacity="0.62"/>
+      <stop offset="0.18" stop-color="#140e08" stop-opacity="0"/>
+      <stop offset="0.55" stop-color="#140e08" stop-opacity="0.62"/>
       <stop offset="1" stop-color="#140e08" stop-opacity="0.93"/>
     </linearGradient>
   </defs>
   <rect width="${W}" height="${H}" fill="url(#shade)"/>
 
-  <!-- złota linia + nadtytuł -->
-  <rect x="92" y="632" width="54" height="3" fill="#C9A84C"/>
-  <text x="166" y="642" font-family="Georgia, serif" font-size="27"
+  <!-- złota linia + nadtytuł (tekst wyżej — dolny pas wolny dla przycisku "Czytaj więcej") -->
+  <rect x="92" y="452" width="54" height="3" fill="#C9A84C"/>
+  <text x="166" y="462" font-family="Georgia, serif" font-size="27"
         letter-spacing="7" fill="#C9A84C" font-weight="bold">ŚWIAT BALETU</text>
 
   <!-- tytuł -->
-  <text x="88" y="748" font-family="Georgia, serif" font-size="97"
+  <text x="88" y="568" font-family="Georgia, serif" font-size="97"
         fill="#FAF6EC">Dlaczego latem</text>
-  <text x="88" y="852" font-family="Georgia, serif" font-size="97"
+  <text x="88" y="672" font-family="Georgia, serif" font-size="97"
         fill="#C9A84C">teatry milkną?</text>
 </svg>
 `
