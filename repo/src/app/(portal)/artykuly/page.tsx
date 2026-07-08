@@ -49,7 +49,7 @@ export default async function ArticlesPage({
                 href={`/artykuly/${article.slug.current}`}
                 className="group"
               >
-                <div className="w-full aspect-[3/2] rounded-lg mb-3 flex items-center justify-center border-[0.5px] border-border overflow-hidden transition-all group-hover:border-gold-dim group-hover:shadow-[var(--shadow-card)]">
+                <div className="w-full aspect-video rounded-lg mb-3 flex items-center justify-center border-[0.5px] border-border overflow-hidden transition-all group-hover:border-gold-dim group-hover:shadow-[var(--shadow-card)]">
                   {article.zdjecie ? (
                     <img
                       src={urlFor(article.zdjecie).width(400).url()}

@@ -33,7 +33,7 @@ export default async function ArticlesGrid() {
               href={`/artykuly/${article.slug.current}`}
               className="cursor-pointer group"
             >
-              <div className="w-full aspect-[3/2] rounded-lg mb-[11px] flex items-center justify-center border-[0.5px] border-border transition-all group-hover:border-gold-dim group-hover:shadow-[var(--shadow-card)] overflow-hidden">
+              <div className="w-full aspect-video rounded-lg mb-[11px] flex items-center justify-center border-[0.5px] border-border transition-all group-hover:border-gold-dim group-hover:shadow-[var(--shadow-card)] overflow-hidden">
                 {article.zdjecie ? (
                   <img
                     src={urlFor(article.zdjecie).width(400).url()}
