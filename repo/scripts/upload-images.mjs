@@ -97,17 +97,6 @@ async function addImageToArticleBody(docId, assetId, alt) {
 
 console.log('=== Uploading images to Sanity ===\n')
 
-// 1. Interviews
-console.log('--- Wywiady ---')
-const heroImg = await uploadImageFromUrl(IMAGES.ballerina_portrait, 'ballerina-portrait.jpg')
-await patchImage('wywiad-kowalska', 'zdjecie', heroImg, 'Baletnica w pozie artystycznej')
-
-const stageImg = await uploadImageFromUrl(IMAGES.ballet_stage, 'ballet-stage.jpg')
-await patchImage('wywiad-nowak-spartakus', 'zdjecie', stageImg, 'Scena baletowa')
-
-const danceImg = await uploadImageFromUrl(IMAGES.ballet_dance, 'ballet-dance.jpg')
-await patchImage('wywiad-semionova', 'zdjecie', danceImg, 'Tancerka baletowa w ruchu')
-
 // 2. Articles - cover images
 console.log('\n--- Artykuły (okładki) ---')
 const pointeImg = await uploadImageFromUrl(IMAGES.pointe_shoes, 'pointe-shoes.jpg')

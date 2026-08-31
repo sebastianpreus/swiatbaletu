@@ -187,57 +187,6 @@ const sylwetki = [
   },
 ]
 
-// ── Wywiady ─────────────────────────────
-const wywiady = [
-  {
-    _id: 'wywiad-kowalska',
-    _type: 'wywiad',
-    tytul: '„Balet to nie ruch — to myśl wyrażona ciałem"',
-    slug: { _type: 'slug', current: 'balet-to-nie-ruch' },
-    rozmowca: { _type: 'reference', _ref: 'sylwetka-kowalska' },
-    funkcjaRozmowcy: 'Pierwsza solistka, Teatr Wielki Warszawa',
-    zajawka: 'Rozmawiamy z jedną z najważniejszych polskich balerin o kulisach nowego sezonu, kontuzjach, które zmieniają perspektywę, i o tym, dlaczego rola Odette jest wciąż najtrudniejsza. Po 18 latach na scenie Teatru Wielkiego ma coraz więcej do powiedzenia — i coraz mniej czasu na milczenie.',
-    tresc: [
-      { _type: 'block', _key: 'w1', style: 'normal', children: [{ _type: 'span', _key: 'w1s', text: 'Spotykamy się w garderobie Teatru Wielkiego, tuż po porannym treningu. Alina Kowalska, pierwsza solistka baletu, wygląda na zmęczoną — ale jej oczy błyszczą, kiedy zaczyna mówić o nadchodzącym sezonie.' }] },
-      { _type: 'block', _key: 'w2', style: 'h3', children: [{ _type: 'span', _key: 'w2s', text: 'O roli Odette' }] },
-      { _type: 'block', _key: 'w3', style: 'normal', children: [{ _type: 'span', _key: 'w3s', text: '„Odette to nie jest rola, którą się tańczy. To rola, w którą się wchodzi i z której trudno wyjść. Po każdym przedstawieniu potrzebuję godziny, żeby wrócić do siebie. Czasem dłużej."' }] },
-      { _type: 'block', _key: 'w4', style: 'h3', children: [{ _type: 'span', _key: 'w4s', text: 'O kontuzjach' }] },
-      { _type: 'block', _key: 'w5', style: 'normal', children: [{ _type: 'span', _key: 'w5s', text: '„Kontuzja kolana w 2023 roku zmieniła moją perspektywę. Nauczyłam się, że ciało ma swoje granice i trzeba je szanować. Ale paradoksalnie — po powrocie tańczę lepiej, bo tańczę mądrzej."' }] },
-      { _type: 'block', _key: 'w6', style: 'h3', children: [{ _type: 'span', _key: 'w6s', text: 'O nowym sezonie' }] },
-      { _type: 'block', _key: 'w7', style: 'normal', children: [{ _type: 'span', _key: 'w7s', text: '„Sezon 2025/26 to dla mnie powrót do korzeni. Jezioro Łabędzie, Giselle — klasyka, która nigdy się nie starzeje. Ale mamy też kilka niespodzianek, o których jeszcze nie mogę mówić."' }] },
-    ],
-    dataPublikacji: '2026-03-14T10:00:00Z',
-    wywiadTygodnia: true,
-  },
-  {
-    _id: 'wywiad-semionova',
-    _type: 'wywiad',
-    tytul: 'Polina Semionova: „Polska publiczność jest wyjątkowa"',
-    slug: { _type: 'slug', current: 'semionova-polska-publicznosc' },
-    funkcjaRozmowcy: 'Primabalerina, Staatsballett Berlin',
-    zajawka: 'Polina Semionova, jedna z największych balerin współczesności, przed wizytą w Polsce opowiada o magii polskiej publiczności, pracy z młodymi tancerzami i planach na przyszłość.',
-    tresc: [
-      { _type: 'block', _key: 'ps1', style: 'normal', children: [{ _type: 'span', _key: 'ps1s', text: '„Zawsze czuję się wyjątkowo, kiedy tańczę w Polsce. Publiczność jest tu wymagająca, ale daje ogromną energię. Czuję każde westchnienie na widowni."' }] },
-      { _type: 'block', _key: 'ps2', style: 'normal', children: [{ _type: 'span', _key: 'ps2s', text: '„Przyjadę z trzema różnymi programami — w Gdańsku Giselle, we Wrocławiu Don Kichot, a w Warszawie wieczór galowy. Każde miasto, każda sala ma swój charakter."' }] },
-    ],
-    dataPublikacji: '2026-03-10T09:00:00Z',
-    wywiadTygodnia: false,
-  },
-  {
-    _id: 'wywiad-nowak-spartakus',
-    _type: 'wywiad',
-    tytul: 'Jan Nowak: „Spartakus to spektakl o wolności, nie o wojnie"',
-    slug: { _type: 'slug', current: 'nowak-spartakus-wolnosc' },
-    funkcjaRozmowcy: 'Choreograf, Opera Krakowska',
-    zajawka: 'Choreograf Jan Nowak o nowej inscenizacji Spartakusa w Operze Krakowskiej — dlaczego po 12 latach wraca ten spektakl i co zmieni nowa wizja.',
-    tresc: [
-      { _type: 'block', _key: 'jn1', style: 'normal', children: [{ _type: 'span', _key: 'jn1s', text: '„Spartakus to dla mnie opowieść o wolności artystycznej. Kiedy dostałem propozycję nowej choreografii, wiedziałem, że nie chcę kopiować Grigorowicza. Chcę opowiedzieć tę historię na nowo."' }] },
-    ],
-    dataPublikacji: '2026-03-05T11:00:00Z',
-    wywiadTygodnia: false,
-  },
-]
-
 // ── Artykuły ────────────────────────────
 const artykuly = [
   {
@@ -383,7 +332,7 @@ const promocje = [
 
 // ── Seed all ────────────────────────────
 async function seed() {
-  const allDocs = [...teatry, ...sylwetki, ...wywiady, ...artykuly, ...tickery, ...promocje]
+  const allDocs = [...teatry, ...sylwetki, ...artykuly, ...tickery, ...promocje]
 
   console.log(`Seeding ${allDocs.length} documents to Sanity...`)
 
@@ -396,7 +345,6 @@ async function seed() {
   console.log(`Done! Transaction ID: ${result.transactionId}`)
   console.log(`  - ${teatry.length} teatrów`)
   console.log(`  - ${sylwetki.length} sylwetek`)
-  console.log(`  - ${wywiady.length} wywiadów`)
   console.log(`  - ${artykuly.length} artykułów`)
   console.log(`  - ${tickery.length} tickerów`)
   console.log(`  - ${promocje.length} promocji`)

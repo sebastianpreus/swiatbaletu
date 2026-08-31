@@ -42,24 +42,6 @@ export interface Sylwetka {
   galeria?: { asset: unknown; alt?: string; caption?: string }[]
 }
 
-export interface Wywiad {
-  _id: string
-  tytul: string
-  slug: { current: string }
-  zajawka: string
-  zdjecie: SanityImage
-  tresc: PortableTextBlock[]
-  dataPublikacji: string
-  wywiadTygodnia: boolean
-  funkcjaRozmowcy: string
-  rozmowca: {
-    imieNazwisko: string
-    rola: string
-    teatrGlowny: string
-    slug?: { current: string }
-  }
-}
-
 export interface TickerItem {
   _id: string
   tresc: string

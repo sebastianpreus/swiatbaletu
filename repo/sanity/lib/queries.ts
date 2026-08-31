@@ -7,15 +7,6 @@ export const FEATURED_ARTICLES_QUERY = `
   }
 `
 
-// Wywiad tygodnia
-export const WYWIAD_TYGODNIA_QUERY = `
-  *[_type == "wywiad" && wywiadTygodnia == true] | order(dataPublikacji desc) [0] {
-    _id, tytul, slug, zajawka, dataPublikacji,
-    zdjecie { asset, alt },
-    rozmowca->{ imieNazwisko, rola, teatrGlowny }
-  }
-`
-
 // Ticker — tylko aktywne, posortowane, niewygasłe
 export const TICKER_QUERY = `
   *[_type == "ticker" && aktywny == true && (
@@ -89,15 +80,6 @@ export const PROFILE_BY_SLUG_QUERY = `
   }
 `
 
-// Wszystkie wywiady (stary typ `wywiad` — zachowane dla kompatybilności)
-export const ALL_INTERVIEWS_QUERY = `
-  *[_type == "wywiad"] | order(dataPublikacji desc) {
-    _id, tytul, slug, zajawka, dataPublikacji, wywiadTygodnia,
-    zdjecie { asset, alt },
-    rozmowca->{ imieNazwisko, rola, teatrGlowny }
-  }
-`
-
 // Wywiady = artykuły z kategorią "Wywiad".
 // Wywiad to zwykły artykuł — pojawia się na stronie głównej i w /artykuly,
 // a zakładka /wywiady jest dodatkowym, filtrowanym widokiem tych samych treści.
@@ -105,16 +87,6 @@ export const INTERVIEW_ARTICLES_QUERY = `
   *[_type == "artykul" && kategoria == "Wywiad"] | order(featured desc, dataPublikacji desc) {
     _id, tytul, slug, zajawka, dataPublikacji, autor, czasCzytania, featured,
     zdjecie { asset, alt }
-  }
-`
-
-// Pojedynczy wywiad po slug
-export const INTERVIEW_BY_SLUG_QUERY = `
-  *[_type == "wywiad" && slug.current == $slug] [0] {
-    _id, tytul, slug, zajawka, dataPublikacji, funkcjaRozmowcy,
-    zdjecie { asset, alt },
-    tresc,
-    rozmowca->{ imieNazwisko, rola, teatrGlowny, slug }
   }
 `
 

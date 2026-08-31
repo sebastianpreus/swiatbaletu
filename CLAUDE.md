@@ -112,10 +112,11 @@ repo/
 │   │   ├── index.ts
 │   │   ├── artykul.ts
 │   │   ├── sylwetka.ts
-│   │   ├── wywiad.ts
 │   │   ├── teatr.ts
 │   │   ├── ticker.ts
-│   │   └── promocja.ts
+│   │   ├── promocja.ts
+│   │   ├── newsletter.ts
+│   │   └── strona.ts
 │   ├── lib/
 │   │   ├── client.ts             # Sanity client
 │   │   ├── queries.ts            # GROQ queries
@@ -193,25 +194,23 @@ repo/
 }
 ```
 
-### 3. Wywiad (`wywiad.ts`)
-```typescript
-{
-  name: 'wywiad',
-  title: 'Wywiad',
-  type: 'document',
-  fields: [
-    { name: 'tytul',        type: 'string',   title: 'Tytuł wywiadu' },
-    { name: 'slug',         type: 'slug',     options: { source: 'tytul' } },
-    { name: 'rozmowca',     type: 'reference', to: [{ type: 'sylwetka' }], title: 'Rozmówca' },
-    { name: 'funkcjaRozmowcy', type: 'string', title: 'Funkcja w momencie wywiadu' },
-    { name: 'zajawka',      type: 'text',     title: 'Lead', rows: 3 },
-    { name: 'zdjecie',      type: 'image',    title: 'Zdjęcie', options: { hotspot: true } },
-    { name: 'tresc',        type: 'array',    of: [{ type: 'block' }], title: 'Treść wywiadu' },
-    { name: 'dataPublikacji', type: 'datetime', title: 'Data publikacji' },
-    { name: 'wywiadTygodnia', type: 'boolean', title: 'Wywiad tygodnia?' },
-  ]
-}
-```
+### 3. Wywiady — bez osobnego typu
+
+**Wywiad nie ma własnego schematu.** Wywiad to zwykły `artykul` z `kategoria: 'Wywiad'`.
+
+Pierwotny plan zakładał osobny typ `wywiad` (z referencją do `sylwetka` i flagą `wywiadTygodnia`).
+Zostało to porzucone: treść żyła w dwóch miejscach, wywiady nie wchodziły do listy artykułów
+ani na stronę główną, a redaktor musiał pamiętać, w którym typie pisać.
+
+Jak jest teraz:
+
+- redaktor tworzy `artykul` i wybiera kategorię „Wywiad”,
+- treść pojawia się w `/artykuly`, na stronie głównej i w `/wywiady`,
+- `/wywiady` to filtrowany widok tych samych dokumentów (`INTERVIEW_ARTICLES_QUERY`),
+- pojedynczy wywiad otwiera się pod `/artykuly/[slug]` — nie ma route'u `/wywiady/[slug]`,
+- `/artykuly/[slug]` wykrywa kategorię i podmienia link powrotny na „Wszystkie wywiady”,
+- plakietkę „Wywiad tygodnia” na `/wywiady` włącza flaga `featured` (ta sama, która wynosi
+  artykuł na stronę główną) — nie ma osobnego pola.
 
 ### 4. Teatr (`teatr.ts`)
 ```typescript
@@ -350,12 +349,11 @@ export const FEATURED_ARTICLES_QUERY = `
   }
 `
 
-// Wywiad tygodnia
-export const WYWIAD_TYGODNIA_QUERY = `
-  *[_type == "wywiad" && wywiadTygodnia == true] | order(dataPublikacji desc) [0] {
-    _id, tytul, slug, zajawka, dataPublikacji,
-    zdjecie { asset->{ url }, alt },
-    rozmowca->{ imieNazwisko, rola, teatrGlowny }
+// Wywiady = artykuły z kategorią "Wywiad" (patrz sekcja 3 wyżej)
+export const INTERVIEW_ARTICLES_QUERY = `
+  *[_type == "artykul" && kategoria == "Wywiad"] | order(featured desc, dataPublikacji desc) {
+    _id, tytul, slug, zajawka, dataPublikacji, autor, czasCzytania, featured,
+    zdjecie { asset, alt }
   }
 `
 
@@ -422,7 +420,7 @@ NEXTAUTH_URL=http://localhost:3000
 ### Faza 2 — Strona główna (tydzień 2)
 1. Komponenty layout: TopBar, Navigation, Ticker, Footer
 2. ThemeToggle (jasny/ciemny) z CSS variables
-3. HeroSection (wywiad tygodnia z Sanity)
+3. HeroSection (wyróżniony artykuł z Sanity — `featured`)
 4. PromoBanner (z Sanity)
 5. RepertoirePreview (z Supabase)
 6. ArticlesGrid (z Sanity)
@@ -432,7 +430,7 @@ NEXTAUTH_URL=http://localhost:3000
 1. `/artykuly` — lista + pojedynczy artykuł z PortableText
 2. `/repertuar` — pełna lista z filtrowaniem po mieście
 3. `/sylwetki` — grid + profil artysty
-4. `/wywiady` — lista + pojedynczy wywiad
+4. `/wywiady` — filtrowany widok artykułów z kategorią „Wywiad” (szczegóły pod `/artykuly/[slug]`)
 5. `/teatry` — lista + strona teatru z repertuarem
 6. `/promocje` — lista aktywnych ofert
 
@@ -494,7 +492,7 @@ Podczas inicjalizacji:
 ### Krok 5 — Stwórz wszystkie schematy Sanity
 
 Na podstawie sekcji "Schematy Sanity" w tym pliku stwórz pliki:
-`repo/sanity/schemaTypes/artykul.ts`, `sylwetka.ts`, `wywiad.ts`, `teatr.ts`, `ticker.ts`, `promocja.ts`
+`repo/sanity/schemaTypes/artykul.ts`, `sylwetka.ts`, `teatr.ts`, `ticker.ts`, `promocja.ts`, `newsletter.ts`, `strona.ts`
 oraz zaktualizuj `repo/sanity/schemaTypes/index.ts` żeby eksportował wszystkie typy.
 
 ### Krok 6 — Skonfiguruj klientów (Sanity + Supabase)
