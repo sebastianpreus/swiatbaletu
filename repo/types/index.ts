@@ -20,6 +20,7 @@ export interface Artykul {
   autor: string
   dataPublikacji: string
   featured: boolean
+  bannerGlowna?: boolean
   czasCzytania: number
   tagi: string[]
 }

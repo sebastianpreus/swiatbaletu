@@ -1,20 +1,12 @@
 import Link from 'next/link'
-import { client } from '../../sanity/lib/client'
-import { FEATURED_ARTICLES_QUERY } from '../../sanity/lib/queries'
 import { urlFor } from '../../sanity/lib/image'
-import type { Artykul } from '../../types'
 import SectionHeader from '../ui/SectionHeader'
+import { getHomepageArticles } from './homepageArticles'
 
 export default async function ArticlesGrid() {
-  let articles: Artykul[] = []
+  const { grid: articles } = await getHomepageArticles()
 
-  try {
-    articles = await client.fetch(FEATURED_ARTICLES_QUERY)
-  } catch {
-    // Sanity not configured yet
-  }
-
-  if (!articles || articles.length === 0) {
+  if (articles.length === 0) {
     return null
   }
 

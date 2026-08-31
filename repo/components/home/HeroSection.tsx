@@ -1,27 +1,11 @@
 import Link from 'next/link'
-import { client } from '../../sanity/lib/client'
-import { FEATURED_ARTICLES_QUERY, ALL_ARTICLES_QUERY } from '../../sanity/lib/queries'
 import { urlFor } from '../../sanity/lib/image'
-import type { Artykul } from '../../types'
+import { getHomepageArticles } from './homepageArticles'
 
 export default async function HeroSection() {
-  let featuredArticles: Artykul[] = []
-  let allArticles: Artykul[] = []
+  const { hero, side: sideArticles } = await getHomepageArticles()
 
-  try {
-    ;[featuredArticles, allArticles] = await Promise.all([
-      client.fetch(FEATURED_ARTICLES_QUERY),
-      client.fetch(ALL_ARTICLES_QUERY),
-    ])
-  } catch {
-    // Sanity not configured yet
-  }
-
-  if (featuredArticles.length === 0 && allArticles.length === 0) return null
-
-  // Hero = newest featured article; sidebar = all recent articles except hero
-  const hero = featuredArticles[0] || allArticles[0]
-  const sideArticles = allArticles.filter((a) => a._id !== hero._id).slice(0, 5)
+  if (!hero) return null
 
   return (
     <div className="max-w-[1100px] mx-auto px-6">

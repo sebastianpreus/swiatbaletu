@@ -1,15 +1,8 @@
 import Link from 'next/link'
-import { client } from '../../sanity/lib/client'
-import { BANNER_ARTICLE_QUERY } from '../../sanity/lib/queries'
+import { getHomepageArticles } from './homepageArticles'
 
 export default async function PromoBanner() {
-  let banner: { _id: string; tytul: string; slug: { current: string }; zajawka?: string; kategoria?: string } | null = null
-
-  try {
-    banner = await client.fetch(BANNER_ARTICLE_QUERY)
-  } catch {
-    return null
-  }
+  const { banner } = await getHomepageArticles()
 
   if (!banner) return null
 

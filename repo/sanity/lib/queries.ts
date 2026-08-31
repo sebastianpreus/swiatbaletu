@@ -1,12 +1,3 @@
-// Artykuły na stronę główną
-export const FEATURED_ARTICLES_QUERY = `
-  *[_type == "artykul"] | order(featured desc, dataPublikacji desc) [0..5] {
-    _id, tytul, slug, kategoria, zajawka, czasCzytania,
-    zdjecie { asset, alt },
-    dataPublikacji, autor
-  }
-`
-
 // Ticker — tylko aktywne, posortowane, niewygasłe
 export const TICKER_QUERY = `
   *[_type == "ticker" && aktywny == true && (
@@ -34,10 +25,14 @@ export const ACTIVE_PROMOS_QUERY = `
   }
 `
 
-// Banner na stronie głównej — artykuł z flagą bannerGlowna
-export const BANNER_ARTICLE_QUERY = `
-  *[_type == "artykul" && bannerGlowna == true] | order(dataPublikacji desc) [0] {
-    _id, tytul, slug, zajawka, kategoria
+// Wszystkie artykuły dla strony głównej — jedna pula, którą sekcje
+// (banner, hero, kolumna boczna, siatka) rozdzielają między siebie.
+// Patrz components/home/homepageArticles.ts
+export const HOMEPAGE_ARTICLES_QUERY = `
+  *[_type == "artykul"] | order(dataPublikacji desc) {
+    _id, tytul, slug, kategoria, zajawka, czasCzytania,
+    zdjecie { asset, alt },
+    dataPublikacji, autor, featured, bannerGlowna
   }
 `
 
