@@ -5,6 +5,10 @@
  * - długie myślniki (—, –) zamieniane na krótkie "-" automatycznie przez dash()
  * - zdjęcie główne: images/otwarcie-sezonu-2026-27.jpg (1600x900)
  * - featured: true + dzisiejsza data => trafia na hero strony głównej
+ * KOREKTA 31.08: brief z 28.08 przypisywał Operze Bałtyckiej "Karnawał zwierząt"
+ * i "Kopciuszka" - żadnego z nich nie ma w jej repertuarze 2026/27 (brief powstał
+ * bez odczytu przyszłych miesięcy, patrz sekcja "PROBLEM TECHNICZNY" w logu 28.08).
+ * Zamienione na "Fantazję i Fortunę" (3-10.04.2027, potwierdzone w Supabase).
  * Idempotentny: po slug - patchuje istniejący.
  */
 import { createClient } from '@sanity/client'
@@ -64,7 +68,7 @@ const tresc = [
   block('Pierwszy pełnospektaklowy tytuł baletowy sezonu w Polsce: „Amerykanin w Paryżu" do muzyki Gershwina, cztery wieczory z rzędu.'),
 
   h3('Gdańsk — Opera Bałtycka, 2–4 października'),
-  block('Po wrześniowych otwartych próbach pierwszym baletem na gdańskiej scenie będzie „Coppélia" w choreografii Johana Kobborga — byłego pierwszego tancerza Royal Ballet i Duńskiego Baletu Królewskiego. Scenografia inspirowana obrazami Chagalla, kierownictwo muzyczne Luis Gorelik. W dalszej części sezonu m.in. „Giselle" (26–29 listopada), „Cztery pory roku", „Don Kichot" i „Karnawał zwierząt".'),
+  block('Po wrześniowych otwartych próbach pierwszym baletem na gdańskiej scenie będzie „Coppélia" w choreografii Johana Kobborga — byłego pierwszego tancerza Royal Ballet i Duńskiego Baletu Królewskiego. Scenografia inspirowana obrazami Chagalla, kierownictwo muzyczne Luis Gorelik. W dalszej części sezonu m.in. „Giselle" (26–29 listopada), „Cztery pory roku", „Don Kichot" i „Fantazja i Fortuna".'),
 
   h3('Wrocław — Opera Wrocławska, 2–3 października'),
   block('Sezon otwiera „Żywioły IV" — wieczór choreografów, w którym młodzi twórcy pokazują własne prace. W listopadzie aż siedem spektakli „Snu nocy letniej" w ciągu tygodnia.'),
