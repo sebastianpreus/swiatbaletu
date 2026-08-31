@@ -1370,30 +1370,51 @@ async function ensureTeatr(slug, nazwa, miasto) {
   return newTeatr.id
 }
 
-async function ensureSpektakl(tytul, kompozytor, teatrId) {
-  // NIE używać .maybeSingle(): gdy w tabeli są już dwa wiersze o tym samym
-  // (tytul, teatr_id), zwraca błąd PGRST116 i data === null. Poprzednia wersja
-  // destrukturyzowała samo { data } i gubiła ten błąd, więc brała null za "nie
-  // ma takiego spektaklu" i dokładała KOLEJNY duplikat - przy 18 przebiegach
-  // dziennie rosło to lawinowo (1542 wiersze "Snu nocy letniej" do 31.08.2026).
-  // Sprzątanie zaległości: scripts/dedupe-spektakle.mjs
+// Teatry publikują ten sam tytuł raz WERSALIKAMI, raz normalnie, czasem z innym
+// cudzysłowem albo podwójną spacją ("AMERYKANIN W PARYŻU" vs "Amerykanin w Paryżu").
+// Porównywanie dosłowne robiło z tego dwa osobne spektakle. Ta sama normalizacja
+// jest w scripts/dedupe-spektakle.mjs i w indeksie UNIQUE w bazie - jeśli zmieniasz
+// ją tutaj, zmień we wszystkich trzech miejscach.
+const normTytul = (t) => t.toLowerCase().replace(/[„”"'’]/g, '').replace(/\s+/g, ' ').trim()
+
+// Jeden odczyt spektakli teatru zamiast zapytania na każdy tytuł. Zwraca mapę
+// znormalizowany tytuł -> id; przy wariantach wygrywa najstarszy wiersz.
+async function wczytajSpektakleTeatru(teatrId) {
+  const mapa = new Map()
+  for (let off = 0; ; off += 1000) {
+    const { data, error } = await supabase.from('spektakle')
+      .select('id, tytul')
+      .eq('teatr_id', teatrId)
+      .order('created_at', { ascending: true })
+      .range(off, off + 999)
+
+    if (error) throw new Error(`Cannot load spektakle for teatr ${teatrId}: ${error.message}`)
+    for (const s of data) {
+      const k = normTytul(s.tytul)
+      if (!mapa.has(k)) mapa.set(k, s.id)
+    }
+    if (data.length < 1000) break
+  }
+  return mapa
+}
+
+// UWAGA historyczna: poprzednia wersja szukała przez .maybeSingle() i
+// destrukturyzowała samo { data }, gubiąc błąd PGRST116, który PostgREST zwraca
+// przy wielu pasujących wierszach. null brany za "nie ma takiego spektaklu"
+// oznaczał INSERT kolejnego duplikatu - przy 18 przebiegach dziennie urosło
+// z tego 1542 wiersze "Snu nocy letniej" (stan na 31.08.2026).
+async function ensureSpektakl(tytul, kompozytor, teatrId, mapa) {
+  const k = normTytul(tytul)
+  if (mapa.has(k)) return mapa.get(k)
+
   const { data, error } = await supabase.from('spektakle')
-    .select('id')
-    .eq('tytul', tytul)
-    .eq('teatr_id', teatrId)
-    .order('created_at', { ascending: true })
-    .limit(1)
-
-  if (error) throw new Error(`Cannot look up spektakl "${tytul}": ${error.message}`)
-  if (data.length > 0) return data[0].id
-
-  const { data: newSpektakl, error: insertError } = await supabase.from('spektakle')
     .insert({ tytul, kompozytor: kompozytor || null, teatr_id: teatrId })
     .select('id')
     .single()
 
-  if (insertError) throw new Error(`Cannot create spektakl "${tytul}": ${insertError.message}`)
-  return newSpektakl.id
+  if (error) throw new Error(`Cannot create spektakl "${tytul}": ${error.message}`)
+  mapa.set(k, data.id)
+  return data.id
 }
 
 // Wartości dostepnosc dozwolone przez DB CHECK constraint
@@ -1432,21 +1453,17 @@ async function syncToSupabase(teatrSlug, teatrName, events) {
   let added = 0, updated = 0, unchanged = 0
 
   // Ensure all spektakle exist first (deduplicated)
-  // Klucz cache musi odpowiadać temu, po czym szuka ensureSpektakl (tytuł +
-  // teatr), a nie tytuł + kompozytor - inaczej ten sam spektakl z dwoma
-  // wariantami kompozytora odpytuje bazę dwukrotnie.
-  const spektaklCache = new Map()
+  // Cache jest kluczowany znormalizowanym tytułem - tak samo, jak szuka
+  // ensureSpektakl. Zaczyna od tego, co już jest w bazie dla tego teatru.
+  const spektaklCache = await wczytajSpektakleTeatru(teatrId)
   for (const event of events) {
-    const key = event.tytul
-    if (!spektaklCache.has(key)) {
-      spektaklCache.set(key, await ensureSpektakl(event.tytul, event.kompozytor || null, teatrId))
-    }
+    await ensureSpektakl(event.tytul, event.kompozytor || null, teatrId, spektaklCache)
   }
 
   if (CLEAN_FUTURE) {
     // After cleaning future, batch insert all events at once
     const rows = events.map(event => {
-      const key = event.tytul
+      const key = normTytul(event.tytul)
       const row = {
         spektakl_id: spektaklCache.get(key),
         teatr_id: teatrId,
@@ -1483,7 +1500,7 @@ async function syncToSupabase(teatrSlug, teatrName, events) {
   } else {
     // Without clean-future: check each event individually
     for (const event of events) {
-      const key = event.tytul
+      const key = normTytul(event.tytul)
       const spektaklId = spektaklCache.get(key)
 
       const updateData = {
