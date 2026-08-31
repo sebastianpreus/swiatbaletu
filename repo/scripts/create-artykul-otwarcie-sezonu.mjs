@@ -3,7 +3,7 @@
  * Artykuł "Kurtyna w górę..." (otwarcie sezonu 2026/27) w Sanity.
  * Źródło: Google Drive / Publikacje / "2026-08-31 - Otwarcie sezonu 2026/27 (artykuł + post IG)"
  * - długie myślniki (—, –) zamieniane na krótkie "-" automatycznie przez dash()
- * - zdjęcie główne: images/otwarcie-sezonu-2026-27.jpg (1600x900)
+ * - zdjęcie główne: images/otwarcie-sezonu-2026-27-v2.jpg (1600x900)
  * - featured: true + dzisiejsza data => trafia na hero strony głównej
  * KOREKTA 31.08: brief z 28.08 przypisywał Operze Bałtyckiej "Karnawał zwierząt"
  * i "Kopciuszka" - żadnego z nich nie ma w jej repertuarze 2026/27 (brief powstał
@@ -20,7 +20,7 @@ import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
 
 const SLUG = 'kurtyna-w-gore-otwarcie-sezonu-2026-27'
-const IMAGE_FILE = 'otwarcie-sezonu-2026-27.jpg'
+const IMAGE_FILE = 'otwarcie-sezonu-2026-27-v2.jpg'  // v2: większe napisy (31.08)
 
 const __dir = dirname(fileURLToPath(import.meta.url))
 const env = {}
