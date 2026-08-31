@@ -1371,20 +1371,28 @@ async function ensureTeatr(slug, nazwa, miasto) {
 }
 
 async function ensureSpektakl(tytul, kompozytor, teatrId) {
-  const { data } = await supabase.from('spektakle')
+  // NIE używać .maybeSingle(): gdy w tabeli są już dwa wiersze o tym samym
+  // (tytul, teatr_id), zwraca błąd PGRST116 i data === null. Poprzednia wersja
+  // destrukturyzowała samo { data } i gubiła ten błąd, więc brała null za "nie
+  // ma takiego spektaklu" i dokładała KOLEJNY duplikat - przy 18 przebiegach
+  // dziennie rosło to lawinowo (1542 wiersze "Snu nocy letniej" do 31.08.2026).
+  // Sprzątanie zaległości: scripts/dedupe-spektakle.mjs
+  const { data, error } = await supabase.from('spektakle')
     .select('id')
     .eq('tytul', tytul)
     .eq('teatr_id', teatrId)
-    .maybeSingle()
+    .order('created_at', { ascending: true })
+    .limit(1)
 
-  if (data) return data.id
+  if (error) throw new Error(`Cannot look up spektakl "${tytul}": ${error.message}`)
+  if (data.length > 0) return data[0].id
 
-  const { data: newSpektakl, error } = await supabase.from('spektakle')
+  const { data: newSpektakl, error: insertError } = await supabase.from('spektakle')
     .insert({ tytul, kompozytor: kompozytor || null, teatr_id: teatrId })
     .select('id')
     .single()
 
-  if (error) throw new Error(`Cannot create spektakl "${tytul}": ${error.message}`)
+  if (insertError) throw new Error(`Cannot create spektakl "${tytul}": ${insertError.message}`)
   return newSpektakl.id
 }
 
@@ -1424,9 +1432,12 @@ async function syncToSupabase(teatrSlug, teatrName, events) {
   let added = 0, updated = 0, unchanged = 0
 
   // Ensure all spektakle exist first (deduplicated)
+  // Klucz cache musi odpowiadać temu, po czym szuka ensureSpektakl (tytuł +
+  // teatr), a nie tytuł + kompozytor - inaczej ten sam spektakl z dwoma
+  // wariantami kompozytora odpytuje bazę dwukrotnie.
   const spektaklCache = new Map()
   for (const event of events) {
-    const key = `${event.tytul}||${event.kompozytor || ''}`
+    const key = event.tytul
     if (!spektaklCache.has(key)) {
       spektaklCache.set(key, await ensureSpektakl(event.tytul, event.kompozytor || null, teatrId))
     }
@@ -1435,7 +1446,7 @@ async function syncToSupabase(teatrSlug, teatrName, events) {
   if (CLEAN_FUTURE) {
     // After cleaning future, batch insert all events at once
     const rows = events.map(event => {
-      const key = `${event.tytul}||${event.kompozytor || ''}`
+      const key = event.tytul
       const row = {
         spektakl_id: spektaklCache.get(key),
         teatr_id: teatrId,
@@ -1472,7 +1483,7 @@ async function syncToSupabase(teatrSlug, teatrName, events) {
   } else {
     // Without clean-future: check each event individually
     for (const event of events) {
-      const key = `${event.tytul}||${event.kompozytor || ''}`
+      const key = event.tytul
       const spektaklId = spektaklCache.get(key)
 
       const updateData = {
