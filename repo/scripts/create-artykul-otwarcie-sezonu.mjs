@@ -9,6 +9,8 @@
  * i "Kopciuszka" - żadnego z nich nie ma w jej repertuarze 2026/27 (brief powstał
  * bez odczytu przyszłych miesięcy, patrz sekcja "PROBLEM TECHNICZNY" w logu 28.08).
  * Zamienione na "Fantazję i Fortunę" (3-10.04.2027, potwierdzone w Supabase).
+ * REDAKCJA 31.08: naniesione poprawki Izy Sokołowskiej z Google Drive
+ * (Publikacje / "Kurtyna w górę (do redakcji)") plus korekta interpunkcji.
  * KOREKTA 31.08 (2): "Amerykanin w Paryżu" nie jest pierwszym pełnospektaklowym
  * baletem sezonu - "Androidy" w TW-ON grają tego samego dnia i o tej samej
  * godzinie (17.09.2026, 17:00). Teza zdjęta, zdanie przeredagowane.
@@ -58,8 +60,9 @@ const ZAJAWKA =
 
 const tresc = [
   h2('Zanim zabrzmi pierwszy takt'),
-  block('Powrót po przerwie to nie tylko premiery. Kilka teatrów postanowiło w tym roku pokazać widzom to, czego zwykle nie widać — codzienną pracę zespołu.'),
-  block('Opera Bałtycka w Gdańsku już 12 i 13 września otwiera drzwi sali baletowej w ramach Ballet Open Studio — publiczność może obejrzeć poranną lekcję i próby zespołu, zanim ten wyjdzie na scenę. Kilka dni później, 17 września, w Gdańsku rusza OKNO — Otwarty Klub Naukowy Opery. W Krakowie podobną formułę proponuje Opera Krakowska: Spotkania z baletem zaplanowano na 27 września.'),
+  block('Powrót po przerwie to nie tylko premiery. Parę teatrów postanowiło w tym roku pokazać widzom to, czego zwykle nie widać - codzienną pracę zespołu, a nawet bliższe spotkania z artystami.'),
+  block('Opera Bałtycka w Gdańsku już 12 i 13 września otwiera drzwi nowo wyremontowanej sali baletowej w ramach Ballet Open Studio - to nowy program i pomysł, by wprowadzić zainteresowanego widza w niemal intymną przestrzeń, w której na co dzień wylewają pot tancerze. W programie pojawią się nie tylko kawałki z repertuaru nadchodzącego sezonu, ale też mikropremiery: duet w choreografii Katarzyny Kozielskiej, prowadzona w sposób improwizacyjny trzyczęściowa praca choreograficzna Artura Grabarczyka oraz etiudy tancerek zespołu - Nayi Haty i Ludwigi Andruszkiewicz.'),
+  block('W Krakowie zaś Opera Krakowska ma zaplanowane swoje spotkanie z baletem na 27 września, podczas którego widzowie będą mogli przyjrzeć się pracy tancerza „od kuchni".'),
   block('Sezon otwiera się też zmianami kadrowymi. Od 1 września dyrekcję Teatru Wielkiego w Poznaniu obejmuje Adam Banaszak, a w bytomskim Teatrze Rozbark Annę Piotrowską po siedmiu latach zastępuje Karolina Staneczek-Pucher. W Warszawie do programu PBN Junior — dwuletniego pomostu między szkołą a zespołem zawodowym — zgłosiło się pięciuset kandydatów. Miejsc jest dwanaście.'),
 
   h2('Kalendarz otwarć — teatr po teatrze'),
@@ -71,7 +74,7 @@ const tresc = [
   block('Tego samego wieczoru co warszawskie „Androidy" na scenę wchodzi „Amerykanin w Paryżu" do muzyki Gershwina - cztery wieczory z rzędu. 17 września sezon baletowy rusza więc w dwóch miastach naraz.'),
 
   h3('Gdańsk — Opera Bałtycka, 2–4 października'),
-  block('Po wrześniowych otwartych próbach pierwszym baletem na gdańskiej scenie będzie „Coppélia" w choreografii Johana Kobborga — byłego pierwszego tancerza Royal Ballet i Duńskiego Baletu Królewskiego. Scenografia inspirowana obrazami Chagalla, kierownictwo muzyczne Luis Gorelik. W dalszej części sezonu m.in. „Giselle" (26–29 listopada), „Cztery pory roku", „Don Kichot" i „Fantazja i Fortuna".'),
+  block('Po wrześniowym otwarciu nowej sali baletowej pierwszym baletem na gdańskiej scenie będzie „Coppélia" w choreografii Johana Kobborga - byłego pierwszego tancerza Royal Ballet i Duńskiego Baletu Królewskiego. Z ciekawostek wiemy, że w rolę Coppeliusa, tym razem na zaproszenie, wcieli się sam choreograf. Warto więc czym prędzej zaopatrzyć się w bilet. Scenografia inspirowana obrazami Chagalla, kierownictwo muzyczne Luis Gorelik. W dalszej części sezonu m.in. powrót „Giselle" (26-29 listopada), wiosenna premiera „Czterech pór roku", „Don Kichot" pod batutą Alexeia Baklana i ciesząca się popularnością „Fantazja i Fortuna".'),
 
   h3('Wrocław — Opera Wrocławska, 2–3 października'),
   block('Sezon otwiera „Żywioły IV" — wieczór choreografów, w którym młodzi twórcy pokazują własne prace. W listopadzie aż siedem spektakli „Snu nocy letniej" w ciągu tygodnia.'),
