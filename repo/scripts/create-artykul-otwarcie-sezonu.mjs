@@ -9,6 +9,9 @@
  * i "Kopciuszka" - żadnego z nich nie ma w jej repertuarze 2026/27 (brief powstał
  * bez odczytu przyszłych miesięcy, patrz sekcja "PROBLEM TECHNICZNY" w logu 28.08).
  * Zamienione na "Fantazję i Fortunę" (3-10.04.2027, potwierdzone w Supabase).
+ * KOREKTA 31.08 (2): "Amerykanin w Paryżu" nie jest pierwszym pełnospektaklowym
+ * baletem sezonu - "Androidy" w TW-ON grają tego samego dnia i o tej samej
+ * godzinie (17.09.2026, 17:00). Teza zdjęta, zdanie przeredagowane.
  * Idempotentny: po slug - patchuje istniejący.
  */
 import { createClient } from '@sanity/client'
@@ -65,7 +68,7 @@ const tresc = [
   block('Sezon w Teatrze Wielkim – Operze Narodowej otwiera Gala baletowa na Sali Moniuszki, pod batutą Yoela Gamzou. Obok tancerzy PBN wystąpią goście z trzech największych scen Europy: Bleuenn Battistoni i Paul Marque z Opery Paryskiej, Mayara Magri i Matthew Ball z Royal Ballet oraz Nicoletta Manni i Timofej Andrijashenko z La Scali. Oba wieczory są już wyprzedane. Zaraz potem — sześć spektakli „Androidów" Roberta Bondary (17–22 września) i wznowienie „Giselle" w inscenizacji Mainy Gielgud (24 i 27 września, 1 i 3 października).'),
 
   h3('Bydgoszcz — Opera Nova, 17–20 września'),
-  block('Pierwszy pełnospektaklowy tytuł baletowy sezonu w Polsce: „Amerykanin w Paryżu" do muzyki Gershwina, cztery wieczory z rzędu.'),
+  block('Tego samego wieczoru co warszawskie „Androidy" na scenę wchodzi „Amerykanin w Paryżu" do muzyki Gershwina - cztery wieczory z rzędu. 17 września sezon baletowy rusza więc w dwóch miastach naraz.'),
 
   h3('Gdańsk — Opera Bałtycka, 2–4 października'),
   block('Po wrześniowych otwartych próbach pierwszym baletem na gdańskiej scenie będzie „Coppélia" w choreografii Johana Kobborga — byłego pierwszego tancerza Royal Ballet i Duńskiego Baletu Królewskiego. Scenografia inspirowana obrazami Chagalla, kierownictwo muzyczne Luis Gorelik. W dalszej części sezonu m.in. „Giselle" (26–29 listopada), „Cztery pory roku", „Don Kichot" i „Fantazja i Fortuna".'),
