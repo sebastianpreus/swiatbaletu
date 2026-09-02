@@ -25,6 +25,15 @@ export const ACTIVE_PROMOS_QUERY = `
   }
 `
 
+// Sylwetki do wspólnej siatki na stronie głównej. Sylwetki nie mają
+// dataPublikacji, więc do wspólnego sortowania z artykułami służy _createdAt.
+export const HOMEPAGE_PROFILES_QUERY = `
+  *[_type == "sylwetka"] | order(_createdAt desc) [0..7] {
+    _id, imieNazwisko, slug, rola, teatrGlowny, _createdAt,
+    zdjecie { asset, alt }
+  }
+`
+
 // Wszystkie artykuły dla strony głównej — jedna pula, którą sekcje
 // (banner, hero, kolumna boczna, siatka) rozdzielają między siebie.
 // Patrz components/home/homepageArticles.ts

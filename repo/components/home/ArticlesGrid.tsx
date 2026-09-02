@@ -1,56 +1,16 @@
-import Link from 'next/link'
-import { urlFor } from '../../sanity/lib/image'
-import SectionHeader from '../ui/SectionHeader'
 import { getHomepageArticles } from './homepageArticles'
+import ContentTabs from './ContentTabs'
 
 export default async function ArticlesGrid() {
-  const { grid: articles } = await getHomepageArticles()
+  const { kafelki } = await getHomepageArticles()
 
-  if (articles.length === 0) {
+  if (kafelki.length === 0) {
     return null
   }
 
   return (
     <div className="max-w-[1100px] mx-auto px-6">
-      <section className="py-7 border-b-[0.5px] border-border">
-        <SectionHeader
-          title="Artykuły i recenzje"
-          linkText="Wszystkie artykuły →"
-          linkHref="/artykuly"
-        />
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-[12px] sm:gap-[18px]">
-          {articles.map((article) => (
-            <Link
-              key={article._id}
-              href={`/artykuly/${article.slug.current}`}
-              className="cursor-pointer group"
-            >
-              <div className="w-full aspect-video rounded-lg mb-[11px] flex items-center justify-center border-[0.5px] border-border transition-all group-hover:border-gold-dim group-hover:shadow-[var(--shadow-card)] overflow-hidden">
-                {article.zdjecie ? (
-                  <img
-                    src={urlFor(article.zdjecie).width(400).url()}
-                    alt={article.zdjecie.alt || article.tytul}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <span className="font-serif text-[30px] italic text-gold opacity-20">
-                    {article.kategoria?.[0] || 'A'}
-                  </span>
-                )}
-              </div>
-              <div className="text-[10px] tracking-[0.1em] uppercase text-text-2 mb-[5px] font-medium">
-                {article.kategoria}
-              </div>
-              <div className="font-serif text-[14px] sm:text-[17px] leading-[1.25] font-normal text-text-1 mb-[5px] group-hover:text-gold transition-colors line-clamp-3">
-                {article.tytul}
-              </div>
-              <div className="text-[11px] text-text-2">
-                {article.czasCzytania} min czytania
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
+      <ContentTabs kafelki={kafelki} />
     </div>
   )
 }

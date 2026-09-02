@@ -1,16 +1,34 @@
 import { cache } from 'react'
 import { client } from '../../sanity/lib/client'
-import { HOMEPAGE_ARTICLES_QUERY } from '../../sanity/lib/queries'
+import { HOMEPAGE_ARTICLES_QUERY, HOMEPAGE_PROFILES_QUERY } from '../../sanity/lib/queries'
 import type { Artykul } from '../../types'
+
+/**
+ * Wspólny kształt kafelka w siatce "Warto przeczytać". Artykuł i sylwetka
+ * wyglądają dla czytelnika tak samo - to po prostu coś do przeczytania -
+ * więc obie rzeczy sprowadzamy do jednego typu, a różnica zostaje tylko
+ * w polu `typ`, po którym filtrują zakładki.
+ */
+export type KafelekTresci = {
+  _id: string
+  typ: 'artykul' | 'sylwetka'
+  tytul: string
+  nadtytul?: string
+  stopka?: string
+  href: string
+  zdjecie?: Artykul['zdjecie']
+  data: string
+}
 
 export type HomepageArticles = {
   banner: Artykul | null
   hero: Artykul | null
   side: Artykul[]
   grid: Artykul[]
+  kafelki: KafelekTresci[]
 }
 
-const EMPTY: HomepageArticles = { banner: null, hero: null, side: [], grid: [] }
+const EMPTY: HomepageArticles = { banner: null, hero: null, side: [], grid: [], kafelki: [] }
 
 /**
  * Jedno źródło prawdy dla sekcji artykułowych strony głównej.
@@ -38,9 +56,21 @@ const EMPTY: HomepageArticles = { banner: null, hero: null, side: [], grid: [] }
  */
 export const getHomepageArticles = cache(async (): Promise<HomepageArticles> => {
   let articles: Artykul[] = []
+  let sylwetki: {
+    _id: string
+    imieNazwisko: string
+    slug: { current: string }
+    rola?: string
+    teatrGlowny?: string
+    _createdAt: string
+    zdjecie?: Artykul['zdjecie']
+  }[] = []
 
   try {
-    articles = await client.fetch(HOMEPAGE_ARTICLES_QUERY)
+    ;[articles, sylwetki] = await Promise.all([
+      client.fetch(HOMEPAGE_ARTICLES_QUERY),
+      client.fetch(HOMEPAGE_PROFILES_QUERY),
+    ])
   } catch {
     return EMPTY
   }
@@ -70,5 +100,31 @@ export const getHomepageArticles = cache(async (): Promise<HomepageArticles> => 
     6,
   )
 
-  return { banner, hero, side, grid }
+  // Siatka "Warto przeczytać": artykuły, których nie pokazano wyżej, plus
+  // sylwetki. Zakładki filtrują to po stronie przeglądarki, dlatego oddajemy
+  // obie grupy naraz.
+  const kafelki: KafelekTresci[] = [
+    ...grid.map((a) => ({
+      _id: a._id,
+      typ: 'artykul' as const,
+      tytul: a.tytul,
+      nadtytul: a.kategoria,
+      stopka: a.czasCzytania ? `${a.czasCzytania} min czytania` : undefined,
+      href: `/artykuly/${a.slug.current}`,
+      zdjecie: a.zdjecie,
+      data: a.dataPublikacji,
+    })),
+    ...(sylwetki || []).map((p) => ({
+      _id: p._id,
+      typ: 'sylwetka' as const,
+      tytul: p.imieNazwisko,
+      nadtytul: p.rola,
+      stopka: p.teatrGlowny,
+      href: `/sylwetki/${p.slug.current}`,
+      zdjecie: p.zdjecie,
+      data: p._createdAt,
+    })),
+  ]
+
+  return { banner, hero, side, grid, kafelki }
 })
