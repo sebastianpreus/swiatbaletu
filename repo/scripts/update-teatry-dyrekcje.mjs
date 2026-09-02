@@ -36,7 +36,10 @@ const dash = (t) => (typeof t === 'string' ? t.replace(/[—–]/g, '-') : t)
 
 const DYREKCJE = {
   // teatrwielki.nowybip.pl/dane-teleadresowe + teatrwielki.pl/.../dyrekcja-i-kadra-pbn
-  'teatr-wielki-warszawa': { dyrektor: 'Boris Kudlička', kierownikBaletu: 'Krzysztof Pastor' },
+  // Pastor jako jedyny w zestawieniu pełni dwie funkcje: w BIP-ie figuruje jako
+  // Zastępca Dyrektora ds. Polskiego Baletu Narodowego, a na stronie PBN jako
+  // jego dyrektor - stąd w obu polach.
+  'teatr-wielki-warszawa': { dyrektor: 'Boris Kudlička, Krzysztof Pastor', kierownikBaletu: 'Krzysztof Pastor' },
   // operabaltycka.nowybip.pl/dyrekcja + operabaltycka.pl/zespol
   'opera-baltycka': { dyrektor: 'Romuald Wicza-Pokojski', kierownikBaletu: 'Izabela Sokołowska-Boulton' },
   // opera.krakow.pl/zespol
