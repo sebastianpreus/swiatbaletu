@@ -20,12 +20,18 @@ const EMPTY: HomepageArticles = { banner: null, hero: null, side: [], grid: [] }
  * i ArticlesGrid odpytywały to samo zapytanie i ten sam artykuł potrafił
  * pojawić się na stronie dwa albo trzy razy.
  *
- * Kolejność przydziału:
- *   1. banner — jawna, pojedyncza decyzja redakcyjna (`bannerGlowna`),
- *      dlatego nigdy nie jest przez nic wypierana,
- *   2. hero   — najnowszy artykuł z flagą `featured`,
- *   3. side   — 5 kolejnych najnowszych,
- *   4. grid   — 6 kolejnych, wyróżnione najpierw.
+ * Baner stoi POZA tym podziałem. `bannerGlowna` to osobny kanał redakcyjny,
+ * więc artykuł oznaczony jednocześnie jako `featured` ma się pokazać w obu
+ * miejscach naraz - na górze strony i na pasku pod artykułami. Wcześniej baner
+ * zabierał artykuł z puli i tym samym wypychał go z hero, co było błędem.
+ *
+ * Kolejność przydziału (tylko sekcje automatyczne):
+ *   1. hero — najnowszy artykuł z flagą `featured`,
+ *   2. side — 5 kolejnych najnowszych,
+ *   3. grid — 6 kolejnych, wyróżnione najpierw.
+ *
+ * Powtórzenie w tych trzech sekcjach nadal jest wykluczone - to był pierwotny
+ * błąd, dla którego ten moduł powstał.
  *
  * cache() z Reacta sprawia, że mimo wywołania z trzech komponentów
  * zapytanie do Sanity leci raz na żądanie.
@@ -54,7 +60,9 @@ export const getHomepageArticles = cache(async (): Promise<HomepageArticles> => 
   }
 
   // Zapytanie zwraca artykuły od najnowszego, więc wystarczy filtrować.
-  const banner = take(articles.filter((a) => a.bannerGlowna), 1)[0] ?? null
+  // Baner NIE przechodzi przez take(): nie zajmuje miejsca w puli, dzięki czemu
+  // ten sam artykuł może być jednocześnie banerem i hero.
+  const banner = articles.find((a) => a.bannerGlowna) ?? null
   const hero = take(articles.filter((a) => a.featured), 1)[0] ?? take(articles, 1)[0] ?? null
   const side = take(articles, 5)
   const grid = take(
