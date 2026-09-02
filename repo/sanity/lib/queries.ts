@@ -99,7 +99,7 @@ export const ALL_PROMOS_QUERY = `
 export const ALL_TEATRY_SANITY_QUERY = `
   *[_type == "teatr"] | order(nazwa asc) {
     _id, nazwa, slug, miasto, adres, rokZalozenia,
-    dyrektorArtystyczny, liczbaMiejsc, stronaWww, linkBilety,
+    dyrektor, kierownikBaletu, liczbaMiejsc, stronaWww, linkBilety,
     logo { asset },
     zdjecie { asset, alt },
     opis
@@ -133,7 +133,7 @@ export const ALL_NEWSLETTERS_QUERY = `
 export const TEATR_BY_SLUG_QUERY = `
   *[_type == "teatr" && slug.current == $slug] [0] {
     _id, nazwa, slug, miasto, adres, rokZalozenia,
-    dyrektorArtystyczny, liczbaMiejsc, stronaWww, linkBilety,
+    dyrektor, kierownikBaletu, liczbaMiejsc, stronaWww, linkBilety,
     logo { asset },
     zdjecie { asset, alt },
     opis

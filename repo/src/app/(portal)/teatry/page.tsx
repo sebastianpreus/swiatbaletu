@@ -17,7 +17,8 @@ interface TeatrSanity {
   miasto: string
   adres?: string
   rokZalozenia?: number
-  dyrektorArtystyczny?: string
+  dyrektor?: string
+  kierownikBaletu?: string
   liczbaMiejsc?: number
   stronaWww?: string
   linkBilety?: string
@@ -69,9 +70,14 @@ export default async function TeatryPage() {
                 <div className="font-serif text-[18px] text-text-1 leading-[1.3] group-hover:text-gold transition-colors">
                   {teatr.nazwa}
                 </div>
-                {teatr.dyrektorArtystyczny && (
+                {teatr.dyrektor && (
                   <div className="text-[11px] text-text-2 mt-1">
-                    Dyr. art.: {teatr.dyrektorArtystyczny}
+                    Dyrektor: {teatr.dyrektor}
+                  </div>
+                )}
+                {teatr.kierownikBaletu && (
+                  <div className="text-[11px] text-text-2">
+                    Kierownik baletu: {teatr.kierownikBaletu}
                   </div>
                 )}
               </div>

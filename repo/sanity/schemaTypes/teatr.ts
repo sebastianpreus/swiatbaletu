@@ -37,9 +37,16 @@ export const teatr = defineType({
       title: 'Rok założenia',
     }),
     defineField({
-      name: 'dyrektorArtystyczny',
+      name: 'dyrektor',
       type: 'string',
-      title: 'Dyrektor artystyczny',
+      title: 'Dyrektor',
+      description: 'Osoba kierująca teatrem. Jeśli pełni obowiązki, dopisz "p.o." przed nazwiskiem.',
+    }),
+    defineField({
+      name: 'kierownikBaletu',
+      type: 'string',
+      title: 'Kierownik baletu',
+      description: 'Szef zespołu baletowego. W Teatrze Wielkim - Operze Narodowej to dyrektor Polskiego Baletu Narodowego.',
     }),
     defineField({
       name: 'liczbaMiejsc',

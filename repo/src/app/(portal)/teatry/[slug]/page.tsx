@@ -14,7 +14,8 @@ interface TeatrSanity {
   miasto: string
   adres?: string
   rokZalozenia?: number
-  dyrektorArtystyczny?: string
+  dyrektor?: string
+  kierownikBaletu?: string
   liczbaMiejsc?: number
   stronaWww?: string
   linkBilety?: string
@@ -76,10 +77,16 @@ export default async function TeatrPage({ params }: { params: Promise<{ slug: st
             <span className="text-text-1">{teatr.rokZalozenia}</span>
           </div>
         )}
-        {teatr.dyrektorArtystyczny && (
+        {teatr.dyrektor && (
           <div>
-            <span className="text-text-2">Dyr. artystyczny: </span>
-            <span className="text-text-1">{teatr.dyrektorArtystyczny}</span>
+            <span className="text-text-2">Dyrektor: </span>
+            <span className="text-text-1">{teatr.dyrektor}</span>
+          </div>
+        )}
+        {teatr.kierownikBaletu && (
+          <div>
+            <span className="text-text-2">Kierownik baletu: </span>
+            <span className="text-text-1">{teatr.kierownikBaletu}</span>
           </div>
         )}
         {teatr.liczbaMiejsc && (
