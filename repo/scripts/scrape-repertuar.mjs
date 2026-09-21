@@ -1188,8 +1188,12 @@ async function scrapeBytom() {
         const $item = $(el)
 
         // Date: "10 kwietnia 2026, Piątek"
+        // \p{L} z flagą u, NIE \w: w JS \w to [A-Za-z0-9_], więc nie łapie
+        // polskich znaków. Na dwunastu nazwach miesięcy tylko "września"
+        // i "października" mają znaki spoza ASCII - i dokładnie te dwa
+        // miesiące wypadały z importu Bytomia (stan na 21.09.2026).
         const dateText = $item.find('.nr').first().text().trim()
-        const dateMatch = dateText.match(/(\d{1,2})\s+(\w+)\s+(\d{4})/)
+        const dateMatch = dateText.match(/(\d{1,2})\s+(\p{L}+)\s+(\d{4})/u)
         if (!dateMatch) return
 
         const day = parseInt(dateMatch[1])
