@@ -44,6 +44,12 @@ export const artykul = defineType({
           type: 'string',
           title: 'Opis alternatywny',
         }),
+        defineField({
+          name: 'zrodlo',
+          type: 'string',
+          title: 'Autor / źródło zdjęcia',
+          description: 'Wyświetla się pod zdjęciem na stronie artykułu, np. „fot. Jan Kowalski / Teatr Wielki w Łodzi”. Wymagane przy materiałach udostępnionych przez teatry.',
+        }),
       ],
     }),
     defineField({
@@ -57,6 +63,12 @@ export const artykul = defineType({
           name: 'alt',
           type: 'string',
           title: 'Opis alternatywny',
+        }),
+        defineField({
+          name: 'zrodlo',
+          type: 'string',
+          title: 'Autor / źródło zdjęcia',
+          description: 'Wyświetla się pod zdjęciem na stronie artykułu, np. „fot. Jan Kowalski / Teatr Wielki w Łodzi”. Wymagane przy materiałach udostępnionych przez teatry.',
         }),
       ],
     }),

@@ -6,6 +6,8 @@ export interface SanityImage {
     _ref: string
   }
   alt?: string
+  /** Autor / źródło zdjęcia, pokazywane jako podpis pod obrazkiem. */
+  zrodlo?: string
 }
 
 export interface Artykul {

@@ -86,12 +86,17 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
       </div>
 
       {coverImage?.asset && (
-        <figure className="mb-8 flex justify-center">
+        <figure className="mb-8 flex flex-col items-center">
           <img
             src={urlFor(coverImage).width(1000).url()}
             alt={coverImage.alt || article.tytul}
             className="rounded-lg border-[0.5px] border-border max-h-[660px] w-auto max-w-full object-contain"
           />
+          {coverImage.zrodlo && (
+            <figcaption className="text-[11px] text-text-2 mt-2 text-center">
+              {coverImage.zrodlo}
+            </figcaption>
+          )}
         </figure>
       )}
 

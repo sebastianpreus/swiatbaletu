@@ -3,8 +3,10 @@
  * "Tydzień w balecie" 22-27.09.2026.
  * Źródło: Google Drive, "2026-09-21_tydzien-w-balecie_artykul.md"
  * - długie myślniki zamieniane na krótkie przez dash() + bramka przed zapisem
- * - zdjęcie: images/tydzien-w-balecie-22-27-09.jpg (kadr 16:9 ze zdjęcia
- *   "Androidów" z galerii Opery Narodowej, tej samej, której używa majowy artykuł)
+ * - zdjęcie: images/tydzien-w-balecie-22-27-09-lodz.jpg - kadr 16:9 z oficjalnego
+ *   zdjęcia "Bolera / Carminy Burany" ze strony Teatru Wielkiego w Łodzi,
+ *   fot. Joanna Miklaszewska. Zgodnie z praktyką redakcji dla materiałów
+ *   promocyjnych teatrów: publikujemy jako zapowiedź, z podaniem autora.
  * Idempotentny: po slug - patchuje istniejący.
  *
  * KOREKTY WOBEC WERSJI Z DRIVE'A (szczegóły w rozmowie):
@@ -14,6 +16,8 @@
  *  - Sanok leży u bram Bieszczadów, nie w Bieszczadach -> "na Podkarpacie"
  *  - ujednolicone "reżyseria świateł" (było raz "światła")
  *  - dopisany zweryfikowany termin: ten sam wieczór 29.09 w Katowicach
+ *  - czas trwania i ceny biletów w Łodzi potwierdzone na stronie spektaklu
+ *    (ok. 1 h 50 min z jedną przerwą; cztery strefy 70/60 - 120/110 zł)
  */
 import { createClient } from '@sanity/client'
 import { readFileSync, existsSync } from 'fs'
@@ -21,7 +25,7 @@ import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
 
 const SLUG = 'tydzien-w-balecie-22-27-wrzesnia'
-const IMAGE_FILE = 'tydzien-w-balecie-22-27-09.jpg'
+const IMAGE_FILE = 'tydzien-w-balecie-22-27-09-lodz.jpg'
 
 const __dir = dirname(fileURLToPath(import.meta.url))
 const env = {}
@@ -117,7 +121,8 @@ async function main() {
     zdjecie: {
       _type: 'image',
       asset: { _type: 'reference', _ref: asset._id },
-      alt: '„Androidy" - Polski Balet Narodowy, Teatr Wielki - Opera Narodowa',
+      alt: '„Carmina Burana" - zespół baletu Teatru Wielkiego w Łodzi',
+      zrodlo: 'fot. Joanna Miklaszewska / Teatr Wielki w Łodzi',
     },
     trescGlowna: tresc,
     autor: 'Redakcja Świat Baletu',

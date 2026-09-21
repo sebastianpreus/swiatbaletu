@@ -58,8 +58,8 @@ export const ALL_ARTICLES_QUERY = `
 export const ARTICLE_BY_SLUG_QUERY = `
   *[_type == "artykul" && slug.current == $slug] [0] {
     _id, tytul, slug, kategoria, zajawka, czasCzytania,
-    zdjecie { asset, alt },
-    zdjecieArtykul { asset, alt },
+    zdjecie { asset, alt, zrodlo },
+    zdjecieArtykul { asset, alt, zrodlo },
     trescGlowna,
     dataPublikacji, autor, tagi
   }
