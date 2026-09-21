@@ -51,7 +51,7 @@ const block = (text, style = 'normal') => ({
 const h2 = (t) => block(t, 'h2')
 const h3 = (t) => block(t, 'h3')
 
-const TYTUL = 'Tydzień w balecie: ostatnie „Androidy", dwie „Giselle" w różnych obsadach i wieczór dwóch choreografów w Łodzi'
+const TYTUL = '„Giselle", „Androidy" - co jeszcze czeka nas we wrześniu?'
 
 const ZAJAWKA =
   'Od wtorku do niedzieli polski balet gra w czterech miastach. W Warszawie kończy się wrześniowa seria ' +
