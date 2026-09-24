@@ -68,6 +68,19 @@ const block = (text, style = 'normal') => ({
 })
 const h2 = (t) => block(t, 'h2')
 const h3 = (t) => block(t, 'h3')
+// Akapit z odnośnikiem: markDefs trzyma adres, a span wskazuje na niego kluczem.
+const blockZLinkiem = (przed, tekstLinku, href, po) => {
+  const k = key()
+  return {
+    _type: 'block', _key: key(), style: 'normal',
+    markDefs: [{ _key: k, _type: 'link', href }],
+    children: [
+      { _type: 'span', _key: key(), text: dash(przed), marks: [] },
+      { _type: 'span', _key: key(), text: dash(tekstLinku), marks: [k] },
+      { _type: 'span', _key: key(), text: dash(po), marks: [] },
+    ],
+  }
+}
 const obraz = (assetId, podpis) => ({
   _type: 'image', _key: key(),
   asset: { _type: 'reference', _ref: assetId },
@@ -139,7 +152,7 @@ const tresc = (A) => [
   block('Balet żąda dwóch zupełnie różnych rzeczy w ciągu jednego wieczoru. Akt pierwszy jest aktorski: wiejska dziewczyna, zauroczenie, odkrycie oszustwa i słynna scena szaleństwa, jedna z najtrudniejszych scen dramatycznych w całym klasycznym repertuarze. Akt drugi jest jego przeciwieństwem - to „biały akt", w którym wszystko sprowadza się do czystości stylu, lekkości i wrażenia bezcielesności. Ta sama tancerka musi w antrakcie przestać być człowiekiem.'),
   obraz(A.rola, 'Scena szaleństwa, jedna z najtrudniejszych scen dramatycznych klasycznego repertuaru. Mai Kageyama w warszawskiej „Giselle". fot. Ewa Krasucka / Teatr Wielki - Opera Narodowa'),
   block('Ciekawostka na koniec, z gatunku tych, które trudno potem zapomnieć: Adolphe Adam, kompozytor „Giselle", jest w świecie znany przede wszystkim z zupełnie innego utworu. Sześć lat po premierze tego baletu napisał kolędę „Cantique de Noël" - czyli „O Holy Night".'),
-  block('Pełne repertuary wszystkich polskich teatrów operowych i baletowych znajdziecie jak zawsze na swiatbaletu.pl.'),
+  blockZLinkiem('Pełne repertuary wszystkich polskich teatrów operowych i baletowych znajdziecie jak zawsze na ', 'swiatbaletu.pl/repertuar', 'https://swiatbaletu.pl/repertuar', '.'),
 ]
 
 async function wgraj(nazwa) {
