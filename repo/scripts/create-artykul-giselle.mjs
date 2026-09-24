@@ -6,6 +6,9 @@
  * Zdjęcia - wszystkie oficjalne, ze stron teatrów, z autorem przy każdym,
  * zgodnie z praktyką opisaną w "Plakaty festiwali - wrzesień 2026":
  *   okładka i Warszawa .... fot. Ewa Krasucka / Teatr Wielki - Opera Narodowa
+ *   Okładka to karta tytułowa: na zdjęciu Krasuckiej naniesiony tekst
+ *   (Cormorant Garamond + Plus Jakarta Sans, czyli kroje portalu),
+ *   generowana skryptem scripts/karta-tytulowa.py
  *   Gdańsk ................ fot. Krzysztof Mystkowski / KFP / Opera Bałtycka
  *   Łódź .................. fot. Joanna Miklaszewska / Teatr Wielki w Łodzi
  *
@@ -132,7 +135,7 @@ async function wgraj(nazwa) {
 async function main() {
   console.log('Wgrywam zdjęcia:')
   const A = {
-    okladka:  await wgraj('giselle-okladka.jpg'),
+    okladka:  await wgraj('giselle-okladka-karta.jpg'),
     warszawa: await wgraj('giselle-warszawa.jpg'),
     gdansk:   await wgraj('giselle-gdansk.jpg'),
     lodz:     await wgraj('giselle-lodz.jpg'),
