@@ -21,6 +21,8 @@
  *  - "w 1841 i dziś" -> "w 1841 roku i dziś"
  *  - tytuły spektaklu w cudzysłowie także w tytule artykułu
  *  - bez noty o powiązaniu redakcyjnym (decyzja redakcji z 24.09)
+ *  - "a Rosja go przechował" -> "przechowała" (zgoda rodzaju, zgłoszone
+ *    przez redakcję po publikacji)
  *
  * Idempotentny: po slug - patchuje istniejący.
  */
@@ -82,7 +84,7 @@ const tresc = (A) => [
   block('Na afiszu i w programie jego nazwiska nie było.'),
   block('Dziś podaje się obu, zawsze razem: Coralli i Perrot. Sprawiedliwość historyczna przyszła jednak z dużym opóźnieniem, a przypadek Perrota jest jednym z częściej przywoływanych przykładów tego, jak w XIX-wiecznym teatrze rozdzielano zasługi.'),
 
-  h2('Jak Paryż stracił swój balet, a Rosja go przechował'),
+  h2('Jak Paryż stracił swój balet, a Rosja go przechowała'),
   block('Dopóki tańczyła Grisi, „Giselle" trzymała się afisza. Grisi występowała w tej roli do 1849 roku - i to praktycznie ona jedna. Potem balet zdjęto. Wracał na krótko na początku lat pięćdziesiątych, jeszcze raz w latach sześćdziesiątych, i w 1868 roku zniknął z Opery Paryskiej na dobre.'),
   block('W tym samym czasie w Petersburgu działo się coś odwrotnego. Marius Petipa wracał do „Giselle" raz po raz, za każdym razem przygotowując ją dla kolejnej baleriny: w 1884 roku dla Marii Gorszenkowej, w 1887 dla Emmy Bessone, w 1899 dla Henrietty Grimaldi i wreszcie w 1903 dla Anny Pawłowej. To w tych wznowieniach balet dojrzał do kształtu, w jakim znamy go dziś - i to z nich, nie z paryskiego oryginału, wywodzi się większość choreografii oglądanej obecnie na świecie.'),
   block('Do Paryża „Giselle" wróciła dopiero w 1924 roku, na debiut Olgi Spiesiwcewej w roli tytułowej, uznawanej potem za najwybitniejszą Giselle dwudziestego wieku. Od tamtej pory już afisza nie opuściła.'),
