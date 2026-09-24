@@ -23,6 +23,9 @@
  *  - bez noty o powiązaniu redakcyjnym (decyzja redakcji z 24.09)
  *  - "a Rosja go przechował" -> "przechowała" (zgoda rodzaju, zgłoszone
  *    przez redakcję po publikacji)
+ *  - usunięte ceny biletów przy Łodzi - jedyne miejsce w tekście, gdzie
+ *    się pojawiały, a w artykule o balecie są zbędne
+ *  - dodane streszczenie libretta na wejściu, jako blockquote
  *
  * Idempotentny: po slug - patchuje istniejący.
  */
@@ -72,6 +75,10 @@ const ZAJAWKA =
   'że balet, który Paryż skreślił z afisza na pół wieku, jest dziś jednym z najczęściej granych na świecie.'
 
 const tresc = (A) => [
+  // Streszczenie libretta jako blockquote - renderer daje mu złotą kreskę
+  // i kursywę, więc odcina się od reszty i można je przeczytać osobno.
+  block('Rzecz dzieje się w nadreńskiej wiosce w czasie winobrania. Giselle, wiejska dziewczyna o słabym sercu, kocha taniec i zakochuje się w Loysie - w rzeczywistości księciu Albercie, który przebrał się za wieśniaka i przemilczał, że jest już zaręczony. Gdy gajowy Hilarion, sam zakochany w Giselle, demaskuje oszustwo, dziewczyna traci zmysły i umiera. Akt drugi rozgrywa się nocą przy jej grobie, gdzie rządzą wilisy pod wodzą Mirty - duchy dziewcząt zmarłych przed własnym ślubem, zatańcowujące na śmierć każdego napotkanego mężczyznę. Hilarion ginie. Alberta ratuje sama Giselle: tańczy z nim aż do świtu, bo o brzasku wilisy tracą moc.', 'blockquote'),
+
   h2('Wszystko zaczęło się od książki, którą poeta przeczytał wieczorem'),
   block('Théophile Gautier - poeta, krytyk i jeden z najbardziej wpływowych piór ówczesnego Paryża - czytał „De l\'Allemagne" Heinricha Heinego. Natrafił tam na opis wilis: duchów dziewcząt zmarłych przed dniem własnego ślubu, które nocami wychodzą z grobów i zmuszają napotkanych mężczyzn do tańca, aż ci padają z wyczerpania. Gautier od razu zobaczył w tym balet.'),
   block('Drugim źródłem był wiersz „Fantômes" ze zbioru „Les Orientales" Wiktora Hugo - o piętnastoletniej Hiszpance, która zatańczyła się na śmierć. Legenda, na którą powołują się do dziś programy teatralne, pochodzi z gór Harcu.'),
@@ -114,7 +121,7 @@ const tresc = (A) => [
 
   h3('Łódź: autorskie opracowanie'),
   block('Teatr Wielki w Łodzi. Terminy: 24.04.2027 (sob.) 18:30 oraz 25.04.2027 (niedz.) 17:00.'),
-  block('Najmłodsza z trzech produkcji - premiera odbyła się 12 października 2024 roku. Choreografię opracowała autorsko, według Coralliego i Perrota, Zofia Rudnicka. Kierownictwo muzyczne Andriy Yurkevych, scenografia i kostiumy Tatiana Kwiatkowska, reżyseria świateł - podobnie jak w Warszawie - Maciej Igielski. Baletmistrzyni pary solowej Renata Smukała, asystentki choreografa Beata Brożek-Grabarczyk i Agata Jankowska-Dobrowolska. Około dwóch godzin dziesięciu minut z przerwą, bilety od 50 do 100 zł.'),
+  block('Najmłodsza z trzech produkcji - premiera odbyła się 12 października 2024 roku. Choreografię opracowała autorsko, według Coralliego i Perrota, Zofia Rudnicka. Kierownictwo muzyczne Andriy Yurkevych, scenografia i kostiumy Tatiana Kwiatkowska, reżyseria świateł - podobnie jak w Warszawie - Maciej Igielski. Baletmistrzyni pary solowej Renata Smukała, asystentki choreografa Beata Brożek-Grabarczyk i Agata Jankowska-Dobrowolska. Około dwóch godzin dziesięciu minut z przerwą.'),
   block('Dla Łodzi to trzecia w historii premiera tego tytułu. Wcześniejsze odbyły się w 1979 roku w choreografii Jarosława Piaseckiego i w 2003 w choreografii Roberta Streinera.'),
   obraz(A.lodz, 'Łódzka „Giselle" w opracowaniu Zofii Rudnickiej - akt pierwszy. fot. Joanna Miklaszewska / Teatr Wielki w Łodzi'),
 
