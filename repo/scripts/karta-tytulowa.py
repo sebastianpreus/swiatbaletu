@@ -1,5 +1,11 @@
 """Karta tytułowa: zdjęcie 16:9 + nadtytuł, tytuł i podtytuł.
 
+UWAGA: przy ciemnych zdjęciach scenowych przyciemnienie zwykle nie jest
+potrzebne - wystarczy postawić tekst tam, gdzie kadr sam jest czarny.
+Zanim ustawisz poświatę, policz jasność kadru w siatce; przy okładce
+"Giselle" górne 30% było czystą czernią, a gradient tylko gasił zdjęcie.
+Nadtytuł można pominąć, podając pusty ciąg.
+
 Tekst siedzi w dolnej połowie kadru, na miękkiej ciemnej poświacie, żeby był
 czytelny także wtedy, gdy hero na stronie głównej przeskaluje grafikę.
 Kroje: Cormorant Garamond i Plus Jakarta Sans - te same, które ładuje portal.
