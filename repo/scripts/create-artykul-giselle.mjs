@@ -30,6 +30,11 @@
  *    Giselle tańczy" -> "24 września (czwartek)", "W niedzielę" ->
  *    "w niedzielę 27 września", "Do czerwca" -> "W listopadzie i w kwietniu".
  *    Pozostałe "dziś" w tekście znaczą "w dzisiejszych czasach" i zostają.
+ *  - usunięta obsada gdańska. Pochodziła z opisu produkcji z 2018 roku,
+ *    a nie z rozpiski na listopad 2026 - strona terminu 26.11 podaje tylko
+ *    "Balet Opery Bałtyckiej". Obsada będzie inna (potwierdzone przez
+ *    Izę Sokołowską-Boulton). Warszawskie obsady zostają, bo teatr podaje
+ *    je przy konkretnych terminach w kalendarium.
  *
  * Idempotentny: po slug - patchuje istniejący.
  */
@@ -120,7 +125,7 @@ const tresc = (A) => [
   block('Opera Bałtycka. Terminy: 26.11 (czw.) 19:00, 27.11 (pt.) 19:00, 28.11 (sob.) 18:00 oraz 29.11 (niedz.) 17:00.'),
   block('Najbardziej radykalna z trzech inscenizacji, w repertuarze od premiery 13 października 2018 roku. Akt pierwszy, przygotowany przez Emila Wesołowskiego, przenosi rzecz w realia współczesne: Giselle jest kelnerką w nadmorskiej miejscowości, Albert turystą zaręczonym z warszawską celebrytką, a bohaterka nie umiera z rozpaczy, tylko tonie w morzu.'),
   block('Akt drugi przygotowali Izabela Sokołowska-Boulton i Wojciech Warszawski, opierając się na oryginalnej choreografii Coralliego i Perrota. To rozwiązanie, które wygląda na niekonsekwencję, a jest tezą: wilisy są jedynym elementem tej opowieści, który nie potrzebuje uwspółcześnienia. Zdrada, wstyd i zemsta zza grobu działają tak samo w 1841 roku i dziś.'),
-  block('Kierownictwo muzyczne Tomasz Tokarczyk, scenografia i reżyseria świateł Olga Skumiał, kostiumy Marta Fiedler. Około dwóch godzin z przerwą. W obsadach Maria Kielan i Gwenllian Davies jako Giselle, Gento Yoshimoto i Ruaidhri Maguire jako Albert, Filip Michalak i Michał Zelent jako Hilarion.'),
+  block('Kierownictwo muzyczne Tomasz Tokarczyk, scenografia i reżyseria świateł Olga Skumiał, kostiumy Marta Fiedler. Około dwóch godzin z przerwą. Obsad listopadowych spektakli teatr jeszcze nie ogłosił.'),
   obraz(A.gdansk, 'Gdańska „Giselle" - akt pierwszy przeniesiony nad morze. fot. Krzysztof Mystkowski / KFP / Opera Bałtycka'),
 
   h3('Łódź: autorskie opracowanie'),
