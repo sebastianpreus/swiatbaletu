@@ -134,10 +134,10 @@ const tresc = (A) => [
   block('Warto wiedzieć, że obsady się nie powtarzają. 24 września (czwartek) Giselle tańczy Chinara Alizade, Alberta - Vladimir Yaroshenko, Mirtę - Yana Shtanhei, Hilariona - Kristóf Szabó. Natomiast w niedzielę 27 września wszystkie cztery partie obsadzone są inaczej: Jaeeun Jung, Ryota Kitai, Vanessa Vestita i Paweł Koncewoj.'),
   obraz(A.warszawa, 'Chinara Alizade i Vladimir Yaroshenko w warszawskiej „Giselle" - akt drugi. fot. Ewa Krasucka / Teatr Wielki - Opera Narodowa'),
 
-  h3('Gdańsk: akt pierwszy nad morzem, akt drugi w 1841 roku'),
-  block('Opera Bałtycka. Terminy: 26.11 (czw.) 19:00, 27.11 (pt.) 19:00, 28.11 (sob.) 18:00 oraz 29.11 (niedz.) 17:00.'),
-  block('Najbardziej radykalna z trzech inscenizacji, w repertuarze od premiery 13 października 2018 roku. Akt pierwszy, przygotowany przez Emila Wesołowskiego, przenosi rzecz w realia współczesne: Giselle jest kelnerką w nadmorskiej miejscowości, Albert turystą zaręczonym z warszawską celebrytką, a bohaterka nie umiera z rozpaczy, tylko tonie w morzu.'),
-  block('Akt drugi przygotowali Izabela Sokołowska-Boulton i Wojciech Warszawski, opierając się na oryginalnej choreografii Coralliego i Perrota. To rozwiązanie, które wygląda na niekonsekwencję, a jest tezą: wilisy są jedynym elementem tej opowieści, który nie potrzebuje uwspółcześnienia. Zdrada, wstyd i zemsta zza grobu działają tak samo w 1841 roku i dziś.'),
+  h3('Gdańsk: nad morzem, z kaszubskimi wodnicami zamiast wilis'),
+  block('Opera Bałtycka, wznowienie tytułu. Terminy: 26.11 (czw.) 19:00, 27.11 (pt.) 19:00, 28.11 (sob.) 18:00 oraz 29.11 (niedz.) 17:00.'),
+  block('Najbardziej radykalna z trzech inscenizacji, z premierą 13 października 2018 roku, teraz wracająca na afisz. Akt pierwszy, przygotowany przez Emila Wesołowskiego, przenosi rzecz w realia współczesne: Giselle jest kelnerką w nadmorskiej miejscowości, Albert turystą zaręczonym z warszawską celebrytką, a bohaterka nie umiera z rozpaczy, tylko tonie w morzu.'),
+  block('Akt drugi przygotowali Izabela Sokołowska-Boulton i Wojciech Warszawski, opierając się na oryginalnej choreografii Coralliego i Perrota. Klasyczna forma zostaje, ale wpisana w tę samą nadmorską opowieść: miejsce wilis, duchów z nadreńskich lasów, zajmują kaszubskie wodnice, a rzecz dzieje się w rejonie bałtyckich wydm. Zdrada, wstyd i zemsta zza grobu działają tak samo w 1841 roku i dziś - zmienia się tylko to, kto wymierza karę.'),
   block('Kierownictwo muzyczne Tomasz Tokarczyk, scenografia i reżyseria świateł Olga Skumiał, kostiumy Marta Fiedler. Około dwóch godzin z przerwą. Obsad listopadowych spektakli teatr jeszcze nie ogłosił.'),
   obraz(A.gdansk, 'Gdańska „Giselle" - akt pierwszy przeniesiony nad morze. fot. Krzysztof Mystkowski / KFP / Opera Bałtycka'),
 
