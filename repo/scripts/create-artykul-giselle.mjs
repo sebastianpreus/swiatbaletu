@@ -26,6 +26,10 @@
  *  - usunięte ceny biletów przy Łodzi - jedyne miejsce w tekście, gdzie
  *    się pojawiały, a w artykule o balecie są zbędne
  *  - dodane streszczenie libretta na wejściu, jako blockquote
+ *  - odniesienia względne zamienione na daty: "Dziś wieczorem" i "Dziś
+ *    Giselle tańczy" -> "24 września (czwartek)", "W niedzielę" ->
+ *    "w niedzielę 27 września", "Do czerwca" -> "W listopadzie i w kwietniu".
+ *    Pozostałe "dziś" w tekście znaczą "w dzisiejszych czasach" i zostają.
  *
  * Idempotentny: po slug - patchuje istniejący.
  */
@@ -68,8 +72,8 @@ const obraz = (assetId, podpis) => ({
 const TYTUL = 'Trzy „Giselle" jednego sezonu. Historia baletu, który przetrwał, choć Paryż o nim zapomniał'
 
 const ZAJAWKA =
-  'Dziś wieczorem w Teatrze Wielkim - Operze Narodowej rusza pierwsza w tym sezonie polska „Giselle". ' +
-  'Do czerwca zobaczymy ją jeszcze w Gdańsku i w Łodzi - w trzech inscenizacjach tak różnych, że trudno ' +
+  'W czwartek 24 września w Teatrze Wielkim - Operze Narodowej ruszyła pierwsza w tym sezonie polska „Giselle". ' +
+  'W listopadzie i w kwietniu zobaczymy ją jeszcze w Gdańsku i w Łodzi - w trzech inscenizacjach tak różnych, że trudno ' +
   'uwierzyć, iż chodzi o ten sam tytuł. To dobry moment, żeby przypomnieć, skąd wzięła się historia ' +
   'o dziewczynie, która umiera z miłości i wraca po śmierci, by tę miłość ocalić. A także jak to się stało, ' +
   'że balet, który Paryż skreślił z afisza na pół wieku, jest dziś jednym z najczęściej granych na świecie.'
@@ -109,7 +113,7 @@ const tresc = (A) => [
   block('Teatr Wielki - Opera Narodowa, Polski Balet Narodowy. Terminy: 24.09 (czw.) 19:00, 27.09 (niedz.) 18:00, 1.10 (czw.) 19:00 oraz 3.10 (sob.) o 12:00 i 19:00.'),
   block('Choreografia Jeana Coralliego i Jules\'a Perrota, realizacja baletu Maina Gielgud. Gielgud oparła się na dwudziestowiecznej linii Petipy, sięgając do rekonstrukcji Nikołaja Siergiejewa i Antona Dolina - czyli do tej samej drogi, którą balet wrócił z Rosji na zachód.'),
   block('Libretto Gautier i Vernoy de Saint-Georges, muzyka Adolphe\'a Adama, dyryguje Alexei Baklan. Scenografia i kostiumy Andrzej Kreutz Majewski w adaptacji Szabłowskiej i Rott, reżyseria świateł Maciej Igielski. Dwie godziny pięć minut: pięćdziesiąt minut pierwszego aktu, dwadzieścia pięć przerwy, pięćdziesiąt drugiego.'),
-  block('Warto wiedzieć, że obsady się nie powtarzają. Dziś Giselle tańczy Chinara Alizade, Alberta - Vladimir Yaroshenko, Mirtę - Yana Shtanhei, Hilariona - Kristóf Szabó. W niedzielę wszystkie cztery partie obsadzone są inaczej: Jaeeun Jung, Ryota Kitai, Vanessa Vestita i Paweł Koncewoj.'),
+  block('Warto wiedzieć, że obsady się nie powtarzają. 24 września (czwartek) Giselle tańczy Chinara Alizade, Alberta - Vladimir Yaroshenko, Mirtę - Yana Shtanhei, Hilariona - Kristóf Szabó. Natomiast w niedzielę 27 września wszystkie cztery partie obsadzone są inaczej: Jaeeun Jung, Ryota Kitai, Vanessa Vestita i Paweł Koncewoj.'),
   obraz(A.warszawa, 'Chinara Alizade i Vladimir Yaroshenko w warszawskiej „Giselle" - akt drugi. fot. Ewa Krasucka / Teatr Wielki - Opera Narodowa'),
 
   h3('Gdańsk: akt pierwszy nad morzem, akt drugi w 1841 roku'),
