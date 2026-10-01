@@ -21,8 +21,20 @@ im = Image.open(src).convert("RGB")
 W, H = im.size
 X = int(W * 0.047)
 
-ser = lambda s: ImageFont.truetype(f"{S}/fonts/cormorant.ttf", s)
-sans = lambda s: ImageFont.truetype(f"{S}/fonts/jakarta.ttf", s)
+# Kroje bywają w wersji zmiennej (jeden plik, oś wagi) - wtedy domyślna
+# instancja jest zbyt cienka na duży tytuł, więc wybieramy wagę po nazwie.
+# Przy plikach statycznych set_variation_by_name rzuca wyjątkiem i zostaje
+# waga wbudowana w plik.
+def kroj(plik, rozmiar, waga):
+    f = ImageFont.truetype(f"{S}/fonts/{plik}", rozmiar)
+    try:
+        f.set_variation_by_name(waga)
+    except Exception:
+        pass
+    return f
+
+ser = lambda s: kroj("cormorant.ttf", s, "SemiBold")
+sans = lambda s: kroj("jakarta.ttf", s, "Medium")
 f_eye = sans(int(W * 0.0135))
 f_tit = ser(int(H * 0.175))
 f_sub = sans(int(H * 0.047))
@@ -32,7 +44,7 @@ h_eye = pom.textbbox((0, 0), EYEBROW, font=f_eye)[3]
 h_tit = pom.textbbox((0, 0), TITLE, font=f_tit)[3]
 h_sub = pom.textbbox((0, 0), SUB, font=f_sub)[3]
 odstep1, odstep2 = int(H * 0.055), int(H * 0.030)
-h_blok = h_eye + odstep1 + h_tit + odstep2 + h_sub
+h_blok = (h_eye + odstep1 if EYEBROW else 0) + h_tit + odstep2 + h_sub
 y0 = int(H * CY) - h_blok // 2
 szer_blok = max(pom.textbbox((0, 0), t, font=f)[2] for t, f in
                 ((EYEBROW, f_eye), (TITLE, f_tit), (SUB, f_sub)))
@@ -57,10 +69,11 @@ im = Image.composite(Image.new("RGB", (W, H), (0, 0, 0)), im, mask)
 d = ImageDraw.Draw(im)
 GOLD, IVORY, WHITE = (201, 168, 76), (240, 236, 227), (255, 255, 255)
 y = y0
-d.text((X, y), " ".join(EYEBROW.upper()), font=f_eye, fill=GOLD)
-d.line([(X, y + h_eye + int(H * 0.022)), (X + int(W * 0.062), y + h_eye + int(H * 0.022))],
-       fill=GOLD, width=2)
-y += h_eye + odstep1
+if EYEBROW:
+    d.text((X, y), " ".join(EYEBROW.upper()), font=f_eye, fill=GOLD)
+    d.line([(X, y + h_eye + int(H * 0.022)), (X + int(W * 0.062), y + h_eye + int(H * 0.022))],
+           fill=GOLD, width=2)
+    y += h_eye + odstep1
 d.text((X - int(W * 0.004), y), TITLE, font=f_tit, fill=WHITE)
 y = d.textbbox((X - int(W * 0.004), y), TITLE, font=f_tit)[3] + odstep2
 d.text((X, y), SUB, font=f_sub, fill=IVORY)
