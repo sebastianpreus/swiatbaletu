@@ -32,8 +32,11 @@
  * Zdjęcia: wszystkie z gdańskiej inscenizacji, fot. Krzysztof Mystkowski / KFP,
  * z galerii Opery Bałtyckiej. Łódź i Warszawa jeszcze nie grały, więc zdjęć
  * z tych produkcji po prostu nie ma.
- * Okładka to karta tytułowa generowana skryptem scripts/karta-tytulowa.py
- * (kadr 16:9 bez gradientu - tekst stoi tam, gdzie kadr sam jest ciemny).
+ * Okładka to karta tytułowa generowana skryptem scripts/karta-tytulowa.py:
+ *   karta-tytulowa.py <katalog> <zdjęcie> <wynik> "" "Coppélia" \
+ *     "Historia baletu o lalce, która nigdy nie ożyła" 0.68 0 1.40
+ * Zero to brak poświaty (kadr sam jest po lewej czarny), 1.40 to gamma -
+ * zdjęcie ze sceny było za ciemne wokół baletnicy i pod tytułem.
  *
  * Idempotentny: po slug - patchuje istniejący.
  */

@@ -18,8 +18,15 @@ S, src, out, EYEBROW, TITLE, SUB = sys.argv[1:7]
 CY = float(sys.argv[7]) if len(sys.argv) > 7 else 0.63
 # Siła poświaty pod tekstem, 0-1. Zero znaczy: nie dotykaj zdjęcia w ogóle.
 POSWIATA = float(sys.argv[8]) if len(sys.argv) > 8 else 1.0
+# Rozjaśnienie zdjęcia przed naniesieniem tekstu. 1.0 zostawia kadr bez zmian,
+# wyżej podciąga cienie i półtony, prawie nie ruszając świateł - inaczej niż
+# zwykłe rozjaśnienie, które spłaszcza jasne partie (tu: sukienkę i reflektor).
+GAMMA = float(sys.argv[9]) if len(sys.argv) > 9 else 1.0
 
 im = Image.open(src).convert("RGB")
+if GAMMA != 1.0:
+    lut = [round(255 * (i / 255) ** (1 / GAMMA)) for i in range(256)]
+    im = im.point(lut * 3)
 W, H = im.size
 X = int(W * 0.047)
 
