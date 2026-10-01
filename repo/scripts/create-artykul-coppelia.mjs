@@ -195,8 +195,11 @@ async function main() {
   const dlugie = JSON.stringify(doc).match(/[—–]/g)
   if (dlugie) { console.error('✗ Zostały długie myślniki:', dlugie.length); process.exit(1) }
 
-  const existing = await client.fetch('*[_type=="artykul" && slug.current==$slug][0]{_id}', { slug: SLUG })
+  const existing = await client.fetch('*[_type=="artykul" && slug.current==$slug][0]{_id, dataPublikacji}', { slug: SLUG })
   if (existing?._id) {
+    // Ponowne uruchomienie nie może przestawiać daty publikacji na dzisiejszą -
+    // artykuł zmieniłby wtedy miejsce w kolejności i w nagłówku.
+    if (existing.dataPublikacji) doc.dataPublikacji = existing.dataPublikacji
     await client.patch(existing._id).set(doc).commit()
     console.log('\n  ✓ Zaktualizowano:', existing._id)
   } else {

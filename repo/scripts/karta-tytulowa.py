@@ -16,6 +16,8 @@ from PIL import Image, ImageDraw, ImageFont, ImageFilter
 S, src, out, EYEBROW, TITLE, SUB = sys.argv[1:7]
 # Środek bloku tekstu w pionie, jako ułamek wysokości.
 CY = float(sys.argv[7]) if len(sys.argv) > 7 else 0.63
+# Siła poświaty pod tekstem, 0-1. Zero znaczy: nie dotykaj zdjęcia w ogóle.
+POSWIATA = float(sys.argv[8]) if len(sys.argv) > 8 else 1.0
 
 im = Image.open(src).convert("RGB")
 W, H = im.size
@@ -51,20 +53,23 @@ szer_blok = max(pom.textbbox((0, 0), t, font=f)[2] for t, f in
 
 # Ciemna poświata pod tekstem: elipsa wtopiona w tło, plus delikatne
 # przyciemnienie od dołu i od lewej, żeby przejście było niewidoczne.
-mask = Image.new("L", (W, H), 0)
-md = ImageDraw.Draw(mask)
-md.ellipse([X - int(W * 0.10), y0 - int(H * 0.22),
-            X + szer_blok + int(W * 0.14), y0 + h_blok + int(H * 0.22)], fill=175)
-mask = mask.filter(ImageFilter.GaussianBlur(int(W * 0.055)))
-px = mask.load()
-for y in range(H):
-    v_dol = max(0.0, (y / H - 0.30) / 0.70) ** 1.5
-    for x in range(0, W, 4):
-        v_lewo = max(0.0, 1 - x / (W * 0.62)) ** 1.5
-        a = int(min(205, px[x, y] + 70 * v_dol * v_lewo))
-        for xx in range(x, min(x + 4, W)):
-            px[xx, y] = a
-im = Image.composite(Image.new("RGB", (W, H), (0, 0, 0)), im, mask)
+# Przy POSWIATA = 0 zdjęcie zostaje nietknięte - tak robimy wtedy,
+# gdy kadr sam jest ciemny tam, gdzie siedzi tekst.
+if POSWIATA > 0:
+    mask = Image.new("L", (W, H), 0)
+    md = ImageDraw.Draw(mask)
+    md.ellipse([X - int(W * 0.10), y0 - int(H * 0.22),
+                X + szer_blok + int(W * 0.14), y0 + h_blok + int(H * 0.22)], fill=175)
+    mask = mask.filter(ImageFilter.GaussianBlur(int(W * 0.055)))
+    px = mask.load()
+    for y in range(H):
+        v_dol = max(0.0, (y / H - 0.30) / 0.70) ** 1.5
+        for x in range(0, W, 4):
+            v_lewo = max(0.0, 1 - x / (W * 0.62)) ** 1.5
+            a = int(min(205, px[x, y] + 70 * v_dol * v_lewo) * POSWIATA)
+            for xx in range(x, min(x + 4, W)):
+                px[xx, y] = a
+    im = Image.composite(Image.new("RGB", (W, H), (0, 0, 0)), im, mask)
 
 d = ImageDraw.Draw(im)
 GOLD, IVORY, WHITE = (201, 168, 76), (240, 236, 227), (255, 255, 255)
