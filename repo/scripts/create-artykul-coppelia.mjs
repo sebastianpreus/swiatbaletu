@@ -111,7 +111,7 @@ const tresc = (A) => [
   block('Rzecz zaczęła się od opowiadania E.T.A. Hoffmanna „Piaskun" z 1816 roku - mrocznej historii o studencie, który zakochuje się w Olimpii, nie wiedząc, że to automat, i po odkryciu prawdy traci rozum. U Hoffmanna kończy się to samobójstwem. Libreciści Opery Paryskiej zrobili z tego komedię.'),
   block('Scenariusz napisał Charles Nuitter, muzykę Léo Delibes, choreografię ułożył Arthur Saint-Léon. I tu rzecz, o której w Polsce mówi się zaskakująco rzadko: akcję umieścili w galicyjskim miasteczku, czyli na terenie, który wtedy należał do zaboru austriackiego, a dziś leży częściowo w Polsce, częściowo na Ukrainie. Nie był to kaprys scenografa, tylko decyzja wpisana w partyturę.'),
   block('„Coppélia" uchodzi bowiem za pierwszy balet, który na serio wpuścił na scenę tańce narodowe. W partyturze Delibesa jest mazur, jest czardasz, jest bolero i jest szkocka giga. Mazur z pierwszego aktu to do dziś jeden z najbardziej rozpoznawalnych numerów całego dziewiętnastowiecznego repertuaru baletowego - i wielu widzów w Polsce słyszy go z poczuciem, że skądś go zna, zanim dowie się, dlaczego.'),
-  obraz(A.taniec, 'Tańce charakterystyczne w gdańskiej „Coppélii". fot. Krzysztof Mystkowski / KFP / Opera Bałtycka'),
+  obraz(A.gdansk, 'Ze spektaklu w Gdańsku. fot. Krzysztof Mystkowski / KFP / Opera Bałtycka'),
 
   h2('Osiemnaście wieczorów i dwa pogrzeby'),
   block('Prapremiera odbyła się 25 maja 1870 roku w Théâtre Impérial de l\'Opéra w Paryżu. Swanildę tańczyła szesnastoletnia Włoszka Giuseppina Bozzacchi, dla której była to pierwsza wielka rola w życiu. Franza - i to nie jest pomyłka - tańczyła kobieta, Eugénie Fiocre, w męskim kostiumie. Obsadzanie męskich partii baletnicami było wtedy w Paryżu normą i w Operze Paryskiej utrzymało się aż do czasów po drugiej wojnie światowej.'),
@@ -167,7 +167,7 @@ async function main() {
   console.log('Wgrywam zdjęcia:')
   const A = {
     okladka:    await wgraj('coppelia-okladka-karta.jpg'),
-    taniec:     await wgraj('coppelia-taniec.jpg'),
+    gdansk:     await wgraj('coppelia-gdansk.jpg'),
     warsztat:   await wgraj('coppelia-warsztat.jpg'),
     coppelius:  await wgraj('coppelia-coppelius.jpg'),
     final:      await wgraj('coppelia-final.jpg'),
