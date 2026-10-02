@@ -27,8 +27,19 @@ for i in range(140):
     y = fh2 - 140 + i
     d.line([(0, y), (W, y)], fill=TLO + (int(255 * (i / 140) ** 1.4),))
 
-ser = lambda s: ImageFont.truetype(f"{S}/fonts/cormorant.ttf", s)
-sans = lambda s: ImageFont.truetype(f"{S}/fonts/jakarta.ttf", s)
+# Kroje bywają w wersji zmiennej - domyślna instancja jest za cienka na duży
+# tytuł, więc wybieramy wagę po nazwie. Przy plikach statycznych
+# set_variation_by_name rzuca wyjątkiem i zostaje waga wbudowana w plik.
+def kroj(plik, rozmiar, waga):
+    f = ImageFont.truetype(f"{S}/fonts/{plik}", rozmiar)
+    try:
+        f.set_variation_by_name(waga)
+    except Exception:
+        pass
+    return f
+
+ser = lambda s: kroj("cormorant.ttf", s, "SemiBold")
+sans = lambda s: kroj("jakarta.ttf", s, "Medium")
 X = 74
 d = ImageDraw.Draw(karta)
 
