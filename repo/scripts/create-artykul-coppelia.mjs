@@ -34,11 +34,13 @@
  * z tych produkcji po prostu nie ma.
  * Okładka to karta tytułowa generowana skryptem scripts/karta-tytulowa.py:
  *   karta-tytulowa.py <katalog> <zdjęcie> <wynik> "" "Coppélia" \
- *     "Historia baletu o lalce, która nigdy nie ożyła" 0.60 0 1.28
+ *     "Historia baletu o lalce, która nigdy nie ożyła" 0.60 0 1.28 0.40
  * Zero to brak poświaty (kadr sam jest po lewej czarny), 1.28 to gamma -
  * zdjęcie ze sceny było za ciemne wokół baletnicy i pod tytułem.
  * 0.60 podnosi blok tekstu na tyle, żeby przycisk "Czytaj więcej",
  * który portal dokłada na kafelku strony głównej, nie wchodził na podtytuł.
+ * 0.40 to krycie równej, prostokątnej płytki pod samym podtytułem -
+ * podtytuł wypada częściowo na jaśniejszym fragmencie kadru.
  *
  * Idempotentny: po slug - patchuje istniejący.
  */

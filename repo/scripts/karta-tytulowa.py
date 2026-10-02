@@ -22,6 +22,9 @@ POSWIATA = float(sys.argv[8]) if len(sys.argv) > 8 else 1.0
 # wyżej podciąga cienie i półtony, prawie nie ruszając świateł - inaczej niż
 # zwykłe rozjaśnienie, które spłaszcza jasne partie (tu: sukienkę i reflektor).
 GAMMA = float(sys.argv[9]) if len(sys.argv) > 9 else 1.0
+# Krycie równej, prostokątnej płytki pod podtytułem, 0-1. Zero znaczy brak.
+# Przydaje się, gdy podtytuł wypada na jasnym fragmencie kadru.
+PLYTKA = float(sys.argv[10]) if len(sys.argv) > 10 else 0.0
 
 im = Image.open(src).convert("RGB")
 if GAMMA != 1.0:
@@ -88,6 +91,14 @@ if EYEBROW:
     y += h_eye + odstep1
 d.text((X - int(W * 0.004), y), TITLE, font=f_tit, fill=WHITE)
 y = d.textbbox((X - int(W * 0.004), y), TITLE, font=f_tit)[3] + odstep2
+if PLYTKA > 0:
+    l, g, pr, dl = d.textbbox((X, y), SUB, font=f_sub)
+    mar_x, mar_y = int(W * 0.011), int(H * 0.016)
+    nak = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    ImageDraw.Draw(nak).rectangle([l - mar_x, g - mar_y, pr + mar_x, dl + mar_y],
+                                  fill=(0, 0, 0, round(255 * PLYTKA)))
+    im = Image.alpha_composite(im.convert("RGBA"), nak).convert("RGB")
+    d = ImageDraw.Draw(im)
 d.text((X, y), SUB, font=f_sub, fill=IVORY)
 
 im.save(out, "JPEG", quality=92, optimize=True)
