@@ -29,8 +29,11 @@
  * godzinę wcześniejszą (17:30 i 16:00) niż strona teatru. Poprawione na dane
  * teatru; przy kolejnym imporcie z bilety24 warto sprawdzić, czy nie wrócą.
  *
- * Zdjęcia: wszystkie z gdańskiej inscenizacji, fot. Krzysztof Mystkowski / KFP,
- * z galerii Opery Bałtyckiej. Łódź i Warszawa jeszcze nie grały, więc zdjęć
+ * Zdjęcia w treści: wszystkie z gdańskiej inscenizacji, fot. Krzysztof Mystkowski
+ * / KFP / Opera Bałtycka, przekazane redakcji przez Izabelę Sokołowską-Boulton -
+ * są z bieżącej obsady, inaczej niż starsza galeria ze strony teatru. Podpisy
+ * celowo jednakowe i bez opisu sceny: to ma być wskazanie miejsca i autora,
+ * a nie interpretacja kadru. Łódź i Warszawa jeszcze nie grały, więc zdjęć
  * z tych produkcji po prostu nie ma.
  * Okładka to karta tytułowa generowana skryptem scripts/karta-tytulowa.py:
  *   karta-tytulowa.py <katalog> <zdjęcie> <wynik> "" "Coppélia" \
@@ -111,7 +114,7 @@ const tresc = (A) => [
   block('Rzecz zaczęła się od opowiadania E.T.A. Hoffmanna „Piaskun" z 1816 roku - mrocznej historii o studencie, który zakochuje się w Olimpii, nie wiedząc, że to automat, i po odkryciu prawdy traci rozum. U Hoffmanna kończy się to samobójstwem. Libreciści Opery Paryskiej zrobili z tego komedię.'),
   block('Scenariusz napisał Charles Nuitter, muzykę Léo Delibes, choreografię ułożył Arthur Saint-Léon. I tu rzecz, o której w Polsce mówi się zaskakująco rzadko: akcję umieścili w galicyjskim miasteczku, czyli na terenie, który wtedy należał do zaboru austriackiego, a dziś leży częściowo w Polsce, częściowo na Ukrainie. Nie był to kaprys scenografa, tylko decyzja wpisana w partyturę.'),
   block('„Coppélia" uchodzi bowiem za pierwszy balet, który na serio wpuścił na scenę tańce narodowe. W partyturze Delibesa jest mazur, jest czardasz, jest bolero i jest szkocka giga. Mazur z pierwszego aktu to do dziś jeden z najbardziej rozpoznawalnych numerów całego dziewiętnastowiecznego repertuaru baletowego - i wielu widzów w Polsce słyszy go z poczuciem, że skądś go zna, zanim dowie się, dlaczego.'),
-  obraz(A.gdansk, 'Ze spektaklu w Gdańsku. fot. Krzysztof Mystkowski / KFP / Opera Bałtycka'),
+  obraz(A.tance, 'Ze spektaklu w Gdańsku. fot. Krzysztof Mystkowski / KFP / Opera Bałtycka'),
 
   h2('Osiemnaście wieczorów i dwa pogrzeby'),
   block('Prapremiera odbyła się 25 maja 1870 roku w Théâtre Impérial de l\'Opéra w Paryżu. Swanildę tańczyła szesnastoletnia Włoszka Giuseppina Bozzacchi, dla której była to pierwsza wielka rola w życiu. Franza - i to nie jest pomyłka - tańczyła kobieta, Eugénie Fiocre, w męskim kostiumie. Obsadzanie męskich partii baletnicami było wtedy w Paryżu normą i w Operze Paryskiej utrzymało się aż do czasów po drugiej wojnie światowej.'),
@@ -122,7 +125,7 @@ const tresc = (A) => [
   h2('Lalka, która nigdy nie ożywa'),
   block('Warto zauważyć, co właściwie dzieje się w drugim akcie, bo to jedno z najzgrabniejszych rozwiązań w całym klasycznym repertuarze. Coppélia nie ożywa. Ani przez chwilę. Cała scena, w której stary mechanik tryumfuje, że oto udało mu się tchnąć życie w swoje dzieło, jest kpiną - lalkę gra podszywająca się pod nią dziewczyna.'),
   block('Dla tancerki oznacza to zadanie odwrotne do wszystkiego, czego uczy się w szkole: ma tańczyć źle. Sztywno, kanciasto, z opóźnieniem, jak nakręcana zabawka, i dopiero stopniowo przepuszczać przez tę maskę coraz więcej człowieka. Po akcie pierwszym, w którym Swanilda jest po prostu rozżaloną dziewczyną, i przed aktem ostatnim, w którym czeka ją klasyczne pas de deux. Trzy różne sposoby poruszania się w ciągu jednego wieczoru.'),
-  obraz(A.warsztat, 'Swanilda z przyjaciółkami w warsztacie Coppeliusa, po prawej lalka. Gdańska „Coppélia". fot. Krzysztof Mystkowski / KFP / Opera Bałtycka'),
+  obraz(A.lalka, 'Ze spektaklu w Gdańsku. fot. Krzysztof Mystkowski / KFP / Opera Bałtycka'),
   block('Osobna sprawa to muzyka. Delibes napisał partyturę, która nie towarzyszy tańcowi, tylko go prowadzi, i to ona zrobiła z „Coppélii" przełom. Piotr Czajkowski był pod ogromnym wrażeniem jego baletów. Po wysłuchaniu „Sylwii" napisał do Siergieja Taniejewa, w liście z Wiednia z 1877 roku, że gdyby znał tę muzykę wcześniej, nie napisałby „Jeziora łabędziego". Trudno o szczersze wyznanie między kompozytorami.'),
 
   h2('Polski wątek zaczyna się w 1882 roku'),
@@ -136,7 +139,7 @@ const tresc = (A) => [
   block('Opera Bałtycka, wznowienie. Terminy: 2.10 (pt.) 19:00, 3.10 (sob.) 18:00 oraz 4.10 (niedz.) 17:00.'),
   block('Inscenizacja Johana Kobborga miała premierę 6 kwietnia 2024 roku i teraz wraca na afisz. Kobborg, duński tancerz, pierwszy solista The Royal Ballet i Duńskiego Baletu Królewskiego, napisał do niej własne libretto na podstawie oryginału Nuittera i Saint-Léona. Teatr zapowiada świat wizualny przywołujący obrazy Chagalla; scenografię i kostiumy przygotowała Hanna Wójcikowska-Szymczak, reżyserię świateł Paulina Góral-Stykowska, multimedia Michał Lewandowski. Kierownictwo muzyczne i dyrygentura Luis Gorelik. Dwie godziny z jedną przerwą.'),
   block('Ciekawostka obsadowa: Coppeliusa we wszystkich trzech spektaklach tańczy sam Kobborg. Lalkę Coppélię - Izabela Sokołowska-Boulton. Swanilda i Franz zmieniają się z wieczoru na wieczór: 2 października Ludwiga Andruszkiewicz i Gento Yoshimoto, 3 października Oliwia Bryłkowska i Victor Verdecia, 4 października Saya Ikeda i Jacopo Severini.'),
-  obraz(A.coppelius, 'Coppelius i jego lalka w inscenizacji Johana Kobborga. fot. Krzysztof Mystkowski / KFP / Opera Bałtycka'),
+  obraz(A.gdansk, 'Ze spektaklu w Gdańsku. fot. Krzysztof Mystkowski / KFP / Opera Bałtycka'),
 
   h3('Łódź: powrót po dwudziestu sześciu latach'),
   block('Teatr Wielki w Łodzi, premiera. Terminy: 17.10 (sob.) 19:00, 18.10 (niedz.) 19:00, 14.11 (sob.) 18:30 oraz 15.11 (niedz.) 17:00.'),
@@ -151,7 +154,7 @@ const tresc = (A) => [
   h2('Na koniec dwie rzeczy, które łatwo przeoczyć'),
   block('Pierwsza: Luis Gorelik, argentyński dyrygent, prowadzi w tym sezonie dwie z trzech polskich „Coppélii" - gdańską i łódzką. W odstępie dwóch tygodni, w dwóch zupełnie różnych inscenizacjach, przy dwóch różnych orkiestrach.'),
   block('Druga: tytułowa bohaterka nie ma w całym balecie ani jednego kroku. Coppélia jest lalką, siedzi, czyta i milczy, a wszystko, co widzimy jako jej taniec, tańczy ktoś inny. Najsłynniejsza postać tego baletu to rola, w której nie wolno się ruszyć.'),
-  obraz(A.final, 'Finałowe pas de deux gdańskiej „Coppélii". fot. Krzysztof Mystkowski / KFP / Opera Bałtycka'),
+  obraz(A.final, 'Ze spektaklu w Gdańsku. fot. Krzysztof Mystkowski / KFP / Opera Bałtycka'),
   blockZLinkiem('Pełne repertuary wszystkich polskich teatrów operowych i baletowych znajdziecie jak zawsze na ', 'swiatbaletu.pl/repertuar', 'https://swiatbaletu.pl/repertuar', '.'),
 ]
 
@@ -167,10 +170,10 @@ async function main() {
   console.log('Wgrywam zdjęcia:')
   const A = {
     okladka:    await wgraj('coppelia-okladka-karta.jpg'),
+    tance:      await wgraj('coppelia-gd-tance.jpg'),
+    lalka:      await wgraj('coppelia-gd-lalka.jpg'),
     gdansk:     await wgraj('coppelia-gdansk.jpg'),
-    warsztat:   await wgraj('coppelia-warsztat.jpg'),
-    coppelius:  await wgraj('coppelia-coppelius.jpg'),
-    final:      await wgraj('coppelia-final.jpg'),
+    final:      await wgraj('coppelia-gd-final.jpg'),
   }
 
   const body = tresc(A)
