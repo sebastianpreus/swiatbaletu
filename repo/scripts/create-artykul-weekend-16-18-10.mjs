@@ -41,10 +41,13 @@
  * OKŁADKA: karta tytułowa generowana skryptem scripts/karta-tytulowa.py:
  *   karta-tytulowa.py <katalog> <zdjęcie> <wynik> "16-18 października" \
  *     "Weekend w balecie" "Premiery i spektakle w najbliższych dniach" \
- *     0.58 0.65 1.0 0.35
- * Kadr jest jasny i gęsty, więc tu poświata jest potrzebna (0.65), a pod
- * podtytułem dochodzi jeszcze prostokątna płytka (0.35). Przy ciemnych
- * zdjęciach ze sceny obie wartości zwykle zostają na zerze.
+ *     0.56 0 1.0 0.45
+ * Kadr jest jasny i gęsty, ale zamiast gasić całe zdjęcie poświatą dajemy
+ * płytkę pod każdą linijką (0.45), a zdjęcie zostaje nietknięte (poświata 0).
+ * 0.56 to kompromis: blok musi kończyć się powyżej 73,5 procent wysokości
+ * kadru, bo od tego miejsca na kafelku strony głównej leży przycisk
+ * "Czytaj więcej", a jednocześnie nie może wejść wyżej, żeby płytka tytułu
+ * nie zasłoniła oczu lalki.
  *
  * ZDJĘCIA: cztery z sześciu premier odbywają się w ten weekend, więc zdjęć
  * z tych spektakli jeszcze nie ma. "Conrad" zagrał 14 i 15 października, ale
