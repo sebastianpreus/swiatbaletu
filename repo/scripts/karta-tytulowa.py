@@ -24,6 +24,9 @@ POSWIATA = float(sys.argv[8]) if len(sys.argv) > 8 else 1.0
 GAMMA = float(sys.argv[9]) if len(sys.argv) > 9 else 1.0
 # Krycie równej, prostokątnej płytki pod podtytułem, 0-1. Zero znaczy brak.
 # Przydaje się, gdy podtytuł wypada na jasnym fragmencie kadru.
+# Krycie równych, prostokątnych płytek pod każdą linijką tekstu, 0-1.
+# Zero znaczy brak. Przy jasnych, gęstych kadrach płytka jest czytelniejsza
+# niż przyciemnianie całego zdjęcia - gasi tylko tyle, ile trzeba pod literami.
 PLYTKA = float(sys.argv[10]) if len(sys.argv) > 10 else 0.0
 
 im = Image.open(src).convert("RGB")
@@ -55,8 +58,10 @@ pom = ImageDraw.Draw(Image.new("RGB", (1, 1)))
 h_eye = pom.textbbox((0, 0), EYEBROW, font=f_eye)[3]
 h_tit = pom.textbbox((0, 0), TITLE, font=f_tit)[3]
 h_sub = pom.textbbox((0, 0), SUB, font=f_sub)[3]
-odstep1, odstep2 = int(H * 0.055), int(H * 0.030)
-h_blok = (h_eye + odstep1 if EYEBROW else 0) + h_tit + odstep2 + h_sub
+# Odstępy dobrane tak, żeby płytki sąsiednich linijek się nie zlewały:
+# każda dokłada do siebie margines 0.016 H z góry i z dołu.
+odstep1, odstep2 = int(H * 0.042), int(H * 0.040)
+h_blok = h_tit + odstep1 + h_sub + (odstep2 + h_eye if EYEBROW else 0)
 y0 = int(H * CY) - h_blok // 2
 szer_blok = max(pom.textbbox((0, 0), t, font=f)[2] for t, f in
                 ((EYEBROW, f_eye), (TITLE, f_tit), (SUB, f_sub)))
@@ -82,24 +87,33 @@ if POSWIATA > 0:
     im = Image.composite(Image.new("RGB", (W, H), (0, 0, 0)), im, mask)
 
 d = ImageDraw.Draw(im)
-GOLD, IVORY, WHITE = (201, 168, 76), (240, 236, 227), (255, 255, 255)
-y = y0
-if EYEBROW:
-    d.text((X, y), " ".join(EYEBROW.upper()), font=f_eye, fill=GOLD)
-    d.line([(X, y + h_eye + int(H * 0.022)), (X + int(W * 0.062), y + h_eye + int(H * 0.022))],
-           fill=GOLD, width=2)
-    y += h_eye + odstep1
-d.text((X - int(W * 0.004), y), TITLE, font=f_tit, fill=WHITE)
-y = d.textbbox((X - int(W * 0.004), y), TITLE, font=f_tit)[3] + odstep2
-if PLYTKA > 0:
-    l, g, pr, dl = d.textbbox((X, y), SUB, font=f_sub)
+WHITE = (255, 255, 255)
+
+# Płytka: równy prostokąt bez rozmycia, dokładnie pod jedną linijką tekstu.
+def plytka(x, gora, prawo, dol):
+    global im, d
     mar_x, mar_y = int(W * 0.011), int(H * 0.016)
     nak = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-    ImageDraw.Draw(nak).rectangle([l - mar_x, g - mar_y, pr + mar_x, dl + mar_y],
+    ImageDraw.Draw(nak).rectangle([x - mar_x, gora - mar_y, prawo + mar_x, dol + mar_y],
                                   fill=(0, 0, 0, round(255 * PLYTKA)))
     im = Image.alpha_composite(im.convert("RGBA"), nak).convert("RGB")
     d = ImageDraw.Draw(im)
-d.text((X, y), SUB, font=f_sub, fill=IVORY)
+
+# Linijka: najpierw płytka pod nią, potem tekst. Zwraca dolną krawędź liter.
+def linijka(tekst, font, x):
+    l, g, pr, dl = d.textbbox((x, y), tekst, font=font)
+    if PLYTKA > 0:
+        plytka(l, g, pr, dl)
+    d.text((x, y), tekst, font=font, fill=WHITE)
+    return dl
+
+# Kolejność: tytuł, pod nim linia opisowa, na końcu data. Wszystko białe,
+# każda linijka na własnej płytce.
+y = y0
+y = linijka(TITLE, f_tit, X - int(W * 0.004)) + odstep1
+y = linijka(SUB, f_sub, X) + odstep2
+if EYEBROW:
+    linijka(" ".join(EYEBROW.upper()), f_eye, X)
 
 im.save(out, "JPEG", quality=92, optimize=True)
 print(f"  ✓ {W}x{H}, blok tekstu: y {y0}-{y0+h_blok} z {H}")
