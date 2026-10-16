@@ -34,9 +34,10 @@
  *   rodzinne i edukacyjne  9
  *   premiery ............. 6  (3 baletowe i taneczne, 3 operowe, w tym
  *                              2 prapremiery światowe)
- * Jedyne teatry bez pozycji w ten weekend to Opera Nova w Bydgoszczy
- * i Opera Śląska w Bytomiu; obie mają terminy w innych dniach października,
- * więc to nie jest luka w imporcie.
+ * Kontrola pokrycia (nie trafia do tekstu - piszemy o tym, co grają, a nie
+ * o tym, czego nie grają): jedyne teatry bez pozycji w ten weekend to Opera
+ * Nova w Bydgoszczy i Opera Śląska w Bytomiu. Obie mają terminy w innych
+ * dniach października, więc to nie jest luka w imporcie.
  *
  * OKŁADKA: karta tytułowa generowana skryptem scripts/karta-tytulowa.py:
  *   karta-tytulowa.py <katalog> <zdjęcie> <wynik> "16-18 października" \
@@ -117,10 +118,9 @@ const tresc = (A) => [
   h2('Bilans na wejściu'),
   block('W naszym repertuarze weekend 16-18 października to siedem spektakli baletowych i tanecznych oraz dziesięć operowych. Do tego dwa operetkowe, jeden koncert i dziewięć pozycji rodzinnych i edukacyjnych.'),
   block('Premier jest sześć. Trzy baletowe i taneczne: „Coppélia" w Łodzi, „Lalka" w Szczecinie i „Rezerwuary" w Gdańsku. Trzy operowe: „Weiser" w Gdańsku, „Matki Chersonia" w Warszawie i „Faust" w Krakowie. Dwie z tych operowych to prapremiery światowe i obie wypadają tego samego piątkowego wieczoru.'),
-  block('Jedyne sceny, które w ten weekend nie grają nic, to Opera Nova w Bydgoszczy i Opera Śląska w Bytomiu.'),
 
   h2('Piątek 16 października: dwie prapremiery światowe o tej samej porze'),
-  block('O 19:00 w Gdańsku i o 19:00 w Warszawie zaczynają się dwa tytuły, których wcześniej nikt na świecie nie widział na scenie.'),
+  block('O godzinie 19:00 w Gdańsku i w Warszawie zaczynają się dwa tytuły, których wcześniej nikt na świecie nie widział na scenie.'),
 
   h3('„Weiser" - Opera Bałtycka, Gdańsk, 19:00'),
   block('Światowa prapremiera. Opera do powieści Pawła Huellego z 1987 roku, o chłopcu, który znika. Muzyka Ewy Fabiańskiej-Jelińskiej, libretto Anny Czekanowicz, reżyseria Romualda Wiczy-Pokojskiego, kierownictwo muzyczne i dyrygentura Radosław Droń. Akt pierwszy 51 minut, przerwa 20, akt drugi 32 - w sumie godzina czterdzieści trzy.'),
