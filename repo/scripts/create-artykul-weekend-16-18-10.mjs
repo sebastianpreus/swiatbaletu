@@ -38,6 +38,14 @@
  * i Opera Śląska w Bytomiu; obie mają terminy w innych dniach października,
  * więc to nie jest luka w imporcie.
  *
+ * OKŁADKA: karta tytułowa generowana skryptem scripts/karta-tytulowa.py:
+ *   karta-tytulowa.py <katalog> <zdjęcie> <wynik> "16-18 października" \
+ *     "Weekend w balecie" "Premiery i spektakle w najbliższych dniach" \
+ *     0.58 0.65 1.0 0.35
+ * Kadr jest jasny i gęsty, więc tu poświata jest potrzebna (0.65), a pod
+ * podtytułem dochodzi jeszcze prostokątna płytka (0.35). Przy ciemnych
+ * zdjęciach ze sceny obie wartości zwykle zostają na zerze.
+ *
  * ZDJĘCIA: cztery z sześciu premier odbywają się w ten weekend, więc zdjęć
  * z tych spektakli jeszcze nie ma. "Conrad" zagrał 14 i 15 października, ale
  * teatr nie podaje przy zdjęciach nazwiska fotografa, a bez podpisu nie
