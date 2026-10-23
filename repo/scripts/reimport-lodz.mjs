@@ -82,20 +82,17 @@ for (let offset = 0; offset < 14; offset++) {
         const btnText = $btn.text().trim()
         const btnHref = $btn.attr('href') || ''
         const btnTitle = $btn.attr('title') || ''
-        const titleMatch = btnTitle.match(/(?:Opera|Balet|Koncert|Edukacja|Musical|Wydarzenie|Spektakl)[:\s]+(.+?)\s*-\s*(\d{4}-\d{2}-\d{2})\s+(\d{2}:\d{2})/)
+        // Druga godzina z atrybutu title to faktyczna godzina rozpoczęcia,
+        // zgodna ze stroną teatru przez cały rok. Patrz scrape-repertuar.mjs.
+        const titleMatch = btnTitle.match(/(?:Opera|Balet|Koncert|Edukacja|Musical|Wydarzenie|Spektakl)[:\s]+(.+?)\s*-\s*(\d{4}-\d{2}-\d{2})\s+(\d{2}:\d{2})(?:\s*-\s*(\d{2}:\d{2}))?/)
         if (!titleMatch) return
 
         const title = titleMatch[1].trim().replace(/\s+/g, ' ')
         const dateStr = titleMatch[2]
-        const timeStr = titleMatch[3]
+        const timeStr = titleMatch[4] || titleMatch[3]
         const [y, m, dd] = dateStr.split('-').map(Number)
         let [h, min] = timeStr.split(':').map(Number)
-
-        // CEST korekta (bilety24 używa CET przez cały rok)
-        const lastSunMar = new Date(Date.UTC(y, 2, 31)); lastSunMar.setUTCDate(lastSunMar.getUTCDate() - lastSunMar.getUTCDay())
-        const lastSunOct = new Date(Date.UTC(y, 9, 31)); lastSunOct.setUTCDate(lastSunOct.getUTCDate() - lastSunOct.getUTCDay())
-        const evDate = new Date(Date.UTC(y, m - 1, dd))
-        if (evDate >= lastSunMar && evDate < lastSunOct) h += 1
+        if (!titleMatch[4]) h += 1
         const dateTime = warsawDateToISO(y, m, dd, h, min)
 
         const key = `${dateTime}-${title}`

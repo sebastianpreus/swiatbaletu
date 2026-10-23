@@ -883,7 +883,13 @@ async function scrapeLodz() {
 
           // Title from btn title attribute: "Kup bilet - Opera: NAPÓJ MIŁOSNY - 2026-03-20 17:30 - 18:30 - Łódź"
           const btnTitle = $btn.attr('title') || ''
-          const titleMatch = btnTitle.match(/(?:Opera|Balet|Koncert|Edukacja|Musical|Wydarzenie|Spektakl)[:\s]+(.+?)\s*-\s*(\d{4}-\d{2}-\d{2})\s+(\d{2}:\d{2})/)
+          // Atrybut title ma dwie godziny, zawsze o godzinę od siebie, np.
+          // "... - 2026-11-14 17:30 - 18:30 - Łódź". Druga z nich to faktyczna
+          // godzina rozpoczęcia - zgadza się ze stroną teatru i w lecie, i w zimie.
+          // Wcześniej braliśmy pierwszą i dodawaliśmy godzinę tylko w okresie
+          // letnim, przez co terminy listopadowe i styczniowe wychodziły
+          // o godzinę za wcześnie.
+          const titleMatch = btnTitle.match(/(?:Opera|Balet|Koncert|Edukacja|Musical|Wydarzenie|Spektakl)[:\s]+(.+?)\s*-\s*(\d{4}-\d{2}-\d{2})\s+(\d{2}:\d{2})(?:\s*-\s*(\d{2}:\d{2}))?/)
 
           let title = '', dateStr = '', timeStr = '', category = ''
           if (titleMatch) {
@@ -892,24 +898,15 @@ async function scrapeLodz() {
             category = catMatch ? catMatch[1] : ''
             title = titleMatch[1].trim()
             dateStr = titleMatch[2]
-            timeStr = titleMatch[3]
+            timeStr = titleMatch[4] || titleMatch[3]
           }
 
           if (!title || !dateStr) return
 
           const [y, m, dd] = dateStr.split('-').map(Number)
           let [h, min] = timeStr.split(':').map(Number)
-          // bilety24 returns times in CET (UTC+1) year-round, not CEST
-          // Add 1h during CEST period (late March - late October) to get correct local time
-          const isCEST = (() => {
-            const lastSunMar = new Date(Date.UTC(y, 2, 31))
-            lastSunMar.setUTCDate(lastSunMar.getUTCDate() - lastSunMar.getUTCDay())
-            const lastSunOct = new Date(Date.UTC(y, 9, 31))
-            lastSunOct.setUTCDate(lastSunOct.getUTCDate() - lastSunOct.getUTCDay())
-            const eventDate = new Date(Date.UTC(y, m - 1, dd))
-            return eventDate >= lastSunMar && eventDate < lastSunOct
-          })()
-          if (isCEST) h += 1
+          // Gdyby kiedyś zabrakło drugiej godziny, zostaje stara ścieżka: pierwsza plus godzina.
+          if (!titleMatch[4]) h += 1
           const dateTime = warsawDateToISO(y, m, dd, h, min)
 
           const key = `${dateTime}-${title}`
