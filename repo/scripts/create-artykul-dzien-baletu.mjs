@@ -121,16 +121,16 @@ const ZAJAWKA =
 
 const tresc = [
   h2('Zaczęło się od sztafety'),
-  block('Światowy Dzień Baletu wymyślono w 2014 roku jako transmisję dookoła świata. Pięć zespołów przekazywało sobie sygnał kolejno, według stref czasowych: The Royal Ballet, The Australian Ballet, San Francisco Ballet, Balet Bolszoj i The National Ballet of Canada. Kiedy w Londynie kończyła się poranna klasa, w Melbourne zaczynała się próba.'),
-  block('Pomysł był prosty i do dziś jest sednem całej rzeczy: zamiast pokazywać gotowy spektakl, pokazać to, czego widz nigdy nie widzi. Poranną klasę. Próbę. Ten sam fragment poprawiany po raz dziesiąty. Balet jest sztuką, w której efekt ma wyglądać na niewymuszony, a cała praca ma zniknąć - raz w roku zespoły odwracają tę zasadę i pokazują właśnie pracę.'),
-  block('Dla tancerzy to dzień osobisty. Klasa o dziewiątej rano, ta sama od stu lat i ta sama w każdym teatrze świata, jest ich codziennością, o której nikt poza nimi nie myśli. W Światowy Dzień Baletu to ona jest bohaterem transmisji.'),
+  block('Światowy Dzień Baletu wymyślono w 2014 roku jako transmisję dookoła świata. Pięć zespołów przekazywało sobie sygnał kolejno, według stref czasowych: The Royal Ballet, The Australian Ballet, San Francisco Ballet, Balet Bolszoj i The National Ballet of Canada. Kiedy w Londynie kończyła się poranna rozgrzewka, w Melbourne zaczynała się próba.'),
+  block('Pomysł był prosty i do dziś jest sednem całej rzeczy: zamiast pokazywać gotowy spektakl, pokazać to, czego widz nigdy nie widzi. Poranną lekcję tańca klasycznego. Próbę. Ten sam fragment poprawiany po raz dziesiąty. Balet jest sztuką, w której efekt ma wyglądać na niewymuszony, a cała praca ma zniknąć - raz w roku zespoły odwracają tę zasadę i pokazują właśnie pracę.'),
+  block('Dla tancerzy to dzień osobisty. Poranna lekcja tańca klasycznego, ta sama od stu lat i ta sama w każdym teatrze świata, jest ich codziennością, o której nikt poza nimi nie myśli. W Światowy Dzień Baletu to ona jest bohaterem transmisji.'),
 
   h2('Jak to wygląda dzisiaj'),
   block('Formuła z czasem się rozluźniła. Dziś nie ma jednej sztafety - każdy zespół nadaje u siebie, we własnej strefie czasowej, na własnych kanałach. Oglądanie jest bezpłatne i nie wymaga niczego poza kliknięciem.'),
   block('Na tegorocznej liście uczestników jest czterdzieści pięć pozycji z czterech kontynentów. Nie wszystkie to zespoły baletowe: są wśród nich także szkoły i organizacje branżowe, jak Royal Academy of Dance, ISTD czy The Royal Ballet School. Z Europy bierze udział jedenaście zespołów - Les Ballets de Monte-Carlo, Dutch National Ballet, Fiński Balet Narodowy, Norweski Balet Narodowy, Balet Opery Paryskiej, Polski Balet Narodowy, Królewski Balet Duński, Staatsballett Hannover, Stuttgart Ballet, Teatro alla Scala i Wiedeński Balet Państwowy.'),
 
   h2('Hasło tegorocznej edycji: jak powstają historie'),
-  block('„How Stories Are Made" - jak powstają historie. The Royal Ballet, który prowadzi główną transmisję, poświęcił trzy godziny temu, w jaki sposób wiedza o spektaklu przechodzi z pokolenia na pokolenie: od klasy porannej nadawanej na żywo z Royal Opera House, przez próby, po rozmowy z byłymi tancerzami i korepetytorami, którzy dziś uczą młodszych tego, czego sami nauczyli się od swoich mistrzów.'),
+  block('„How Stories Are Made" - jak powstają historie. The Royal Ballet, który prowadzi główną transmisję, poświęcił trzy godziny temu, w jaki sposób wiedza o spektaklu przechodzi z pokolenia na pokolenie: od porannej lekcji tańca klasycznego nadawanej na żywo z Royal Opera House, przez próby, po rozmowy z byłymi tancerzami i korepetytorami, którzy dziś uczą młodszych tego, czego sami nauczyli się od swoich mistrzów.'),
   block('Start o 11:30 czasu brytyjskiego, czyli 12:30 u nas. Transmisja ma tłumaczenie na język migowy i audiodeskrypcję. Przy okazji wypada stulecie The Royal Ballet School.'),
 
   h2('Polski Balet Narodowy pokazuje pantomimę'),
