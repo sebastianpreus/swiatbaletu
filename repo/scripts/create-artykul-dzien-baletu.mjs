@@ -118,7 +118,7 @@ const ZAJAWKA =
 const tresc = [
   h2('Zaczęło się od sztafety'),
   block('Światowy Dzień Baletu wymyślono w 2014 roku jako transmisję dookoła świata. Pięć zespołów przekazywało sobie sygnał kolejno, według stref czasowych: The Royal Ballet, The Australian Ballet, San Francisco Ballet, Balet Bolszoj i The National Ballet of Canada. Kiedy w Londynie kończyła się poranna klasa, w Melbourne zaczynała się próba.'),
-  block('Pomysł był prosty i do dziś jest sednem całej rzeczy: zamiast pokazywać gotowy spektakl, pokazać to, czego widz nigdy nie widzi. Poranną klasę. Próbę. Ten sam fragment poprawiany po raz dziesiąty. Balet jest sztuką, w której efekt ma wyglądać na niewymuszony, a cała robota ma zniknąć - raz w roku zespoły odwracają tę zasadę i pokazują właśnie robotę.'),
+  block('Pomysł był prosty i do dziś jest sednem całej rzeczy: zamiast pokazywać gotowy spektakl, pokazać to, czego widz nigdy nie widzi. Poranną klasę. Próbę. Ten sam fragment poprawiany po raz dziesiąty. Balet jest sztuką, w której efekt ma wyglądać na niewymuszony, a cała praca ma zniknąć - raz w roku zespoły odwracają tę zasadę i pokazują właśnie pracę.'),
   block('Dla tancerzy to dzień osobisty. Klasa o dziewiątej rano, ta sama od stu lat i ta sama w każdym teatrze świata, jest ich codziennością, o której nikt poza nimi nie myśli. W Światowy Dzień Baletu to ona jest bohaterem transmisji.'),
 
   h2('Jak to wygląda dzisiaj'),
@@ -141,7 +141,7 @@ const tresc = [
   block('Choreografia i reżyseria Jacek Tyski, do „Requiem" d-moll Mozarta - tego, które kompozytor zostawił nieukończone i które dokończyli Joseph Eybler i Franz Xaver Süssmayr. Kierownictwo muzyczne Marc Moncusi, dyryguje Zbigniew Graca, scenografia Stefania Chiarelli, kostiumy Marta Koncewoj, światła Paweł Murlik, projekcja Piotr Bednarczyk. Godzina bez przerwy, bez antraktu, bez wytchnienia. Premiera była 28 lutego tego roku.'),
   block('Kto nie zdąży dziś, ma jeszcze dwie szanse w tym tygodniu: jutro o 18:30 i w sobotę o 17:00. Potem „Requiem" wraca dopiero 21, 23 i 24 marca. W sobotę gra też „Symfonia tańca bis" w Warszawie.'),
 
-  h2('A potem listopad'),
+  h2('Co nas czeka w listopadzie'),
   block('Najbliższe tygodnie są gęste. 15 listopada Opera Krakowska pokazuje prapremierę światową „Balladyny" w choreografii i reżyserii Moniki Myśliwiec, do muzyki Chopina - dwuaktowy balet według dramatu Słowackiego. We Wrocławiu „Sen nocy letniej" gra siedem razy w ciągu ośmiu dni. W Łodzi „Coppélia" 14 i 15 listopada, w Gdańsku „Giselle" cztery razy pod koniec miesiąca.'),
   block('A 11 listopada w Poznaniu wieczór, który wart jest osobnej uwagi. Balet Teatru Wielkiego tańczy cztery choreografie Conrada Drzewieckiego - „Odwieczne pieśni" Karłowicza, „Etiudę b-moll" Szymanowskiego, „Adagio" Albinoniego i „Krzesanego" Kilara - pod batutą Marty Kluczyńskiej. Drzewiecki urodził się 14 października 1926 roku w Poznaniu, więc teatr gra ten program w setną rocznicę urodzin człowieka, który stworzył Polski Teatr Tańca i przestawił polski taniec na współczesne tory. Bilety po złotówce, sprzedaż rusza 3 listopada o 13:00.'),
   block('Światowy Dzień Baletu polega na pokazywaniu pracy, a nie efektu. Jeśli ktoś dziś pierwszy raz zobaczy, ile tej pracy mieści się w jednym podniesieniu ręki, dzień spełni swoje zadanie - a za kilka tygodni będzie miał gdzie zobaczyć efekt.'),
