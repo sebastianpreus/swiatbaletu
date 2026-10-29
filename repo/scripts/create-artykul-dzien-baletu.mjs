@@ -49,11 +49,15 @@
  *    Macieja Małeckiego, druga to musical - Opera Nova trzyma go pod adresem
  *    /spektakle/musical/. Teza się broni, ale nie na słowo.
  *
- * OKŁADKA: images/dzien-baletu-okladka.jpg, zrobiona z
- *   scripts/karta-rozciagnieta.py <katalog> <zdjęcie pionowe> <wynik> \
- *     "Światowy Dzień Baletu" "Jak powstają historie" \
- *     "Czterdzieści pięć zespołów. Polski jeden." "swiatbaletu.pl"
- * Zdjęcie pionowe od redakcji, to samo, z którego powstała grafika na posta.
+ * OKŁADKA: images/dzien-baletu-okladka.jpg, 2000x1125, złożona przez redakcję.
+ * Powstało kilka wersji generowanych skryptem scripts/karta-rozciagnieta.py,
+ * ale ostateczny kadr Sebastian złożył sam i to jego wgrywamy. Skrypt zostaje
+ * w repozytorium, bo układ "zdjęcie pionowe po lewej, tekst na rozjaśnionym
+ * przedłużeniu po prawej" jeszcze się przyda - razem z tym, czego się przy
+ * nim nauczyliśmy: gradient nie może wchodzić na fotografię, a żeby mógł
+ * wygaszać cokolwiek poza nią, kadr trzeba najpierw przedłużyć kolorem
+ * własnej krawędzi, liczonym osobno dla każdego wiersza.
+ *
  * UWAGA: brak podpisu autora zdjęcia - do uzupełnienia w polu `zrodlo`.
  */
 import { createClient } from '@sanity/client'
