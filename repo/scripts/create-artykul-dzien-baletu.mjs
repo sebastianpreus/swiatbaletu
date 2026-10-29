@@ -61,13 +61,17 @@
  * wygaszać cokolwiek poza nią, kadr trzeba najpierw przedłużyć kolorem
  * własnej krawędzi, liczonym osobno dla każdego wiersza.
  *
- * Biel grafiki podciągnięta do koloru tła portalu skryptem
- * scripts/dopasuj-biel-do-tla.py. Oryginał leży obok jako
- * images/dzien-baletu-okladka-oryginal.jpg, więc korekta jest odwracalna
- * i nie nakłada JPEG-a na JPEG przy kolejnych poprawkach. Powód korekty:
- * ściana w tej sesji ma #E7E7EB, grafika wychodziła z tłem rgb(240,240,242),
- * a strona ma rgb(250,250,248) - dziesięć poziomów różnicy i chłodniejszy
- * odcień wystarczyły, żeby kadr czytał się na portalu jako szary.
+ * Okładka czytała się na portalu jako szara, mimo że plik był wgrany bajt
+ * w bajt i nic go nie przyciemniało. Powód: ściana w tej sesji ma #E7E7EB,
+ * grafika wychodziła z tłem rgb(240,240,242), a strona ma rgb(250,250,248).
+ * Dziesięć poziomów różnicy i chłodniejszy odcień wystarczyły - oko porównuje
+ * z sąsiedztwem. Biel podciągnięta skryptem scripts/dopasuj-biel-do-tla.py.
+ *
+ * UWAGA PRZY PODMIANIE PLIKU: korekty nie wolno nakładać dwa razy. Aktualna
+ * okładka (poprawiona stopa modelki) przyszła już z punktem bieli 250/250/248,
+ * bo powstała z wersji po korekcie - idzie więc na portal bez zmian. Przed
+ * ponownym uruchomieniem dopasuj-biel-do-tla.py sprawdź punkt bieli pliku;
+ * jeśli jest już na poziomie tła strony, odpuść.
  *
  * UWAGA: brak podpisu autora zdjęcia - do uzupełnienia w polu `zrodlo`.
  */
