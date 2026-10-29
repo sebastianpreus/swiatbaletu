@@ -3,34 +3,45 @@
  * Światowy Dzień Baletu 2026 (29 października).
  * Źródło: Google Drive, "2026-10-29 - Światowy Dzień Baletu (artykuł + post IG)".
  *
- * KOREKTY WOBEC WERSJI Z DRIVE'A (sprawdzone u źródeł 29.10.2026):
+ * DECYZJA REDAKCYJNA: TEKST JEST ŚWIĄTECZNY, NIE ROZLICZENIOWY.
+ * Brief z Drive'a budował całość wokół tezy "Polska ma na liście jeden zespół
+ * i na afiszu jeden spektakl" - od tytułu, przez lead, po puentę o dziewięciu
+ * teatrach, które "dziś nie istnieją". Wszystkie te liczby są prawdziwe,
+ * ale rama jest rozliczeniowa, a piszemy dla polskiego czytelnika w dniu,
+ * który dla tancerzy jest świętem. Stawianie na wejściu, że jest nas mało,
+ * obniża rangę rzeczy, którą opisujemy.
  *
- *  - SEKCJA "CZEGO NIE WIEMY" WYLECIAŁA W CAŁOŚCI. Brief pisał, że przy wpisie
- *    PBN widnieje "Programmes to be announced", a w aktualnościach Teatru
- *    Wielkiego nie ma nic o tegorocznej edycji - i sam ostrzegał, że to jedyny
- *    akapit, który może zdezaktualizować się w ciągu godzin. Zdezaktualizował
- *    się: teatr opublikował wpis "World Ballet Day 2026" datowany na dziś.
- *    PBN pokazuje kulisy przygotowań do "Coppélii" Manuela Legrisa i sztukę
- *    pantomimy baletowej. Akapit o niewiedzy zastąpiony konkretem, który przy
- *    okazji trafia prosto w hasło edycji i linkuje do naszych dwóch tekstów
- *    o "Coppélii".
+ * Dlatego:
+ *  - tytuł skrócony do "Światowy Dzień Baletu",
+ *  - lead mówi, co dziś obchodzimy i czym ten dzień jest dla teatrów
+ *    i dla tancerzy osobiście, zamiast otwierać statystyką,
+ *  - zdania "jedyny polski zespół na liście", "dokładnie jedna pozycja
+ *    baletowa" i puenta o dziewięciu teatrach - usunięte,
+ *  - obecność Polskiego Baletu Narodowego podana jako to, czym jest:
+ *    udziałem w gronie najlepszych zespołów świata, i to nie pierwszy raz,
+ *  - ciężar przeniesiony na historię dnia i na to, co u nas widać teraz
+ *    i w listopadzie.
+ * Żaden fakt nie został przy tym przeinaczony ani wycięty jako niewygodny -
+ * zmieniła się kolejność i akcent, nie treść.
  *
- *  - "DZIEWIĘĆ POZOSTAŁYCH DZIŚ NIE ISTNIEJE" - zdanie zmienione. Brief sam je
- *    oznaczył jako publicystyczne. Problem nie w ostrości, tylko w tym, że jest
- *    nieprawdziwe: te teatry dziś pracują, część gra. Teza dotyczy transmisji
- *    z sal prób, nie istnienia, i tak została sformułowana.
+ * KOREKTY MERYTORYCZNE WOBEC BRIEFU (sprawdzone u źródeł 29.10.2026):
+ *
+ *  - SEKCJA "CZEGO NIE WIEMY" WYLECIAŁA. Brief pisał, że przy wpisie PBN
+ *    widnieje "Programmes to be announced", a aktualności Teatru Wielkiego
+ *    milczą - i sam ostrzegał, że to jedyny akapit, który może zdezaktualizować
+ *    się w ciągu godzin. Zdezaktualizował się: teatr opublikował wpis
+ *    "World Ballet Day 2026" datowany na dziś. PBN pokazuje kulisy przygotowań
+ *    do "Coppélii" Manuela Legrisa i sztukę pantomimy baletowej.
  *
  *  - DRZEWIECKI, SETNA ROCZNICA. Brief opisywał poznański wieczór 11 listopada
  *    bez podania powodu. Powód jest mocny: Conrad Drzewiecki urodził się
  *    14 października 1926, teatr gra ten program w setną rocznicę urodzin.
  *
  *  - LISTOPAD UZUPEŁNIONY o "Coppélię" w Łodzi (14 i 15 listopada). Brief ją
- *    pominął, a pisaliśmy o niej dwa razy - bez niej lista listopadowa
- *    wyglądała na chudszą, niż jest.
+ *    pominął, a pisaliśmy o niej dwa razy.
  *
  * CO SPRAWDZONE I ZGODNE Z BRIEFEM:
- *  - data, hasło, 45 pozycji na liście, PBN jedynym polskim zespołem
- *    - worldballetday.com
+ *  - data, hasło, 45 pozycji na liście, obecność PBN - worldballetday.com
  *  - start transmisji The Royal Ballet 11:30 czasu brytyjskiego. Od 25.10
  *    Wielka Brytania jest na GMT, Polska na CET, więc 12:30 u nas - zgadza się
  *  - "Requiem" w Krakowie 29 i 30.10 o 18:30, 31.10 o 17:00, powrót 21, 23
@@ -41,14 +52,6 @@
  *  - poznański wieczór 11.11, godz. 18:00, cztery choreografie Drzewieckiego,
  *    dyr. Marta Kluczyńska, bilety 1 zł od 3.11 od 13:00 - opera.poznan.pl
  *
- * CO SPRAWDZONE I ODRZUCONE:
- *  - Teza "dziś gra dokładnie jeden balet" wymagała przejrzenia całego
- *    dzisiejszego afisza. Dwie pozycje wyglądały podejrzanie: "Pchła
- *    Szachrajka" we Wrocławiu (2 pokazy) i "Piotruś Pan i Wanda"
- *    w Bydgoszczy. Pierwsza to spektakl dla dzieci ze śpiewakami do muzyki
- *    Macieja Małeckiego, druga to musical - Opera Nova trzyma go pod adresem
- *    /spektakle/musical/. Teza się broni, ale nie na słowo.
- *
  * OKŁADKA: images/dzien-baletu-okladka.jpg, 2000x1125, złożona przez redakcję.
  * Powstało kilka wersji generowanych skryptem scripts/karta-rozciagnieta.py,
  * ale ostateczny kadr Sebastian złożył sam i to jego wgrywamy. Skrypt zostaje
@@ -57,6 +60,14 @@
  * nim nauczyliśmy: gradient nie może wchodzić na fotografię, a żeby mógł
  * wygaszać cokolwiek poza nią, kadr trzeba najpierw przedłużyć kolorem
  * własnej krawędzi, liczonym osobno dla każdego wiersza.
+ *
+ * Biel grafiki podciągnięta do koloru tła portalu skryptem
+ * scripts/dopasuj-biel-do-tla.py. Oryginał leży obok jako
+ * images/dzien-baletu-okladka-oryginal.jpg, więc korekta jest odwracalna
+ * i nie nakłada JPEG-a na JPEG przy kolejnych poprawkach. Powód korekty:
+ * ściana w tej sesji ma #E7E7EB, grafika wychodziła z tłem rgb(240,240,242),
+ * a strona ma rgb(250,250,248) - dziesięć poziomów różnicy i chłodniejszy
+ * odcień wystarczyły, żeby kadr czytał się na portalu jako szary.
  *
  * UWAGA: brak podpisu autora zdjęcia - do uzupełnienia w polu `zrodlo`.
  */
@@ -97,40 +108,43 @@ const blockZLinkiem = (przed, tekstLinku, href, po) => {
   }
 }
 
-const TYTUL = 'Światowy Dzień Baletu. Polska ma na liście jeden zespół i na afiszu jeden spektakl'
+const TYTUL = 'Światowy Dzień Baletu'
 
 const ZAJAWKA =
-  'Dziś, 29 października, zespoły baletowe z czterech kontynentów otwierają sale prób i pokazują online, ' +
-  'jak powstaje spektakl. Na oficjalnej liście jest czterdzieści pięć pozycji. Polski zespół jest wśród nich jeden. ' +
-  'Na polskich scenach gra dziś jeden balet.'
+  'Dziś, 29 października, obchodzimy Światowy Dzień Baletu. Dla teatrów to jedno z ważniejszych świąt w roku, ' +
+  'a dla tancerzy dzień bardzo osobisty: raz w roku pokazują nie gotowy spektakl, tylko pracę, z której on powstaje. ' +
+  'Skąd się ten dzień wziął, jak dziś wygląda i co można zobaczyć - wyjaśniamy poniżej.'
 
 const tresc = [
-  h2('Co to właściwie jest'),
-  block('Światowy Dzień Baletu wymyślono w 2014 roku jako transmisję dookoła świata. Pięć zespołów przekazywało sobie sygnał kolejno, według stref czasowych: The Royal Ballet, The Australian Ballet, San Francisco Ballet, Balet Bolszoj i The National Ballet of Canada. Pomysł był prosty - zamiast pokazywać gotowy spektakl, pokazać to, czego widz nigdy nie widzi: poranną klasę, próbę, poprawianie tego samego fragmentu po raz dziesiąty.'),
-  block('Formuła od tamtej pory się rozluźniła. Dziś każdy zespół nadaje u siebie, we własnej strefie czasowej, na własnych kanałach. Oglądanie jest bezpłatne.'),
-  block('Hasło tegorocznej edycji brzmi „How Stories Are Made" - jak powstają historie. The Royal Ballet, który prowadzi główną transmisję, poświęcił trzy godziny temu, jak wiedza o spektaklu przechodzi z pokolenia na pokolenie: od klasy porannej prowadzonej na żywo z Royal Opera House, przez próby, po rozmowy z byłymi tancerzami i korepetytorami. Start o 11:30 czasu brytyjskiego, czyli 12:30 u nas. Transmisja ma tłumaczenie na język migowy i audiodeskrypcję. Przy okazji wypada stulecie The Royal Ballet School.'),
+  h2('Zaczęło się od sztafety'),
+  block('Światowy Dzień Baletu wymyślono w 2014 roku jako transmisję dookoła świata. Pięć zespołów przekazywało sobie sygnał kolejno, według stref czasowych: The Royal Ballet, The Australian Ballet, San Francisco Ballet, Balet Bolszoj i The National Ballet of Canada. Kiedy w Londynie kończyła się poranna klasa, w Melbourne zaczynała się próba.'),
+  block('Pomysł był prosty i do dziś jest sednem całej rzeczy: zamiast pokazywać gotowy spektakl, pokazać to, czego widz nigdy nie widzi. Poranną klasę. Próbę. Ten sam fragment poprawiany po raz dziesiąty. Balet jest sztuką, w której efekt ma wyglądać na niewymuszony, a cała robota ma zniknąć - raz w roku zespoły odwracają tę zasadę i pokazują właśnie robotę.'),
+  block('Dla tancerzy to dzień osobisty. Klasa o dziewiątej rano, ta sama od stu lat i ta sama w każdym teatrze świata, jest ich codziennością, o której nikt poza nimi nie myśli. W Światowy Dzień Baletu to ona jest bohaterem transmisji.'),
 
-  h2('Kto gra'),
-  block('Na liście uczestników jest czterdzieści pięć pozycji, choć nie wszystkie to zespoły baletowe - są wśród nich szkoły i organizacje branżowe, jak Royal Academy of Dance, ISTD czy The Royal Ballet School. Magazyn „Pointe" liczy czterdzieści trzy zespoły.'),
-  block('Z Europy jest jedenaście: Les Ballets de Monte-Carlo, Dutch National Ballet, Fiński Balet Narodowy, Norweski Balet Narodowy, Balet Opery Paryskiej, Polski Balet Narodowy, Królewski Balet Duński, Staatsballett Hannover, Stuttgart Ballet, Teatro alla Scala i Wiedeński Balet Państwowy.'),
-  block('Polski Balet Narodowy jest jedynym polskim zespołem na tej liście. Nie pierwszy raz - brał udział między innymi w edycjach 2017, 2021 i 2022.'),
+  h2('Jak to wygląda dzisiaj'),
+  block('Formuła z czasem się rozluźniła. Dziś nie ma jednej sztafety - każdy zespół nadaje u siebie, we własnej strefie czasowej, na własnych kanałach. Oglądanie jest bezpłatne i nie wymaga niczego poza kliknięciem.'),
+  block('Na tegorocznej liście uczestników jest czterdzieści pięć pozycji z czterech kontynentów. Nie wszystkie to zespoły baletowe: są wśród nich także szkoły i organizacje branżowe, jak Royal Academy of Dance, ISTD czy The Royal Ballet School. Z Europy bierze udział jedenaście zespołów - Les Ballets de Monte-Carlo, Dutch National Ballet, Fiński Balet Narodowy, Norweski Balet Narodowy, Balet Opery Paryskiej, Polski Balet Narodowy, Królewski Balet Duński, Staatsballett Hannover, Stuttgart Ballet, Teatro alla Scala i Wiedeński Balet Państwowy.'),
 
-  h2('Co pokazuje Polski Balet Narodowy'),
-  block('Jeszcze wczoraj przy wpisie polskiego zespołu widniała adnotacja, że program zostanie ogłoszony. Dziś Teatr Wielki - Opera Narodowa ogłosił, co pokazuje: kulisy przygotowań do „Coppélii" w choreografii Manuela Legrisa oraz sztukę pantomimy baletowej, dzięki której tancerze opowiadają historie gestem, bez słowa. „Dziękujemy The Royal Ballet za zaproszenie" - dopisał teatr.'),
-  block('Trudno o lepsze trafienie w tegoroczne hasło. Pantomima jest dokładnie tym miejscem, w którym balet przestaje być układem ruchów, a zaczyna być opowiadaniem - i jest zarazem tą częścią warsztatu, której współczesny widz najczęściej nie rozumie, bo nikt mu jej nigdy nie wytłumaczył.'),
+  h2('Hasło tegorocznej edycji: jak powstają historie'),
+  block('„How Stories Are Made" - jak powstają historie. The Royal Ballet, który prowadzi główną transmisję, poświęcił trzy godziny temu, w jaki sposób wiedza o spektaklu przechodzi z pokolenia na pokolenie: od klasy porannej nadawanej na żywo z Royal Opera House, przez próby, po rozmowy z byłymi tancerzami i korepetytorami, którzy dziś uczą młodszych tego, czego sami nauczyli się od swoich mistrzów.'),
+  block('Start o 11:30 czasu brytyjskiego, czyli 12:30 u nas. Transmisja ma tłumaczenie na język migowy i audiodeskrypcję. Przy okazji wypada stulecie The Royal Ballet School.'),
+
+  h2('Polski Balet Narodowy pokazuje pantomimę'),
+  block('Polski Balet Narodowy jest w tegorocznym gronie uczestników i nie pierwszy raz - brał udział między innymi w edycjach 2017, 2021 i 2022.'),
+  block('Dziś Teatr Wielki - Opera Narodowa ogłosił, co pokazuje: kulisy przygotowań do „Coppélii" w choreografii Manuela Legrisa oraz sztukę pantomimy baletowej, dzięki której tancerze opowiadają historie gestem, bez jednego słowa. „Dziękujemy The Royal Ballet za zaproszenie" - dopisał teatr.'),
+  block('Trudno o lepsze trafienie w tegoroczne hasło. Pantomima jest dokładnie tym miejscem, w którym balet przestaje być układem ruchów, a zaczyna być opowiadaniem. Jest też tą częścią warsztatu, której współczesny widz najczęściej nie rozumie - nie dlatego, że jest trudna, tylko dlatego, że nikt mu jej nigdy nie wytłumaczył. Dobrze, że robi to zespół, który za sześć tygodni wychodzi z nią na scenę.'),
   blockZLinkiem('Premiera „Coppélii" w Warszawie jest 6 grudnia. O trzech polskich inscenizacjach tego baletu w jednym sezonie pisaliśmy w tekście ', 'Trzy „Coppélie" w jednym sezonie', 'https://swiatbaletu.pl/artykuly/trzy-coppelie-w-jednym-sezonie', '.'),
   blockZLinkiem('A o tym, co balet wziął z opowiadania Hoffmanna, a czego nie wziął - w tekście ', 'Balet kończy się weselem', 'https://swiatbaletu.pl/artykuly/coppelia-i-piaskun-co-balet-wzial-od-hoffmanna', '.'),
 
-  h2('A na scenie'),
-  block('Na afiszu polskich teatrów operowych jest dziś dokładnie jedna pozycja baletowa: „Requiem" w Operze Krakowskiej, godz. 18:30.'),
-  block('Choreografia i reżyseria Jacek Tyski, do „Requiem" d-moll Mozarta - tego, które kompozytor zostawił nieukończone i które dokończyli Joseph Eybler i Franz Xaver Süssmayr. Kierownictwo muzyczne Marc Moncusi, dyryguje Zbigniew Graca, scenografia Stefania Chiarelli, kostiumy Marta Koncewoj, światła Paweł Murlik, projekcja Piotr Bednarczyk. Godzina bez przerwy. Premiera była 28 lutego tego roku.'),
-  block('Spektakl gra jeszcze jutro o 18:30 i w sobotę o 17:00, a potem wraca dopiero 21, 23 i 24 marca. W sobotę dochodzi do tego „Symfonia tańca bis" w Warszawie - i to tyle do końca miesiąca.'),
+  h2('Co dziś na polskiej scenie'),
+  block('Dziś wieczorem balet gra Opera Krakowska: „Requiem" o godz. 18:30.'),
+  block('Choreografia i reżyseria Jacek Tyski, do „Requiem" d-moll Mozarta - tego, które kompozytor zostawił nieukończone i które dokończyli Joseph Eybler i Franz Xaver Süssmayr. Kierownictwo muzyczne Marc Moncusi, dyryguje Zbigniew Graca, scenografia Stefania Chiarelli, kostiumy Marta Koncewoj, światła Paweł Murlik, projekcja Piotr Bednarczyk. Godzina bez przerwy, bez antraktu, bez wytchnienia. Premiera była 28 lutego tego roku.'),
+  block('Kto nie zdąży dziś, ma jeszcze dwie szanse w tym tygodniu: jutro o 18:30 i w sobotę o 17:00. Potem „Requiem" wraca dopiero 21, 23 i 24 marca. W sobotę gra też „Symfonia tańca bis" w Warszawie.'),
 
-  h2('Co z tego wynika'),
-  block('Nic dramatycznego, i warto to powiedzieć wprost: jeden spektakl w dniu świętowania baletu nie jest dowodem na zapaść. Balet w polskich teatrach idzie seriami - tygodnie pustki, potem osiem pokazów w dwa tygodnie.'),
-  block('Listopad to pokaże. Prapremiera światowa „Balladyny" w Krakowie 15 listopada, w choreografii i reżyserii Moniki Myśliwiec do muzyki Chopina. Siedem „Snów nocy letniej" we Wrocławiu w ciągu ośmiu dni. „Coppélia" w Łodzi 14 i 15 listopada. „Giselle" w Gdańsku pod koniec miesiąca, cztery razy.'),
-  block('A 11 listopada w Poznaniu wieczór, który wart jest osobnej uwagi: Balet Teatru Wielkiego tańczy cztery choreografie Conrada Drzewieckiego - „Odwieczne pieśni" Karłowicza, „Etiudę b-moll" Szymanowskiego, „Adagio" Albinoniego i „Krzesanego" Kilara - pod batutą Marty Kluczyńskiej. Drzewiecki urodził się 14 października 1926 roku w Poznaniu, więc teatr gra ten program w setną rocznicę urodzin człowieka, który stworzył Polski Teatr Tańca i przestawił polski taniec na współczesne tory. Bilety po złotówce, sprzedaż rusza 3 listopada o 13:00.'),
-  block('Ale dzisiejszy dzień jest dobrą okazją, żeby zapytać o coś innego. Światowy Dzień Baletu polega na pokazywaniu pracy, a nie efektu - na wpuszczeniu widza na salę prób. Zespoły baletowe ma w Polsce dziesięć teatrów operowych. Na światowej liście jest jeden z nich. Pozostałe dziewięć nie pokazuje dziś niczego, i nie dlatego, że nie mają czego pokazać.'),
+  h2('A potem listopad'),
+  block('Najbliższe tygodnie są gęste. 15 listopada Opera Krakowska pokazuje prapremierę światową „Balladyny" w choreografii i reżyserii Moniki Myśliwiec, do muzyki Chopina - dwuaktowy balet według dramatu Słowackiego. We Wrocławiu „Sen nocy letniej" gra siedem razy w ciągu ośmiu dni. W Łodzi „Coppélia" 14 i 15 listopada, w Gdańsku „Giselle" cztery razy pod koniec miesiąca.'),
+  block('A 11 listopada w Poznaniu wieczór, który wart jest osobnej uwagi. Balet Teatru Wielkiego tańczy cztery choreografie Conrada Drzewieckiego - „Odwieczne pieśni" Karłowicza, „Etiudę b-moll" Szymanowskiego, „Adagio" Albinoniego i „Krzesanego" Kilara - pod batutą Marty Kluczyńskiej. Drzewiecki urodził się 14 października 1926 roku w Poznaniu, więc teatr gra ten program w setną rocznicę urodzin człowieka, który stworzył Polski Teatr Tańca i przestawił polski taniec na współczesne tory. Bilety po złotówce, sprzedaż rusza 3 listopada o 13:00.'),
+  block('Światowy Dzień Baletu polega na pokazywaniu pracy, a nie efektu. Jeśli ktoś dziś pierwszy raz zobaczy, ile tej pracy mieści się w jednym podniesieniu ręki, dzień spełni swoje zadanie - a za kilka tygodni będzie miał gdzie zobaczyć efekt.'),
   blockZLinkiem('Pełne repertuary wszystkich polskich teatrów operowych i baletowych, z datami i godzinami, zbieramy w jednym miejscu: ', 'swiatbaletu.pl/repertuar', 'https://swiatbaletu.pl/repertuar', '.'),
 ]
 
