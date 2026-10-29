@@ -73,7 +73,8 @@
  * ponownym uruchomieniem dopasuj-biel-do-tla.py sprawdź punkt bieli pliku;
  * jeśli jest już na poziomie tła strony, odpuść.
  *
- * UWAGA: brak podpisu autora zdjęcia - do uzupełnienia w polu `zrodlo`.
+ * PODPIS: tancerka Tamila Dudnik, fot. Sajmon White - w polu `zrodlo`,
+ * renderowanym jako podpis pod okładką.
  */
 import { createClient } from '@sanity/client'
 import { readFileSync, existsSync } from 'fs'
@@ -177,7 +178,8 @@ async function main() {
     zdjecie: {
       _type: 'image',
       asset: { _type: 'reference', _ref: okladka },
-      alt: 'Tancerka w białej spódnicy na pointach w jasnej sali prób',
+      alt: 'Tamila Dudnik w arabesce na pointach, w jasnej sali prób',
+      zrodlo: 'Tamila Dudnik, fot. Sajmon White',
     },
     trescGlowna: tresc,
     autor: 'Redakcja Świat Baletu',
