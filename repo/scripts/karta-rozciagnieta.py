@@ -29,6 +29,8 @@ Uruchomienie:
   X_TEKST    lewa krawędź kolumny tekstu, ułamek szerokości (domyślnie 0.53)
   BIEL       jak mocno rozjaśnić próbkowany kolor w stronę bieli, 0-1
              (domyślnie 0.55; 1.0 dałoby czystą biel, czego zwykle nie chcemy)
+  SZEROKOSC  szerokość karty w pikselach (domyślnie 2400, wysokość 16:9).
+             Zmniejsz przy małym zdjęciu źródłowym, żeby go nie rozciągać
 """
 import sys
 from PIL import Image, ImageDraw, ImageFont
@@ -39,8 +41,12 @@ UDZIAL = float(sys.argv[7]) if len(sys.argv) > 7 else 0.50
 GRAD_DL = float(sys.argv[8]) if len(sys.argv) > 8 else 0.30
 X_TEKST = float(sys.argv[9]) if len(sys.argv) > 9 else 0.53
 BIEL = float(sys.argv[10]) if len(sys.argv) > 10 else 0.55
+# Szerokość karty. Mniejsza przydaje się przy małych źródłach - portret
+# 405x608 rozciągnięty na 2400 px robi się miękki, na 2000 px jeszcze nie.
+SZEROKOSC = int(sys.argv[11]) if len(sys.argv) > 11 else 2400
 
-W, H = 2400, 1350
+W = SZEROKOSC
+H = round(W * 9 / 16)
 ZLOTO = (168, 131, 42)
 TEKST = (20, 20, 20)
 SZARY = (120, 120, 124)
@@ -71,7 +77,10 @@ fw = foto.width
 # Kolor dolewki: średnia z pionowego paska przy prawej krawędzi zdjęcia,
 # rozjaśniona w stronę bieli o BIEL. Pasek bierzemy ze środka wysokości,
 # żeby nie złapać podłogi ani cienia przy suficie.
-pas = foto.crop((fw - round(fw * 0.08), round(H * 0.15), fw, round(H * 0.60)))
+# Próbkę bierzemy z GÓRNEGO prawego rogu, nie ze środka wysokości. Przy
+# portrecie środek prawej krawędzi to zwykle sylwetka, nie tło - przy zdjęciu
+# Konwińskiego wychodziło stamtąd (155,158,165), czyli kolor jego marynarki.
+pas = foto.crop((round(fw * 0.78), 0, fw, round(H * 0.12)))
 px = list(pas.getdata())
 sr = tuple(sum(p[i] for p in px) // len(px) for i in range(3))
 TLO = tuple(round(c + (255 - c) * BIEL) for c in sr)
@@ -91,8 +100,24 @@ im.paste(foto, (0, 0))
 # Średnia z trzydziestu kolumn, nie z jednej - pojedyncza kolumna potrafi
 # trafić w krawędź listwy na ścianie i rozciągnąć ją w poziomy pasek.
 g0, g1 = fw, min(W, fw + round(W * GRAD_DL))
+# Wiersz, w którym na krawędzi kadru stoi sylwetka, a nie tło, nie nadaje się
+# do przedłużania: przy portrecie Konwińskiego ciemna marynarka rozciągała się
+# w prawo jako smuga pod tekstem. Takie wiersze dostają czysty kolor tła.
+# Próg 70 w luminancji jest dobrany tak, by przepuścić naturalne różnice
+# w obrębie kadru - podłoga bywa o 50 ciemniejsza od ściany i ma się
+# przedłużać - a zatrzymać sylwetkę, która odstaje o ponad 200.
+PROG = 70
 if g0 < W:
     kraw = foto.crop((fw - 30, 0, fw, H)).resize((1, H), Image.BOX)
+    luma = lambda c: 0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2]
+    luma_tla = luma(sr)
+    zastapione = 0
+    for y in range(H):
+        if abs(luma(kraw.getpixel((0, y))) - luma_tla) > PROG:
+            kraw.putpixel((0, y), sr)
+            zastapione += 1
+    if zastapione:
+        print(f"  wierszy z sylwetką na krawędzi: {zastapione}/{H} - przedłużone kolorem tła")
     im.paste(kraw.resize((W - fw, H), Image.NEAREST), (fw, 0))
 nak = Image.new("RGBA", (W, H), TLO + (0,))
 d_nak = ImageDraw.Draw(nak)
