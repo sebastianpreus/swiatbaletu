@@ -54,6 +54,34 @@ f_eye = sans(int(W * 0.0135))
 f_tit = ser(int(H * 0.175))
 f_sub = sans(int(H * 0.047))
 
+# Rozmiar liczony z WYSOKOŚCI, więc przy kadrze węższym niż 16:9 - na przykład
+# przy 3:4 na Instagram - tytuł wychodzi poza szerokość. Tak samo dzieje się
+# przy długim tytule w 16:9: "Kto prowadzi polski balet" uciekło kiedyś poza
+# prawą krawędź. Zjeżdżamy więc w dół, dopóki linijka nie zmieści się w kolumnie.
+_pom = ImageDraw.Draw(Image.new("RGB", (1, 1)))
+DOSTEPNA = W - 2 * X
+
+
+def dopasuj(tekst, font, buduj, minimum=12):
+    if not tekst:
+        return font
+    rozmiar = font.size
+    while rozmiar > minimum and _pom.textlength(tekst, font=font) > DOSTEPNA:
+        rozmiar -= max(1, rozmiar // 40)
+        font = buduj(rozmiar)
+    return font
+
+
+_tit_z_wysokosci = f_tit.size
+f_tit = dopasuj(TITLE, f_tit, ser)
+# Gdy tytuł musiał zejść w dół, podtytuł schodzi razem z nim w tej samej
+# proporcji. Inaczej w kadrze 3:4 tytuł się kurczy, podtytuł zostaje duży
+# i hierarchia znika - przy pierwszej próbie wyszło 2:1 zamiast 4:1 jak w 16:9.
+if f_tit.size < _tit_z_wysokosci:
+    f_sub = sans(max(10, round(f_sub.size * f_tit.size / _tit_z_wysokosci)))
+f_sub = dopasuj(SUB, f_sub, sans)
+f_eye = dopasuj(" ".join(EYEBROW.upper()) if EYEBROW else "", f_eye, sans)
+
 pom = ImageDraw.Draw(Image.new("RGB", (1, 1)))
 h_eye = pom.textbbox((0, 0), EYEBROW, font=f_eye)[3]
 h_tit = pom.textbbox((0, 0), TITLE, font=f_tit)[3]
